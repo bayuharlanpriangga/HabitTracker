@@ -284,6 +284,53 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 #elemPickerMo .mt{color:var(--g1);border-bottom:1px solid var(--brd);padding-bottom:12px;margin-bottom:4px;}
 .ep-subtitle{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);letter-spacing:2px;text-align:center;margin-bottom:14px;}
 
+/* ─── CUSTOM CATEGORY PICKER ─────────────────────────────────── */
+.cat-picker{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0;}
+.cat-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 11px;border-radius:20px;
+  border:1px solid var(--brd);
+  background:var(--crd);
+  color:var(--txd);
+  font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.cat-chip:hover{border-color:var(--g1);color:var(--tx);}
+.cat-chip.active{
+  border-color:var(--g1);
+  background:color-mix(in srgb,var(--g1) 15%,transparent);
+  color:var(--g1);
+  box-shadow:0 0 10px color-mix(in srgb,var(--g1) 25%,transparent);
+}
+.cat-chip .cat-emoji{font-size:13px;}
+.cat-add-btn{
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;
+  color:var(--g2);background:transparent;border:1px solid var(--g2);
+  border-radius:3px;padding:3px 8px;cursor:pointer;transition:all .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.cat-add-btn:hover{background:color-mix(in srgb,var(--g2) 12%,transparent);}
+/* Cat manager modal list */
+.cat-list{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto;margin-bottom:12px;}
+.cat-list-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--crd);border:1px solid var(--brd);
+  border-radius:4px;padding:9px 11px;
+  transition:all .2s;
+}
+.cat-list-item:hover{border-color:var(--brdh);}
+.cat-list-item .cat-li-emoji{font-size:18px;flex-shrink:0;}
+.cat-list-item .cat-li-name{flex:1;font-size:13px;font-weight:600;color:var(--txb);}
+.cat-li-del{width:24px;height:24px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txd);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;flex-shrink:0;}
+.cat-li-del:hover{border-color:#ff2850;color:#ff2850;}
+.cat-add-row{display:flex;gap:7px;align-items:center;}
+.cat-emoji-input{width:52px;text-align:center;font-size:18px;}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:10px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:8px;}
+.emoji-opt{font-size:20px;text-align:center;padding:5px 2px;border-radius:3px;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent;}
+.emoji-opt:hover,.emoji-opt.sel{background:color-mix(in srgb,var(--g1) 18%,transparent);}
+
 /* ─── ELEMENT SCREEN ─────────────────────────────────────── */
 .es-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;max-width:620px;width:100%;}
 @media(max-width:460px){.es-grid{grid-template-columns:repeat(2,1fr);gap:9px;}}
@@ -302,6 +349,65 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 .ec.wind{border-color:rgba(0,255,160,.3);}.ec.wind:hover{border-color:#00ffa0;box-shadow:0 0 22px rgba(0,255,160,.25);}.ec.wind .ec-name{color:#60ffcc;}.ec.wind::before{background:radial-gradient(circle,rgba(0,255,160,.1),transparent);}
 .ec.void{border-color:rgba(180,0,255,.3);}.ec.void:hover{border-color:#b400ff;box-shadow:0 0 22px rgba(180,0,255,.3);}.ec.void .ec-name{color:#dd80ff;}.ec.void::before{background:radial-gradient(circle,rgba(180,0,255,.1),transparent);}
 .ec.earth{border-color:rgba(160,120,40,.3);}.ec.earth:hover{border-color:#a07828;box-shadow:0 0 22px rgba(160,120,40,.25);}.ec.earth .ec-name{color:#d4a84b;}.ec.earth::before{background:radial-gradient(circle,rgba(160,120,40,.1),transparent);}
+/* ─── ATTRIBUTE SYSTEM ───────────────────────────────────────── */
+.attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.attr-card{background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:10px 12px;position:relative;overflow:hidden;transition:all .25s;}
+.attr-card:hover{border-color:var(--brdh);}
+.attr-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--ac,var(--g1));}
+.attr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.attr-icon{font-size:18px;}
+.attr-name{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--ac,var(--g1));letter-spacing:2px;}
+.attr-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--txb);line-height:1;}
+.attr-max{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-left:2px;}
+.attr-bar{height:4px;background:var(--brd);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.attr-bar-fill{height:100%;background:var(--ac,var(--g1));border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 6px var(--ac,var(--g1));}
+.attr-global{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);display:flex;justify-content:space-between;}
+.attr-global .hi{color:var(--ac,var(--g1));}
+/* Rank badge per attribute */
+.attr-rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:900;border:1px solid currentColor;}
+
+/* Radar chart */
+.radar-wrap{display:flex;align-items:center;justify-content:center;padding:8px 0;}
+
+/* Test modal */
+.test-step{display:none;}.test-step.on{display:block;}
+.test-q{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--txb);line-height:1.5;margin-bottom:14px;}
+.test-opts{display:flex;flex-direction:column;gap:7px;}
+.test-opt{
+  background:var(--crd);border:1px solid var(--brd);border-radius:4px;
+  padding:11px 14px;cursor:pointer;font-size:13px;color:var(--tx);
+  font-family:'Rajdhani',sans-serif;font-weight:600;transition:all .2s;
+  text-align:left;-webkit-tap-highlight-color:transparent;
+}
+.test-opt:hover,.test-opt:active{border-color:var(--g1);background:color-mix(in srgb,var(--g1) 10%,transparent);color:var(--g1);}
+.test-opt.selected{border-color:var(--g1);background:color-mix(in srgb,var(--g1) 15%,transparent);color:var(--g1);}
+.test-progress-bar{height:3px;background:var(--brd);border-radius:2px;overflow:hidden;margin-bottom:14px;}
+.test-progress-fill{height:100%;background:linear-gradient(90deg,var(--xs),var(--g1));border-radius:2px;transition:width .4s;}
+.test-section-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+/* AI result panel */
+.ai-attr-result{background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:12px;margin-bottom:10px;}
+.ai-attr-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--brd) 60%,transparent);}
+.ai-attr-row:last-child{border-bottom:none;}
+.ai-attr-icon{font-size:14px;width:20px;text-align:center;}
+.ai-attr-name{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;width:36px;}
+.ai-attr-bar-wrap{flex:1;height:5px;background:var(--brd);border-radius:2px;overflow:hidden;}
+.ai-attr-bar-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.ai-attr-score{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;width:28px;text-align:right;}
+.ai-attr-rank-badge{font-family:'Share Tech Mono',monospace;font-size:7px;padding:1px 5px;border-radius:2px;border:1px solid;letter-spacing:1px;width:26px;text-align:center;}
+
+/* Attribute selector card */
+.attr-sel-card{
+  background:var(--crd);border:1px solid var(--brd);border-radius:5px;
+  padding:12px;cursor:pointer;transition:all .25s;
+  -webkit-tap-highlight-color:transparent;
+  border-left:3px solid var(--ac,var(--g1));
+}
+.attr-sel-card:hover,.attr-sel-card:active{
+  border-color:var(--ac,var(--g1));
+  background:var(--crd2);
+  box-shadow:0 0 14px color-mix(in srgb,var(--ac,var(--g1)) 20%,transparent);
+  transform:translateY(-1px);
+}
 
 </style>
 </head>
@@ -382,6 +488,35 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
       </div>
     </div>
 
+    <!-- PASSIVE SKILL CARD -->
+    <div id="passiveSkillCard" style="margin-bottom:14px;"></div>
+
+    <!-- ATTRIBUTE SYSTEM — full width above two-col -->
+    <div class="box" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div class="blbl" style="margin-bottom:2px;">▶ HUNTER ATTRIBUTES</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:1px;" id="attrLastTest">No test taken yet — take the attribute test to unlock your stats</div>
+        </div>
+        <button class="btn bp" onclick="openAttrTest()" style="font-size:11px;">⚡ TAKE ATTRIBUTE TEST</button>
+      </div>
+
+      <!-- Attribute cards grid -->
+      <div class="attr-grid" id="attrGrid">
+        <!-- filled by JS -->
+      </div>
+
+      <!-- Radar chart -->
+      <div class="radar-wrap">
+        <canvas id="attrRadar" width="220" height="220"></canvas>
+      </div>
+
+      <!-- Global comparison note -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);text-align:center;letter-spacing:1px;margin-top:6px;" id="attrGlobalNote">
+        ◈ Attributes are compared against global average estimates based on general population data ◈
+      </div>
+    </div>
+
     <div class="prof-cols">
       <div style="display:flex;flex-direction:column;gap:12px;">
         <!-- Edit profile -->
@@ -404,6 +539,23 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
             <div class="scard"><div class="sc-l">THIS WEEK</div><div class="sc-v" style="font-size:15px;" id="ps-wk">0</div></div>
             <div class="scard"><div class="sc-l">THIS MONTH</div><div class="sc-v" style="font-size:15px;" id="ps-mo">0</div></div>
             <div class="scard"><div class="sc-l">THIS YEAR</div><div class="sc-v" style="font-size:15px;" id="ps-yr">0</div></div>
+          </div>
+        </div>
+
+        <!-- AI Integration Settings -->
+        <div class="box setsec" id="aiSettingsPanel">
+          <!-- filled by renderAISettings() -->
+        </div>
+
+        <!-- Data Management -->
+        <div class="box">
+          <div class="blbl">▶ DATA</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <button class="btn bg" onclick="exportExcel()" style="width:100%;">⬇ EXPORT EXCEL</button>
+            <button class="btn bp" onclick="exportPDF()" style="width:100%;">⬇ EXPORT PDF</button>
+            <button class="btn bc" onclick="exportBackup()" style="width:100%;">⬇ BACKUP JSON</button>
+            <button class="btn bc" onclick="importData()" style="width:100%;">⬆ IMPORT JSON</button>
+            <button class="btn bd" onclick="resetAll()" style="width:100%;margin-top:4px;">⚠ RESET ALL</button>
           </div>
         </div>
       </div>
@@ -465,15 +617,15 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
           </div>
 
           <!-- Optional fields user CAN configure -->
-          <div class="f2">
-            <div class="fg"><label class="fl">Category</label>
-              <select class="fs" id="qCat">
-                <option value="Fitness">💪 Fitness</option><option value="Mind">🧠 Mind</option>
-                <option value="Work">💼 Work</option><option value="Health">❤️ Health</option>
-                <option value="Social">👥 Social</option><option value="Creative">🎨 Creative</option>
-                <option value="Other">⚡ Other</option>
-              </select>
+          <div class="fg">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+              <label class="fl" style="margin-bottom:0;">Category</label>
+              <button type="button" class="cat-add-btn" onclick="openCatManager('q')">+ MANAGE</button>
             </div>
+            <div class="cat-picker" id="qCatPicker"></div>
+            <input type="hidden" id="qCat" value="Fitness"/>
+          </div>
+          <div class="f2">
             <div class="fg"><label class="fl">Target / Period</label>
               <input class="fi" id="qTarget" type="number" min="1" max="999" value="1"/>
             </div>
@@ -650,16 +802,15 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
     <input type="hidden" id="nodeAiRankVal" value="B"/>
     <input type="hidden" id="nodeAiXPVal" value="200"/>
 
-    <div class="f2">
-      <div class="fg"><label class="fl">Category</label>
-        <select class="fs" id="nodeCat">
-          <option value="Programming">💻 Programming</option><option value="Design">🎨 Design</option>
-          <option value="Language">🌏 Language</option><option value="Math">📐 Math</option>
-          <option value="Science">🔬 Science</option><option value="Business">💼 Business</option>
-          <option value="Fitness">💪 Fitness</option><option value="Art">🎭 Art</option>
-          <option value="Other">⚡ Other</option>
-        </select>
+    <div class="fg">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+        <label class="fl" style="margin-bottom:0;">Category</label>
+        <button type="button" class="cat-add-btn" onclick="openCatManager('node')">+ MANAGE</button>
       </div>
+      <div class="cat-picker" id="nodeCatPicker"></div>
+      <input type="hidden" id="nodeCat" value="Programming"/>
+    </div>
+    <div class="f2">
       <div class="fg"><label class="fl">Required Level</label>
         <input class="fi" id="nodeReqLvl" type="number" min="1" max="100" value="1"/>
       </div>
@@ -690,6 +841,88 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 <!-- ELEMENT CONFIRM -->
 <div id="cfmOvl" onclick="if(event.target===this)closeCfm()">
   <div id="cfmBox"></div>
+</div>
+
+<!-- CATEGORY MANAGER MODAL -->
+<div class="mo" id="catManagerMo">
+  <div class="mbox" style="max-width:440px;">
+    <div class="mt">◈ MANAGE CATEGORIES</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-bottom:12px;" id="catMgrCtx">QUEST CATEGORIES</div>
+
+    <!-- Existing categories list -->
+    <div class="cat-list" id="catMgrList"></div>
+
+    <!-- Add new category -->
+    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:12px;margin-bottom:12px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-bottom:10px;">ADD NEW CATEGORY</div>
+      <!-- Emoji quick picks -->
+      <div class="emoji-grid" id="catEmojiGrid"></div>
+      <div class="cat-add-row">
+        <input class="fi cat-emoji-input" id="catNewEmoji" maxlength="2" placeholder="😀"/>
+        <input class="fi" id="catNewName" placeholder="Category name..." maxlength="24" style="flex:1;" onkeydown="if(event.key==='Enter')addCat()"/>
+        <button class="btn bp" style="padding:8px 12px;font-size:11px;" onclick="addCat()">+ ADD</button>
+      </div>
+    </div>
+
+    <div class="mact">
+      <button class="btn bc" onclick="closeCatManager()">DONE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTE TEST MODAL -->
+<div class="mo" id="attrTestMo">
+  <div class="mbox" style="max-width:520px;">
+    <div class="mt" id="attrTestTitle">⚡ ATTRIBUTE ANALYSIS TEST</div>
+
+    <!-- Attribute selector area (shown first) -->
+    <div id="testAttrSelectorArea" style="display:none;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);letter-spacing:2px;margin-bottom:12px;">◈ SELECT ATTRIBUTE TO TEST — 10 QUESTIONS EACH ◈</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="testAttrSelector"></div>
+    </div>
+
+    <!-- Progress bar + step label (shown during test) -->
+    <div id="testQArea">
+      <div class="test-progress-bar" style="margin-bottom:5px;">
+        <div class="test-progress-fill" id="testProgFill" style="width:0%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);" id="testStepLbl">Q 1 / 10</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);" id="testAttrLbl">💪 STRENGTH</span>
+      </div>
+      <!-- Questions container -->
+      <div id="testQuestionArea" style="display:none;">
+        <div class="test-section-lbl" id="testSectionLbl">PHYSICAL STRENGTH</div>
+        <div class="test-q" id="testQ">Loading...</div>
+        <div class="test-opts" id="testOpts"></div>
+      </div>
+    </div>
+
+    <!-- Result view -->
+    <div id="testResultArea" style="display:none;">
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:30px;margin-bottom:5px;" id="resIcon">⚡</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--g1);letter-spacing:3px;margin-bottom:3px;">TEST COMPLETE</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;">AI analysis below</div>
+      </div>
+      <div id="testResultGrid"></div>
+      <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;">◈ AI RECOMMENDATION</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--tx);line-height:1.7;" id="testAiAnalysis"></div>
+      </div>
+    </div>
+
+    <div class="mact" id="testMact">
+      <button class="btn bc" onclick="closeAttrTest()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL STANDARD EDITOR MODAL -->
+<div class="mo" id="globalEditorMo">
+  <div class="mbox" style="max-width:480px;">
+    <div id="globalEditorInner"></div>
+  </div>
 </div>
 
 <!-- LEVEL UP + NOTIF -->
@@ -902,7 +1135,15 @@ function setAIState(state){
 
 function autoApplyCat(lower){
   const catMap=[['Fitness','workout gym run cycling swim yoga exercise training pushup squat plank walk jog sport'],['Mind','study learn read meditate meditation mindfulness gratitude journal reflect book course'],['Work','meeting project coding programming deploy build develop work task client presentation'],['Health','sleep water vitamins medicine doctor checkup meal diet nutrition hygiene brush'],['Social','family friend date hangout social networking connect community volunteer'],['Creative','draw sketch paint music guitar piano compose write story blog photo video art']];
-  for(const[cat,words]of catMap){if(words.split(' ').some(w=>lower.includes(w))){document.getElementById('qCat').value=cat;return;}}
+  for(const[cat,words]of catMap){
+    if(words.split(' ').some(w=>lower.includes(w))){
+      // Only apply if that category exists in user's list
+      const cats=getCats('quest');
+      const match=cats.find(c=>c.name===cat);
+      if(match){document.getElementById('qCat').value=cat;renderCatPicker('q',cat);}
+      return;
+    }
+  }
 }
 
 // Roadmap node AI handler
@@ -941,6 +1182,583 @@ function onNodeTitleInput(){
 /* ───────────────────────────────────────────────────────────────
    XP / LEVEL
    ─────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   ATTRIBUTE SYSTEM v2 — Per-attribute deep test, adaptive global standard
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── ATTRIBUTE DEFINITIONS ─────────────────────────────────── */
+const ATTRS=[
+  {id:'STR',name:'STRENGTH',   icon:'💪',desc:'Physical power & fitness',     color:'#ff6040'},
+  {id:'INT',name:'INTELLIGENCE',icon:'🧠',desc:'Learning speed & knowledge',   color:'#8888ff'},
+  {id:'AGI',name:'AGILITY',    icon:'⚡',desc:'Speed, productivity & adapt',   color:'#ffe820'},
+  {id:'VIT',name:'VITALITY',   icon:'❤️',desc:'Health, energy & recovery',    color:'#ff4466'},
+  {id:'FOC',name:'FOCUS',      icon:'🎯',desc:'Concentration & discipline',    color:'#00ffaa'},
+  {id:'SOC',name:'SOCIAL',     icon:'🌐',desc:'Communication & relationships', color:'#00aaff'},
+];
+
+/* ── DEFAULT GLOBAL STANDARDS (adaptive — stored in localStorage)
+   Keys: globalAvg, globalTop10, globalBot10
+   Updated automatically as user community data grows.
+   Users can reset to default without code change.
+   ─────────────────────────────────────────────────────────────── */
+const DEFAULT_GLOBAL = {
+  STR:{avg:38,top10:78,bot10:12,label:'Global: sedentary-dominant population'},
+  INT:{avg:52,top10:82,bot10:22,label:'Global: avg literacy + limited self-study'},
+  AGI:{avg:41,top10:79,bot10:14,label:'Global: avg productivity studies 2023'},
+  VIT:{avg:44,top10:80,bot10:16,label:'Global: WHO health benchmark estimates'},
+  FOC:{avg:35,top10:74,bot10:10,label:'Global: attention economy impact data'},
+  SOC:{avg:48,top10:82,bot10:18,label:'Global: communication skill surveys'},
+};
+
+function getGlobal(attrId){
+  if(!S.globalStandard)S.globalStandard={};
+  return S.globalStandard[attrId] || DEFAULT_GLOBAL[attrId];
+}
+
+/* ── 10 DEEP QUESTIONS PER ATTRIBUTE ─────────────────────────
+   Each Q has 5 options scored 0–100.
+   Adaptive: scores are calibrated against global standard on display.
+   ─────────────────────────────────────────────────────────────── */
+const ATTR_TESTS={
+  STR:[
+    {q:'How many days per week do you do intentional physical exercise?',
+     opts:[{t:'0 — I never exercise',s:5},{t:'1–2 days (light activity)',s:25},{t:'3–4 days (moderate workout)',s:55},{t:'5–6 days (dedicated training)',s:78},{t:'Every day (elite athlete level)',s:95}]},
+    {q:'What is your typical cardiovascular endurance like? (e.g. running)',
+     opts:[{t:'I get breathless on stairs',s:8},{t:'I can walk 30min but struggle to run',s:28},{t:'I can run 2–3km at a comfortable pace',s:50},{t:'I can run 5–10km without stopping',s:72},{t:'I can run 15km+ or do intense cardio for 60+ min',s:92}]},
+    {q:'How would you rate your functional strength? (lifting, carrying, etc.)',
+     opts:[{t:'Very weak — struggle with basic tasks',s:10},{t:'Below average for my age',s:28},{t:'Average — I can handle normal physical tasks',s:48},{t:'Above average — noticeably stronger than peers',s:70},{t:'Exceptional — I train strength seriously',s:90}]},
+    {q:'How consistent is your exercise routine over the past 3 months?',
+     opts:[{t:'No routine at all',s:5},{t:'Sporadic — maybe once or twice a month',s:18},{t:'Inconsistent — 1–2x/week most weeks',s:38},{t:'Fairly consistent — rarely miss sessions',s:65},{t:'Very consistent — I almost never skip',s:88}]},
+    {q:'Can you complete 30 consecutive bodyweight squats without stopping?',
+     opts:[{t:'No — I would struggle at 10',s:12},{t:'Maybe 15–20 before stopping',s:30},{t:'Yes, just about 30',s:50},{t:'Yes, comfortably — could do 50',s:70},{t:'Easily 30+ — this is basic warmup for me',s:88}]},
+    {q:'How is your physical recovery after intense activity?',
+     opts:[{t:'I am sore for 3–5 days',s:15},{t:'2–3 days recovery needed',s:30},{t:'About 1–2 days',s:50},{t:'I recover in under 24 hours',s:70},{t:'Very fast — optimized recovery protocols',s:88}]},
+    {q:'What best describes your overall body composition and fitness level?',
+     opts:[{t:'Significantly overweight or underweight with low fitness',s:10},{t:'Out of shape — some fitness but significant room to improve',s:25},{t:'Average fitness for my age group',s:45},{t:'Fit — visible muscle, low body fat, good endurance',s:68},{t:'Athletic/lean — competitive fitness level',s:88}]},
+    {q:'How often do you incorporate strength training (weights/resistance)?',
+     opts:[{t:'Never',s:10},{t:'Rarely — once a month or less',s:22},{t:'Sometimes — 1x/week',s:42},{t:'Regularly — 2–3x/week',s:65},{t:'Seriously — 4+x/week, progressive overload',s:88}]},
+    {q:'What is your flexibility like? (touching toes, mobility)',
+     opts:[{t:'Very stiff — cannot touch knees',s:12},{t:'Below average — cannot touch toes',s:28},{t:'Average — can touch toes with effort',s:48},{t:'Good — comfortable full range of motion',s:68},{t:'Excellent — very flexible, regular mobility work',s:85}]},
+    {q:'How physically active is your daily life outside of workouts?',
+     opts:[{t:'Sedentary — desk all day, minimal movement',s:10},{t:'Lightly active — some walking',s:28},{t:'Moderately active — regular walking 30+ min/day',s:50},{t:'Active — physical job or 10,000+ steps daily',s:70},{t:'Highly active — physical labor or sport daily',s:88}]},
+  ],
+  INT:[
+    {q:'How quickly do you typically master a new skill or subject?',
+     opts:[{t:'Much slower than most — I need extensive repetition',s:15},{t:'Slower than average',s:32},{t:'About average speed for my peers',s:52},{t:'Faster than most — I grasp concepts quickly',s:72},{t:'Very fast — I can self-teach almost anything',s:90}]},
+    {q:'How many books, courses, or structured learning programs do you complete per year?',
+     opts:[{t:'None',s:8},{t:'1–2',s:28},{t:'3–6',s:50},{t:'7–12',s:70},{t:'12+ (continuous aggressive learner)',s:88}]},
+    {q:'When given a complex multi-step problem, what happens?',
+     opts:[{t:'I feel overwhelmed and avoid it',s:12},{t:'I try but give up before solving it',s:28},{t:'I can solve it with significant time and effort',s:48},{t:'I break it down systematically and solve it',s:70},{t:'I enjoy complex problems — this is my strength',s:90}]},
+    {q:'How well do you retain information you have learned?',
+     opts:[{t:'Very poorly — I forget almost everything quickly',s:10},{t:'Below average retention',s:25},{t:'Average — I remember the key points',s:48},{t:'Good retention — I can recall and apply most things',s:70},{t:'Excellent — near-perfect recall, use spaced repetition',s:88}]},
+    {q:'How critically do you evaluate information before accepting it as true?',
+     opts:[{t:'I usually accept things at face value',s:20},{t:'I sometimes question but often believe sources',s:35},{t:'I apply moderate critical thinking',s:52},{t:'I question most things and verify with multiple sources',s:72},{t:'Strong critical thinker — I challenge assumptions rigorously',s:90}]},
+    {q:'Can you learn and apply a new technical skill (coding, design, etc.) independently?',
+     opts:[{t:'No — I need extensive guided teaching',s:12},{t:'With significant struggle and outside help',s:28},{t:'Yes, but it takes considerable time',s:48},{t:'Yes — I am comfortable learning independently',s:70},{t:'Very comfortably — independent learning is my default mode',s:88}]},
+    {q:'How do you perform when connecting ideas across different domains?',
+     opts:[{t:'I struggle to see connections between topics',s:15},{t:'I sometimes notice connections',s:32},{t:'I can connect related domains',s:52},{t:'I frequently find unexpected cross-domain connections',s:72},{t:'I excel at interdisciplinary thinking',s:90}]},
+    {q:'What is your working memory like? (holding multiple things in mind at once)',
+     opts:[{t:'Very limited — I lose track easily',s:12},{t:'Below average',s:28},{t:'Average',s:48},{t:'Above average — can manage complex mental models',s:70},{t:'Excellent — hold large complex structures in mind',s:88}]},
+    {q:'How structured is your personal knowledge management? (notes, systems)',
+     opts:[{t:'No system — I rely on memory alone',s:15},{t:'Basic notes but disorganized',s:30},{t:'Some organization — notes and bookmarks',s:50},{t:'Good system — organized notes, reviews regularly',s:70},{t:'Advanced PKM system (Obsidian, Anki, Zettelkasten, etc.)',s:88}]},
+    {q:'How often do you deliberately seek out challenging intellectual content?',
+     opts:[{t:'Rarely — I prefer easy entertainment',s:10},{t:'Occasionally',s:28},{t:'A few times per week',s:50},{t:'Daily — I actively seek hard content',s:70},{t:'Constantly — I am always reading, researching, creating',s:88}]},
+  ],
+  AGI:[
+    {q:'What percentage of your planned daily tasks do you typically complete?',
+     opts:[{t:'Under 25% — I rarely follow through',s:10},{t:'25–40%',s:28},{t:'40–60%',s:48},{t:'60–80%',s:68},{t:'80–95% — highly optimized execution',s:88}]},
+    {q:'How fast do you adapt when unexpected changes disrupt your plans?',
+     opts:[{t:'I get stressed and struggle significantly',s:10},{t:'It takes me days to re-adjust',s:25},{t:'I adapt within a day or two',s:48},{t:'I adapt quickly — usually within hours',s:68},{t:'I thrive in change — I adapt almost instantly',s:88}]},
+    {q:'How many hours of deep focused productive work do you complete daily?',
+     opts:[{t:'Less than 1 hour',s:12},{t:'1–2 hours',s:30},{t:'2–4 hours',s:52},{t:'4–6 hours',s:70},{t:'6+ hours consistently',s:88}]},
+    {q:'How do you handle multiple simultaneous responsibilities?',
+     opts:[{t:'I can barely manage one thing at a time',s:10},{t:'I struggle with 2+ parallel tasks',s:25},{t:'I manage okay with some overwhelm',s:48},{t:'I handle multiple threads well',s:68},{t:'I excel at parallel workstreams — systematic and efficient',s:88}]},
+    {q:'How quickly do you make decisions when facing uncertainty?',
+     opts:[{t:'I freeze or delay indefinitely',s:8},{t:'I take much longer than necessary',s:25},{t:'Average decision speed',s:48},{t:'Fast — comfortable making calls with incomplete info',s:70},{t:'Very fast — decisive under pressure',s:88}]},
+    {q:'Do you have a structured productivity system? (GTD, time-blocking, etc.)',
+     opts:[{t:'No — I work reactively with no system',s:10},{t:'Basic to-do list only',s:25},{t:'Some structure — weekly planning',s:48},{t:'Consistent system — daily + weekly review',s:70},{t:'Advanced system — automated, optimized, reviewed regularly',s:88}]},
+    {q:'How do you handle context-switching between very different tasks?',
+     opts:[{t:'Very poorly — I need long recovery time',s:10},{t:'Below average',s:25},{t:'Average with moderate difficulty',s:48},{t:'Good — I can switch with minimal friction',s:70},{t:'Excellent — I context-switch rapidly and effectively',s:88}]},
+    {q:'How often do you learn new tools, software, or workflows?',
+     opts:[{t:'Rarely — I stick to what I know',s:12},{t:'Once in a while when forced',s:28},{t:'Occasionally — when clearly beneficial',s:48},{t:'Regularly — I actively seek better tools',s:68},{t:'Constantly — I am always optimizing my workflow',s:88}]},
+    {q:'How well do you prioritize tasks by impact vs urgency?',
+     opts:[{t:'I usually work on whatever comes first',s:12},{t:'I sometimes think about priority',s:28},{t:'I apply basic prioritization',s:48},{t:'I use structured prioritization (Eisenhower, MoSCoW, etc.)',s:70},{t:'Systematic prioritization is deeply embedded in my workflow',s:88}]},
+    {q:'How do you respond to setbacks or failures in projects?',
+     opts:[{t:'I give up or disengage',s:8},{t:'I recover slowly and lose momentum',s:25},{t:'I recover within a week',s:48},{t:'I bounce back quickly and adjust course',s:68},{t:'Failures fuel me — I iterate and move faster after setbacks',s:88}]},
+  ],
+  VIT:[
+    {q:'How many hours of quality sleep do you get per night on average?',
+     opts:[{t:'Under 5 hours (severe deficit)',s:5},{t:'5–6 hours (consistently under-rested)',s:22},{t:'6–7 hours (somewhat adequate)',s:45},{t:'7–8 hours (recommended range)',s:72},{t:'8–9 hours with consistent schedule',s:90}]},
+    {q:'How would you rate your overall diet quality?',
+     opts:[{t:'Mostly junk food, no planning',s:8},{t:'Below average — some healthy choices',s:25},{t:'Mixed — sometimes healthy, sometimes not',s:48},{t:'Mostly healthy — balanced and intentional',s:70},{t:'Optimized — tracked, whole foods, meal prep',s:88}]},
+    {q:'How is your mental health and emotional resilience on average?',
+     opts:[{t:'Frequently overwhelmed, anxious, or depressed',s:10},{t:'Often stressed with limited coping skills',s:25},{t:'Average — manageable with occasional struggles',s:48},{t:'Good — healthy coping, mostly positive mindset',s:70},{t:'Excellent — resilient, calm, strong mental health practices',s:88}]},
+    {q:'How much water do you drink daily?',
+     opts:[{t:'Less than 1L (severely under-hydrated)',s:8},{t:'1–1.5L',s:25},{t:'1.5–2L (recommended minimum)',s:50},{t:'2–3L',s:70},{t:'3L+ with electrolytes and tracking',s:88}]},
+    {q:'How often do you get preventative health checkups?',
+     opts:[{t:'Never — I only go when very sick',s:10},{t:'Rarely — last checkup was 3+ years ago',s:25},{t:'Occasionally — every 1–2 years',s:50},{t:'Regularly — annual checkups',s:70},{t:'Proactively — full panels, biomarkers tracked',s:88}]},
+    {q:'How is your energy level throughout a typical day?',
+     opts:[{t:'Constantly fatigued — low energy all day',s:8},{t:'Low energy, frequent crashes',s:22},{t:'Average — peaks and troughs',s:45},{t:'Consistently good energy',s:68},{t:'Excellent sustained energy — no afternoon crashes',s:88}]},
+    {q:'Do you have any chronic pain, health conditions, or recurring illness?',
+     opts:[{t:'Severe — significantly impacts daily life',s:8},{t:'Moderate — impacts me regularly',s:25},{t:'Mild — occasional issues',s:48},{t:'Minimal — rarely affects me',s:72},{t:'None — excellent baseline health',s:90}]},
+    {q:'How active is your cardiovascular health routine?',
+     opts:[{t:'No cardio activity',s:10},{t:'Light walking occasionally',s:25},{t:'Some cardio 1–2x/week',s:48},{t:'Regular cardio 3–4x/week',s:70},{t:'Daily zone-2 cardio + VO2 max training',s:88}]},
+    {q:'How well do you manage your stress levels?',
+     opts:[{t:'Poorly — stress significantly affects me',s:10},{t:'Below average coping strategies',s:25},{t:'Average — I get by',s:48},{t:'Good — consistent stress-reduction practices',s:70},{t:'Excellent — meditation, breathwork, structured recovery',s:88}]},
+    {q:'What describes your relationship with alcohol, caffeine, and stimulants?',
+     opts:[{t:'Heavy use negatively impacting health',s:8},{t:'Moderate use affecting sleep/recovery',s:25},{t:'Normal social use — some impact',s:50},{t:'Mindful use — mostly in control',s:70},{t:'Minimal or zero — fully optimized',s:88}]},
+  ],
+  FOC:[
+    {q:'How long can you sustain uninterrupted deep focus on a single task?',
+     opts:[{t:'Under 10 minutes before I am distracted',s:8},{t:'10–20 minutes',s:22},{t:'25–45 minutes (one Pomodoro session)',s:45},{t:'45–90 minutes consistently',s:68},{t:'2+ hours of flow state regularly',s:88}]},
+    {q:'How consistent are you with your daily habits and commitments?',
+     opts:[{t:'Rarely follow through — less than 30%',s:8},{t:'Sometimes — 30–50% consistency',s:25},{t:'About half the time',s:45},{t:'70–85% consistent',s:68},{t:'90%+ — I rarely break commitments',s:88}]},
+    {q:'How well do you resist digital distractions during work? (phone, social media)',
+     opts:[{t:'I check my phone every few minutes',s:5},{t:'Frequently distracted — hard to resist',s:20},{t:'Moderate — I catch myself but struggle',s:42},{t:'Good — I can go 1–2 hours phone-free',s:65},{t:'Excellent — phone is in another room during deep work',s:85}]},
+    {q:'Do you use any intentional focus techniques? (Pomodoro, Deep Work, etc.)',
+     opts:[{t:'No — I just try to work',s:12},{t:'I have heard of them but do not apply them',s:22},{t:'I occasionally use some techniques',s:45},{t:'I consistently use 1–2 focus methods',s:68},{t:'I have an advanced personalized focus system',s:88}]},
+    {q:'How do you handle monotonous or tedious but important tasks?',
+     opts:[{t:'I avoid them or put them off indefinitely',s:8},{t:'I procrastinate significantly',s:22},{t:'I get them done but with difficulty',s:45},{t:'I power through them with systems',s:68},{t:'I handle them first — no procrastination on important tasks',s:88}]},
+    {q:'How clearly defined are your daily priorities and goals each morning?',
+     opts:[{t:'I wake up with no plan',s:8},{t:'Vague idea of what I should do',s:22},{t:'I have a basic list',s:45},{t:'Clear written priorities every day',s:68},{t:'Strategic daily plan aligned with long-term goals',s:88}]},
+    {q:'How do you respond when you fail to complete your planned tasks?',
+     opts:[{t:'I give up and feel defeated',s:8},{t:'I feel bad but do nothing differently',s:22},{t:'I try harder the next day',s:45},{t:'I analyze why and adjust',s:68},{t:'I review, adapt, and recover immediately',s:88}]},
+    {q:'Can you work effectively in distracting environments?',
+     opts:[{t:'Impossible — any distraction stops me',s:8},{t:'Very difficult — I need silence',s:22},{t:'Manageable with some difficulty',s:45},{t:'Mostly yes — I can filter most distractions',s:68},{t:'Yes — I can enter focus mode anywhere',s:85}]},
+    {q:'How intentional is your use of time? (time tracking, scheduling)',
+     opts:[{t:'No awareness of time use',s:8},{t:'I have a rough mental idea',s:22},{t:'Basic scheduling',s:45},{t:'I block time and protect key hours',s:68},{t:'Full time audit, tracked, deeply intentional',s:88}]},
+    {q:'How well do you delay gratification for long-term goals?',
+     opts:[{t:'Very poorly — I choose immediate rewards almost always',s:8},{t:'Below average',s:22},{t:'Average',s:45},{t:'Good — I regularly choose long-term over short-term',s:68},{t:'Excellent — strong delayed gratification across all areas',s:88}]},
+  ],
+  SOC:[
+    {q:'How comfortable are you with public speaking or presenting to groups?',
+     opts:[{t:'I avoid it at all costs',s:8},{t:'Very uncomfortable — high anxiety',s:22},{t:'Manageable but nervous',s:45},{t:'Comfortable — I present regularly',s:68},{t:'Confident — I enjoy and seek speaking opportunities',s:88}]},
+    {q:'How strong and active is your professional/social network?',
+     opts:[{t:'I have almost no professional network',s:8},{t:'Small — mostly passive connections',s:22},{t:'Moderate — some valuable relationships',s:45},{t:'Strong — active, supportive, high-quality network',s:68},{t:'Exceptional — known in my field, key relationships',s:88}]},
+    {q:'How would others rate your communication and listening skills?',
+     opts:[{t:'Frequently misunderstood or disconnected',s:8},{t:'Below average',s:22},{t:'Average — gets along with most people',s:45},{t:'Good — known as a clear communicator',s:68},{t:'Excellent — people seek my communication and counsel',s:88}]},
+    {q:'How skilled are you at reading and navigating social dynamics?',
+     opts:[{t:'Often confused by social cues',s:8},{t:'Below average emotional intelligence',s:22},{t:'Average EQ — I manage okay',s:45},{t:'Good — I read situations and people well',s:68},{t:'High EQ — I excel in complex social environments',s:88}]},
+    {q:'How confident are you in initiating new relationships (professional or social)?',
+     opts:[{t:'Very hesitant — I rarely approach people',s:8},{t:'Shy — I wait for others to initiate',s:22},{t:'Neutral — depends on context',s:45},{t:'Confident — I comfortably initiate connections',s:68},{t:'Very proactive — I build relationships strategically',s:88}]},
+    {q:'How well do you handle conflict and disagreement?',
+     opts:[{t:'I avoid conflict at all costs',s:8},{t:'I struggle — confrontation is very difficult',s:22},{t:'I manage but it is uncomfortable',s:45},{t:'I address conflict directly and constructively',s:68},{t:'I excel at conflict resolution — I seek win-win outcomes',s:88}]},
+    {q:'How persuasive are you in professional contexts?',
+     opts:[{t:'I struggle to convince others',s:8},{t:'Below average persuasion ability',s:22},{t:'Average — I convince people sometimes',s:45},{t:'Good — I can influence most situations',s:68},{t:'Very persuasive — I negotiate and lead effectively',s:88}]},
+    {q:'How often do you actively invest in relationships? (check-ins, events, mentoring)',
+     opts:[{t:'Rarely — relationships happen passively',s:8},{t:'Occasionally',s:22},{t:'Sometimes — I try to stay connected',s:45},{t:'Regularly — I invest in key relationships',s:68},{t:'Consistently — relationship building is a core habit',s:88}]},
+    {q:'How do you handle networking events or new social situations?',
+     opts:[{t:'I avoid them',s:8},{t:'I attend but feel very uncomfortable',s:22},{t:'I manage — neutral experience',s:45},{t:'I enjoy them — comfortable starting conversations',s:68},{t:'I thrive — I am energized by meeting new people',s:88}]},
+    {q:'Can you effectively lead, motivate, and align a team or group?',
+     opts:[{t:'No — I prefer to follow',s:8},{t:'Below average leadership skills',s:22},{t:'Average — I can lead small groups',s:45},{t:'Good leader — people trust and follow me',s:68},{t:'Strong natural leader — I inspire and align teams',s:88}]},
+  ],
+};
+
+/* ── RANK + TIER SYSTEM ─────────────────────────────────────── */
+function getAttrRank(score){
+  if(score>=90)return{rank:'S',color:'#ffd700'};
+  if(score>=75)return{rank:'A',color:'#ff9800'};
+  if(score>=60)return{rank:'B',color:'#9c27b0'};
+  if(score>=45)return{rank:'C',color:'#2196f3'};
+  if(score>=30)return{rank:'D',color:'#4caf50'};
+  return{rank:'E',color:'#888'};
+}
+
+/* ── PER-ATTRIBUTE TEST ENGINE ─────────────────────────────── */
+let activeTestAttr=null, testStep=0, testAnswers=[];
+
+function openAttrTest(attrId){
+  if(!attrId){
+    showAttrSelector(); return;
+  }
+  activeTestAttr=attrId;
+  testStep=0; testAnswers=[];
+  const attr=ATTRS.find(a=>a.id===attrId);
+
+  document.getElementById('attrTestTitle').textContent=attr.icon+' '+attr.name+' — DEEP TEST';
+  document.getElementById('testAttrLbl').textContent=attr.icon+' '+attr.name;
+  document.getElementById('testResultArea').style.display='none';
+  document.getElementById('testAttrSelectorArea').style.display='none';
+  document.getElementById('testQArea').style.display='block';
+  document.getElementById('testQuestionArea').style.display='block';
+  document.getElementById('testProgFill').style.width='0%';
+  document.getElementById('testMact').innerHTML=`<button class="btn bc" onclick="closeAttrTest()">CANCEL</button>`;
+  renderTestQ();
+  document.getElementById('attrTestMo').classList.add('open');
+}
+
+function showAttrSelector(){
+  document.getElementById('attrTestTitle').textContent='⚡ SELECT ATTRIBUTE TO TEST';
+  document.getElementById('testQuestionArea').style.display='none';
+  document.getElementById('testQArea').style.display='none';
+  document.getElementById('testResultArea').style.display='none';
+  document.getElementById('testAttrSelectorArea').style.display='block';
+  document.getElementById('testMact').innerHTML=`<button class="btn bc" onclick="closeAttrTest()">CANCEL</button>`;
+
+  // Build selector grid
+  document.getElementById('testAttrSelector').innerHTML=ATTRS.map(a=>{
+    const sc=S.attrs?.[a.id];
+    const r=sc?getAttrRank(sc):null;
+    const g=getGlobal(a.id);
+    const lastT=S.attrs?.tests?.[a.id]?.lastDate||'Never tested';
+    return`<div class="attr-sel-card" onclick="startAttrTest('${a.id}')" style="--ac:${a.color}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:24px;">${a.icon}</span>
+        <div style="flex:1;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:${a.color};letter-spacing:2px;">${a.id}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">${a.name}</div>
+        </div>
+        ${r?`<span style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:${r.color};border:1.5px solid ${r.color};padding:2px 5px;border-radius:3px;">${r.rank}</span>`:'<span style="font-family:\'Share Tech Mono\',monospace;font-size:7px;color:var(--txd);border:1px dashed var(--brd);padding:2px 5px;border-radius:3px;">NOT TESTED</span>'}
+      </div>
+      ${sc?`<div style="height:3px;background:var(--brd);border-radius:2px;overflow:hidden;margin-bottom:5px;"><div style="height:100%;width:${sc}%;background:${a.color};border-radius:2px;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:7px;">
+        <span style="color:var(--txd);">Score: <span style="color:${a.color};">${sc}</span>/100</span>
+        <span style="color:var(--txd);">Avg: ${g.avg}</span>
+      </div>`:'<div style="font-family:\'Share Tech Mono\',monospace;font-size:7px;color:var(--txd);">10 questions • ~3 min</div>'}
+      <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);margin-top:4px;">${sc?'Last: '+lastT:'Start test →'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('attrTestMo').classList.add('open');
+}
+
+function startAttrTest(attrId){
+  openAttrTest(attrId);
+}
+
+function closeAttrTest(){
+  document.getElementById('attrTestMo').classList.remove('open');
+  activeTestAttr=null; testStep=0; testAnswers=[];
+}
+
+function renderTestQ(){
+  const qs=ATTR_TESTS[activeTestAttr];
+  const total=qs.length;
+  const qData=qs[testStep];
+  const attr=ATTRS.find(a=>a.id===activeTestAttr);
+
+  document.getElementById('testStepLbl').textContent=`Q ${testStep+1} / ${total}`;
+  document.getElementById('testProgFill').style.width=((testStep/total)*100)+'%';
+  document.getElementById('testSectionLbl').textContent=attr.icon+' '+attr.name.toUpperCase()+' — Question '+(testStep+1);
+  document.getElementById('testQ').textContent=qData.q;
+  document.getElementById('testOpts').innerHTML=qData.opts.map((o,i)=>`
+    <button class="test-opt" onclick="selectAnswer(${i})" id="topt-${i}">
+      <span style="font-family:'Orbitron',sans-serif;font-size:9px;color:var(--g2);margin-right:8px;letter-spacing:1px;">${String.fromCharCode(65+i)}</span>${o.t}
+    </button>`).join('');
+}
+
+function selectAnswer(optIdx){
+  // Visual feedback
+  document.querySelectorAll('.test-opt').forEach((b,i)=>{b.classList.toggle('selected',i===optIdx);b.style.pointerEvents='none';});
+  const qs=ATTR_TESTS[activeTestAttr];
+  testAnswers.push(qs[testStep].opts[optIdx].s);
+  setTimeout(()=>{
+    testStep++;
+    if(testStep>=qs.length) showAttrTestResult();
+    else renderTestQ();
+  },350);
+}
+
+function showAttrTestResult(){
+  const attr=ATTRS.find(a=>a.id===activeTestAttr);
+  const g=getGlobal(activeTestAttr);
+  const rawAvg=Math.round(testAnswers.reduce((s,v)=>s+v,0)/testAnswers.length);
+
+  // Calibrate score against adaptive global standard
+  // Score = how user performs relative to global distribution
+  // Normalized: globalAvg maps to 50, globalTop10 maps to 85, globalBot10 maps to 15
+  let calibrated;
+  if(rawAvg>=g.avg){
+    // Above average: map avg→50 to top10→85
+    calibrated=50+((rawAvg-g.avg)/(g.top10-g.avg))*35;
+  } else {
+    // Below average: map bot10→15 to avg→50
+    calibrated=15+((rawAvg-g.bot10)/(g.avg-g.bot10))*35;
+  }
+  const score=Math.max(1,Math.min(100,Math.round(calibrated)));
+
+  // Save
+  if(!S.attrs)S.attrs={};
+  if(!S.attrs.tests)S.attrs.tests={};
+  S.attrs[activeTestAttr]=score;
+  S.attrs.tests[activeTestAttr]={lastDate:today(),rawScore:rawAvg,score,testCount:(S.attrs.tests[activeTestAttr]?.testCount||0)+1};
+  save();
+
+  // Sync with Supabase async (non-blocking)
+  syncAttrWithSupabase(activeTestAttr, score).catch(()=>{});
+
+  const r=getAttrRank(score);
+  const diff=score-g.avg;
+  const pct=score;
+
+  // Determine tier text
+  const tier=score>=80?'top 10% globally':score>=65?'top 25%':score>=50?'above global average':score>=35?'below global average':score>=20?'bottom 25%':'bottom 10% globally';
+
+  // AI analysis based on score
+  const analysis=buildAttrAnalysis(activeTestAttr,score,rawAvg,g,diff);
+
+  // Per-question breakdown
+  const qs=ATTR_TESTS[activeTestAttr];
+  const breakdown=qs.map((q,i)=>{
+    const s=testAnswers[i];
+    const rel=s>=g.avg+15?'🟢 Strong':s>=g.avg-5?'🟡 Average':'🔴 Needs work';
+    return`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--brd) 50%,transparent);font-size:11px;">
+      <span style="color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:8px;min-width:16px;">${i+1}</span>
+      <span style="flex:1;color:var(--txd);line-height:1.4;">${q.q.substring(0,55)}...</span>
+      <span style="font-size:10px;white-space:nowrap;">${rel}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('testProgFill').style.width='100%';
+  document.getElementById('testQuestionArea').style.display='none';
+  document.getElementById('testQArea').style.display='none';
+  document.getElementById('testResultArea').style.display='block';
+  document.getElementById('resIcon').textContent=attr.icon;
+
+  document.getElementById('testResultGrid').innerHTML=`
+    <!-- Score card -->
+    <div style="text-align:center;background:var(--crd);border:1px solid ${attr.color}44;border-radius:5px;padding:16px;margin-bottom:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:3px;margin-bottom:6px;">${attr.icon} ${attr.name} SCORE</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:44px;font-weight:900;color:${attr.color};line-height:1;">${score}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);">/100</div>
+      <div style="height:6px;background:var(--brd);border-radius:3px;overflow:hidden;margin:10px 0;"><div style="height:100%;width:${pct}%;background:${attr.color};border-radius:3px;transition:width 1s;"></div></div>
+      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:8px;">
+        <span style="color:${r.color};border:1px solid ${r.color};padding:3px 10px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;">${r.rank}-RANK</span>
+        <span style="color:var(--g2);">◈ ${tier} ◈</span>
+      </div>
+    </div>
+
+    <!-- vs Global comparison -->
+    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-bottom:8px;">◈ GLOBAL COMPARISON (${g.label})</div>
+      ${[
+        {lbl:'YOUR SCORE',val:score,clr:attr.color,w:score},
+        {lbl:'GLOBAL AVG',val:g.avg,clr:'rgba(255,255,255,.3)',w:g.avg},
+        {lbl:'TOP 10%',   val:g.top10,clr:'#ffd700',w:g.top10},
+      ].map(row=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);width:72px;">${row.lbl}</span>
+        <div style="flex:1;height:5px;background:var(--brd);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${row.w}%;background:${row.clr};border-radius:2px;"></div></div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:${row.clr};width:24px;text-align:right;">${row.val}</span>
+      </div>`).join('')}
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${diff>=0?'#00ffaa':'#ff6666'};margin-top:4px;">${diff>=0?'▲ +'+diff+' above global average':'▼ '+Math.abs(diff)+' below global average'}</div>
+    </div>
+
+    <!-- Question breakdown -->
+    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px 12px;margin-bottom:10px;max-height:180px;overflow-y:auto;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-bottom:6px;">◈ QUESTION BREAKDOWN</div>
+      ${breakdown}
+    </div>`;
+
+  document.getElementById('testAiAnalysis').innerHTML=analysis;
+  document.getElementById('testMact').innerHTML=`
+    <button class="btn bc" onclick="closeAttrTest()">CLOSE</button>
+    <button class="btn bp" style="font-size:10px;" onclick="openAttrTest()">TEST ANOTHER</button>`;
+
+  // Refresh profile
+  renderAttrCards(); drawRadarChart();
+  updateAttrLastTestLabel();
+  gainXP(30);
+  showNotif(attr.icon+' '+attr.name+' Test Done! Score: '+score+'/100 (+30 XP)');
+}
+
+function buildAttrAnalysis(id, score, raw, g, diff){
+  const attr=ATTRS.find(a=>a.id===id);
+  const tier=score>=80?'exceptional':score>=65?'above average':score>=50?'average':score>=35?'below average':'significantly below average';
+
+  const adviceMap={
+    STR:{
+      low:'Your physical foundation needs urgent attention. Start with 10-minute daily walks — consistency beats intensity. Add 3x/week bodyweight training (pushups, squats, planks). Prioritize sleep for recovery. Track with a simple habit.',
+      mid:'You have a decent base but significant room to grow. Increase training frequency to 4x/week. Add progressive overload to your workouts. Focus on compound movements (squat, deadlift, push). Consider working with a trainer for 3 months.',
+      high:'You are performing well above the population. Your next level is elite performance — optimize sleep, nutrition timing, and recovery. Consider sport-specific training or competitive targets.',
+    },
+    INT:{
+      low:'Build the learning habit first — just 20 minutes of focused reading daily compounding over 1 year equals 120+ hours of learning. Use the Feynman Technique: explain what you learn as if teaching a child. This reveals gaps.',
+      mid:'You are a capable learner but not yet accelerating. Implement spaced repetition (Anki). Build a second-brain system (Obsidian/Notion). Focus on fewer subjects deeper rather than broad shallow consumption.',
+      high:'You are in the top tier of intellectual development. Your edge now comes from cross-domain synthesis and creating content. Teaching and writing will compound your intelligence further. Seek harder problems.',
+    },
+    AGI:{
+      low:'Your productivity system needs a complete rebuild. Start with one thing: time-blocking just 3 hours per day for your most important work. Install RescueTime to audit your actual time use. The data will shock you.',
+      mid:'You get things done but inconsistently. Implement a weekly review (30 min every Sunday). Use a single trusted capture system for all tasks. Eliminate your 3 biggest time-wasters — identify them this week.',
+      high:'You operate at a high level. Your edge now is in systems and delegation. Automate what can be automated. Build asymmetric leverage — where 1 hour of work creates 10+ hours of value.',
+    },
+    VIT:{
+      low:'Your health is your foundation for everything else — without it, every other stat decays. Immediate priorities: (1) Fix sleep to 7–8h, (2) Drink 2L water daily, (3) Walk 30 minutes after meals. These three alone will transform your energy.',
+      mid:'You have a reasonable health baseline but gaps are costing you energy. Invest in nutrition — meal prep 2 days/week. Add zone-2 cardio 3x/week (walking briskly, cycling). Get bloodwork done to identify hidden deficiencies.',
+      high:'You are operating with excellent health. Next level: optimize biomarkers (HRV, VO2 max, blood panels). Consider cold exposure and sauna protocols. Your recovery optimization is your competitive advantage.',
+    },
+    FOC:{
+      low:'The modern attention economy is designed to keep you distracted. Fight back with environmental design — phone in a drawer during work, website blockers, no notifications. Start with one 25-minute Pomodoro per day and build up.',
+      mid:'You can focus but inconsistently. The key is protecting your highest-energy hours (typically morning) for your most important work. Build a "shutdown ritual" to end work and signal your brain to recover. Meditation 10 min/day will compound focus significantly.',
+      high:'You have strong focus skills — your task now is maximizing flow state access. Identify your optimal conditions (time of day, environment, music/silence) and systematically recreate them. Your focus is a competitive superpower.',
+    },
+    SOC:{
+      low:'Social skills are entirely learnable — treat it like a skill, not a personality trait. Practice: initiate one real conversation per day with someone you would normally not talk to. Read "How to Win Friends & Influence People." Join a public speaking club (Toastmasters).',
+      mid:'You have a functional social foundation. Your gap is likely in strategic relationship building. Identify 10 key people in your field. Reach out with genuine value — share an article, offer help. Relationships compound exactly like financial investments.',
+      high:'You operate at a high social level. Your edge is in building high-leverage networks and becoming a connector. Position yourself as a trusted node — someone who introduces valuable people to each other. This creates exponential social capital.',
+    },
+  };
+
+  const level=score<35?'low':score<60?'mid':'high';
+  const advice=adviceMap[id]?.[level]||'Continue developing this attribute through consistent daily practice.';
+
+  return`<strong style="color:${attr.color};">${attr.icon} ${attr.name}</strong>: Your score of <strong style="color:var(--g1);">${score}/100</strong> places you as <strong>${tier}</strong> vs the global population.<br><br>
+<strong style="color:var(--g2);">◈ AI RECOMMENDATION:</strong><br>
+${advice}<br><br>
+<span style="color:var(--txd);font-size:11px;">Global standard used: avg ${g.avg} | top 10%: ${g.top10} | bottom 10%: ${g.bot10}. <span style="cursor:pointer;text-decoration:underline;" onclick="openGlobalEditor()">Update global standard →</span></span>`;
+}
+
+function updateAttrLastTestLabel(){
+  const tested=ATTRS.filter(a=>S.attrs?.[a.id]);
+  if(!tested.length)return;
+  const overall=Math.round(tested.reduce((s,a)=>s+(S.attrs[a.id]||0),0)/tested.length);
+  const cnt=tested.length;
+  document.getElementById('attrLastTest').textContent=
+    `${cnt}/6 attributes tested — Overall ${overall}/100 — Tap each card to retest`;
+}
+
+/* ── GLOBAL STANDARD EDITOR (adaptive — no code change needed) */
+function openGlobalEditor(){
+  const html=`<div style="padding:4px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--txb);letter-spacing:2px;margin-bottom:4px;">◈ ADAPTIVE GLOBAL STANDARD</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:1px;margin-bottom:14px;line-height:1.6;">Update these values to reflect the latest global data. Changes save immediately and affect all future test calibrations. Reset to restore defaults.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;">
+    ${ATTRS.map(a=>{
+      const g=getGlobal(a.id);
+      return`<div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px 12px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;color:${a.color};letter-spacing:2px;margin-bottom:8px;">${a.icon} ${a.id}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          ${['avg','top10','bot10'].map(k=>`<div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);display:block;margin-bottom:3px;">${k==='avg'?'GLOBAL AVG':k==='top10'?'TOP 10%':'BOTTOM 10%'}</label>
+            <input type="number" min="1" max="100" value="${g[k]}" class="fi" style="padding:6px 8px;font-size:13px;" onchange="updateGlobalStd('${a.id}','${k}',this.value)" id="gs-${a.id}-${k}"/>
+          </div>`).join('')}
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);margin-top:6px;">${g.label}</div>
+      </div>`;
+    }).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn bd" style="font-size:10px;" onclick="resetGlobalStd()">↺ RESET TO DEFAULT</button>
+      <button class="btn bp" style="flex:1;font-size:10px;" onclick="document.getElementById('globalEditorMo').classList.remove('open')">SAVE & CLOSE</button>
+    </div>
+  </div>`;
+  document.getElementById('globalEditorInner').innerHTML=html;
+  document.getElementById('globalEditorMo').classList.add('open');
+}
+function updateGlobalStd(attrId,key,val){
+  if(!S.globalStandard)S.globalStandard={};
+  if(!S.globalStandard[attrId])S.globalStandard[attrId]={...DEFAULT_GLOBAL[attrId]};
+  S.globalStandard[attrId][key]=Number(val);
+  save();
+}
+function resetGlobalStd(){
+  if(!confirm('Reset all global standards to default values?'))return;
+  S.globalStandard={};save();
+  openGlobalEditor();showNotif('Global standard reset to defaults');
+}
+
+/* ── RENDER ATTRIBUTE CARDS ─────────────────────────────────── */
+function renderAttrCards(){
+  const grid=document.getElementById('attrGrid');
+  if(!S.attrs||!ATTRS.some(a=>S.attrs[a.id])){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px 14px;color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;border:1px dashed var(--brd);border-radius:4px;line-height:2;">
+      ◈ NO ATTRIBUTE DATA YET<br>Take individual tests per attribute to reveal your hunter stats
+    </div>`;
+    return;
+  }
+  grid.innerHTML=ATTRS.map(a=>{
+    const sc=S.attrs?.[a.id];
+    if(!sc)return`<div class="attr-card" style="--ac:${a.color};cursor:pointer;" onclick="openAttrTest('${a.id}')">
+      <div class="attr-top"><div style="display:flex;align-items:center;gap:6px;"><span class="attr-icon">${a.icon}</span><span class="attr-name">${a.id}</span></div></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);margin:6px 0;">NOT TESTED</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${a.color};">TAP TO TEST →</div>
+    </div>`;
+    const r=getAttrRank(sc);
+    const g=getGlobal(a.id);
+    const diff=sc-g.avg;
+    const testData=S.attrs?.tests?.[a.id];
+    return`<div class="attr-card" style="--ac:${a.color};cursor:pointer;" onclick="openAttrTest('${a.id}')">
+      <div class="attr-top">
+        <div style="display:flex;align-items:center;gap:6px;"><span class="attr-icon">${a.icon}</span><span class="attr-name">${a.id}</span></div>
+        <span class="attr-rank" style="color:${r.color};border-color:${r.color};">${r.rank}</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:3px;margin-bottom:5px;">
+        <span class="attr-val">${sc}</span><span class="attr-max">/100</span>
+      </div>
+      <div class="attr-bar"><div class="attr-bar-fill" style="width:${sc}%;background:${a.color};"></div></div>
+      <div class="attr-global">
+        <span style="color:var(--txd);">avg ${g.avg}</span>
+        <span style="color:${diff>=0?'#00ffaa':'#ff6666'};">${diff>=0?'+':''}${diff} vs world</span>
+      </div>
+      ${testData?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);margin-top:3px;">Test #${testData.testCount} · ${testData.lastDate}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ── RADAR CHART ────────────────────────────────────────────── */
+function drawRadarChart(){
+  const canvas=document.getElementById('attrRadar');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-28;
+  ctx.clearRect(0,0,W,H);
+  const n=ATTRS.length;
+  const angles=ATTRS.map((_,i)=>(i/n)*Math.PI*2-Math.PI/2);
+  const px=(v,a,rd)=>cx+rd*Math.cos(a)*v/100;
+  const py=(v,a,rd)=>cy+rd*Math.sin(a)*v/100;
+  const style=getComputedStyle(document.body);
+  const g1=style.getPropertyValue('--g1').trim()||'#cc44ff';
+  const brd=style.getPropertyValue('--brd').trim()||'#2a0060';
+  const txd=style.getPropertyValue('--txd').trim()||'#6030a0';
+
+  // Grid rings
+  [20,40,60,80,100].forEach(pct=>{
+    ctx.beginPath();angles.forEach((a,i)=>{const x=px(pct,a,r),y=py(pct,a,r);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();ctx.strokeStyle=brd;ctx.lineWidth=1;ctx.stroke();
+  });
+  // Axis lines
+  angles.forEach(a=>{ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));ctx.strokeStyle=brd;ctx.lineWidth=1;ctx.stroke();});
+
+  // Global average polygon
+  const hasAll=ATTRS.every(a=>S.attrs?.[a.id]);
+  ctx.beginPath();
+  angles.forEach((ang,i)=>{const g=getGlobal(ATTRS[i].id);const x=px(g.avg,ang,r),y=py(g.avg,ang,r);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.closePath();ctx.fillStyle='rgba(255,255,255,.04)';ctx.fill();ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=1;ctx.stroke();
+
+  // User polygon
+  if(S.attrs&&ATTRS.some(a=>S.attrs[a.id])){
+    ctx.beginPath();
+    angles.forEach((ang,i)=>{const a=ATTRS[i];const sc=S.attrs?.[a.id]||0;const x=px(sc,ang,r),y=py(sc,ang,r);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();ctx.fillStyle=g1+'28';ctx.fill();ctx.strokeStyle=g1;ctx.lineWidth=2;ctx.stroke();
+    // Dots per attr
+    angles.forEach((ang,i)=>{
+      const a=ATTRS[i];const sc=S.attrs?.[a.id];if(!sc)return;
+      const x=px(sc,ang,r),y=py(sc,ang,r);
+      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=a.color;ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1;ctx.stroke();
+    });
+  }
+
+  // Labels
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  angles.forEach((ang,i)=>{
+    const a=ATTRS[i];const sc=S.attrs?.[a.id];
+    const lx=cx+(r+18)*Math.cos(ang),ly=cy+(r+18)*Math.sin(ang);
+    ctx.font='bold 9px Orbitron,sans-serif';ctx.fillStyle=sc?a.color:txd;ctx.fillText(a.id,lx,ly);
+    if(sc){ctx.font='8px Share Tech Mono,monospace';ctx.fillStyle=sc?a.color:txd;ctx.fillText(sc,lx,ly+11);}
+  });
+
+  // Legend
+  ctx.font='8px Share Tech Mono,monospace';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,255,255,.2)';ctx.fillRect(8,H-28,10,7);
+  ctx.fillStyle=txd;ctx.fillText('GLOBAL AVG',22,H-24);
+  ctx.fillStyle=g1+'55';ctx.fillRect(8,H-16,10,7);
+  ctx.fillStyle=g1;ctx.fillText('YOU',22,H-12);
+}
+
+function initAttrSection(){
+  renderAttrCards();
+  drawRadarChart();
+  updateAttrLastTestLabel();
+}
+
 function gainXP(a){
   S.xp+=a;S.totalXP+=a;
   const n=xpForLvl(S.level);
@@ -988,7 +1806,9 @@ function updateProfile(){
   // Edit form defaults
   document.getElementById('editName').value=S.playerName;
   document.getElementById('editBio').value=S.bio||'';
-  renderAchievements();renderTopCat();renderHeatmap();renderAvGrid();
+  renderAchievements();renderTopCat();renderHeatmap();renderAvGrid();initAttrSection();
+  updatePassiveDisplay();
+  renderAISettings();
 }
 function updateTrackerStat(){
   const t=today(),due=S.quests.filter(isDue),dn=due.filter(isDone).length;
@@ -1027,6 +1847,140 @@ function saveProfile(){
 /* ───────────────────────────────────────────────────────────────
    QUESTS
    ─────────────────────────────────────────────────────────────── */
+/* ───────────────────────────────────────────────────────────────
+   CATEGORY SYSTEM — User-customizable, themed chip picker
+   ─────────────────────────────────────────────────────────────── */
+const DEFAULT_QUEST_CATS=[
+  {emoji:'💪',name:'Fitness'},{emoji:'🧠',name:'Mind'},{emoji:'💼',name:'Work'},
+  {emoji:'❤️',name:'Health'},{emoji:'👥',name:'Social'},{emoji:'🎨',name:'Creative'},
+  {emoji:'⚡',name:'Other'}
+];
+const DEFAULT_NODE_CATS=[
+  {emoji:'💻',name:'Programming'},{emoji:'🎨',name:'Design'},{emoji:'🌏',name:'Language'},
+  {emoji:'📐',name:'Math'},{emoji:'🔬',name:'Science'},{emoji:'💼',name:'Business'},
+  {emoji:'💪',name:'Fitness'},{emoji:'🎭',name:'Art'},{emoji:'⚡',name:'Other'}
+];
+const EMOJI_PICKS=['💪','🧠','💼','❤️','👥','🎨','⚡','🔥','❄️','⚡','🌱','📚','🎯','🏋️','🚀','🎮','🎵','✍️','🍎','💊','🏃','🧘','🖥️','📊'];
+
+function getCats(type){
+  if(!S.cats)S.cats={quest:[...DEFAULT_QUEST_CATS],node:[...DEFAULT_NODE_CATS]};
+  if(!S.cats.quest)S.cats.quest=[...DEFAULT_QUEST_CATS];
+  if(!S.cats.node)S.cats.node=[...DEFAULT_NODE_CATS];
+  return S.cats[type]||[];
+}
+
+// Render chip picker for quest or node modal
+function renderCatPicker(type, selectedVal){
+  const containerId = type==='q' ? 'qCatPicker' : 'nodeCatPicker';
+  const hiddenId    = type==='q' ? 'qCat'        : 'nodeCat';
+  const cats = getCats(type==='q'?'quest':'node');
+  const cur  = selectedVal || document.getElementById(hiddenId).value || cats[0]?.name;
+  // Ensure selected is valid
+  const validCur = cats.find(c=>c.name===cur) ? cur : (cats[0]?.name||'');
+  document.getElementById(hiddenId).value = validCur;
+
+  const g = document.getElementById(containerId);
+  g.innerHTML = cats.map(c=>`
+    <div class="cat-chip ${c.name===validCur?'active':''}"
+         onclick="selectCat('${type}','${c.name.replace(/'/g,'\\\'')}')"
+         title="${c.name}">
+      <span class="cat-emoji">${c.emoji}</span>
+      <span>${c.name}</span>
+    </div>`).join('');
+}
+
+function selectCat(type, name){
+  const hiddenId = type==='q' ? 'qCat' : 'nodeCat';
+  document.getElementById(hiddenId).value = name;
+  renderCatPicker(type, name);
+  // Also update AI category display if applicable
+  if(type==='q') autoApplyCat(document.getElementById('qName').value.toLowerCase());
+}
+
+// ── CAT MANAGER ──────────────────────────────────────────────
+let catMgrType = 'quest'; // 'quest' or 'node'
+let catSelectedEmoji = '⚡';
+
+function openCatManager(type){
+  catMgrType = type==='q' ? 'quest' : 'node';
+  document.getElementById('catMgrCtx').textContent =
+    catMgrType==='quest' ? '⚔ QUEST CATEGORIES' : '🗺 ROADMAP CATEGORIES';
+  renderCatMgrList();
+  renderEmojiGrid();
+  document.getElementById('catNewName').value='';
+  document.getElementById('catNewEmoji').value='';
+  catSelectedEmoji='⚡';
+  document.getElementById('catManagerMo').classList.add('open');
+  setTimeout(()=>document.getElementById('catNewName').focus(),80);
+}
+
+function renderCatMgrList(){
+  const cats = getCats(catMgrType);
+  const list = document.getElementById('catMgrList');
+  if(!cats.length){
+    list.innerHTML=`<div style="text-align:center;color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:10px;padding:16px;">No categories yet</div>`;
+    return;
+  }
+  list.innerHTML = cats.map((c,i)=>`
+    <div class="cat-list-item">
+      <span class="cat-li-emoji">${c.emoji}</span>
+      <span class="cat-li-name">${c.name}</span>
+      <button class="cat-li-del" onclick="delCat(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function renderEmojiGrid(){
+  const g = document.getElementById('catEmojiGrid');
+  g.innerHTML = EMOJI_PICKS.map(e=>`
+    <div class="emoji-opt ${e===catSelectedEmoji?'sel':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');
+}
+
+function pickEmoji(e){
+  catSelectedEmoji=e;
+  document.getElementById('catNewEmoji').value=e;
+  renderEmojiGrid();
+}
+
+function addCat(){
+  const rawName = document.getElementById('catNewName').value.trim();
+  const rawEmoji= (document.getElementById('catNewEmoji').value.trim()||catSelectedEmoji||'⚡');
+  if(!rawName){showNotif('Category name required!');return;}
+  const cats = getCats(catMgrType);
+  if(cats.find(c=>c.name.toLowerCase()===rawName.toLowerCase())){showNotif('Category already exists!');return;}
+  cats.push({emoji:rawEmoji, name:rawName});
+  if(!S.cats)S.cats={quest:[...DEFAULT_QUEST_CATS],node:[...DEFAULT_NODE_CATS]};
+  S.cats[catMgrType]=cats;
+  save();
+  document.getElementById('catNewName').value='';
+  document.getElementById('catNewEmoji').value='';
+  catSelectedEmoji='⚡';
+  renderCatMgrList();renderEmojiGrid();
+  showNotif('Category added: '+rawEmoji+' '+rawName);
+}
+
+function delCat(idx){
+  const cats = getCats(catMgrType);
+  const name = cats[idx]?.name;
+  if(cats.length<=1){showNotif('Must keep at least one category!');return;}
+  cats.splice(idx,1);
+  if(!S.cats)S.cats={quest:[...DEFAULT_QUEST_CATS],node:[...DEFAULT_NODE_CATS]};
+  S.cats[catMgrType]=cats;
+  save();
+  // Reset selected if deleted was current
+  const hid = catMgrType==='quest'?'qCat':'nodeCat';
+  if(document.getElementById(hid).value===name){
+    document.getElementById(hid).value=cats[0]?.name||'';
+  }
+  renderCatMgrList();
+}
+
+function closeCatManager(){
+  document.getElementById('catManagerMo').classList.remove('open');
+  // Refresh pickers in open forms
+  renderCatPicker('q');
+  renderCatPicker('node');
+}
+
 function onFreqChange(){const f=document.getElementById('qFreq').value;document.getElementById('wdWrap').style.display=f==='weekly'?'block':'none';}
 document.querySelectorAll('#wdPick .ib').forEach(b=>b.addEventListener('click',()=>{b.classList.toggle('on');b.classList.toggle('e',b.classList.contains('on'));}));
 
@@ -1047,28 +2001,32 @@ function saveQuest(){
 function cancelQEdit(){
   document.getElementById('qEditId').value='';document.getElementById('qName').value='';document.getElementById('qNotes').value='';
   document.getElementById('qAiRank').value='C';document.getElementById('qAiXP').value='50';
-  document.getElementById('qDiff')&&(document.getElementById('qDiff').value='C');
   document.getElementById('qFreq').value='daily';document.getElementById('qTarget').value='1';
   document.getElementById('qStart').value=today();document.getElementById('qEnd').value='';
   document.getElementById('qSaveBtn').textContent='ACCEPT QUEST';document.getElementById('qCancelBtn').style.display='none';
   document.getElementById('addQuestTitle').textContent='ADD NEW QUEST';
+  // Reset cat picker to first available
+  const defCat=getCats('quest')[0]?.name||'Fitness';
+  document.getElementById('qCat').value=defCat;
+  renderCatPicker('q',defCat);
   setAIState('waiting');onFreqChange();
 }
 function editQuest(id){
   const q=S.quests.find(x=>x.id===id);if(!q)return;
   document.getElementById('qEditId').value=id;document.getElementById('qName').value=q.name;
-  document.getElementById('qCat').value=q.category;document.getElementById('qFreq').value=q.freq||'daily';
+  document.getElementById('qCat').value=q.category;
+  document.getElementById('qFreq').value=q.freq||'daily';
   document.getElementById('qTarget').value=q.targetCount||1;document.getElementById('qNotes').value=q.notes||'';
   document.getElementById('qStart').value=q.startDate||today();document.getElementById('qEnd').value=q.endDate||'';
   document.getElementById('qAiRank').value=q.diff||'C';document.getElementById('qAiXP').value=q.xpReward||XPM[q.diff||'C'];
   document.getElementById('qSaveBtn').textContent='UPDATE QUEST';document.getElementById('qCancelBtn').style.display='';
   document.getElementById('addQuestTitle').textContent='EDIT QUEST';
-  // Show current AI result
   document.getElementById('aiRank').textContent=(q.diff||'C')+'-RANK';document.getElementById('aiRank').className='ai-stat-v';
   document.getElementById('aiXP').textContent=(q.xpReward||XPM[q.diff||'C'])+' XP';document.getElementById('aiXP').className='ai-stat-v';
   document.getElementById('aiFreq').textContent=(q.freq||'daily').toUpperCase();document.getElementById('aiFreq').className='ai-stat-v';
   document.getElementById('aiReason').textContent='Editing existing quest — rank assigned at creation.';
   document.getElementById('aiBadge').textContent='EXISTING QUEST';
+  renderCatPicker('q', q.category);
   onFreqChange();goPage('tracker');
 }
 function delQuest(id){if(!confirm('Remove this quest?'))return;S.quests=S.quests.filter(q=>q.id!==id);save();renderQuests();refreshAll();}
@@ -1082,13 +2040,29 @@ function toggleQ(id){
     const idx=(q.clog||[]).findLastIndex(e=>getPK(q.freq||'daily',e.date)===pk);
     if(idx>=0){const rem=q.clog.splice(idx,1)[0];S.history=S.history.filter(h=>h.hid!==rem.hid);loseXP(q.xpReward||XPM[q.diff||'C']||50);q.streak=Math.max(0,(q.streak||0)-1);showNotif('Quest unmarked');}
   }else{
-    const xpV=q.xpReward||XPM[q.diff||'C']||50;
-    const ns=(q.streak||0)+1;let bonus=ns>0&&ns%7===0?Number(S.settings?.streakBonus||10):0;
+    const baseXp=q.xpReward||XPM[q.diff||'C']||50;
+    const ns=(q.streak||0)+1;
+
+    // Standard streak bonus (ice passive overrides this)
+    let streakBonus=0;
+    if(CE!=='ice'&&ns>0&&ns%7===0) streakBonus=Number(S.settings?.streakBonus||10);
+
+    // ── Apply Elemental Passive Skill ─────────────────────────
+    const {bonusXp, passiveLabel}=applyPassiveSkill(q,baseXp,ns);
+
+    const totalXp=baseXp+streakBonus+bonusXp;
     const hid='h_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
-    S.history.push({hid,date:t,questId:id,questName:q.name,freq:q.freq||'daily',diff:q.diff||'C',category:q.category,xp:xpV+bonus,status:'COMPLETE',element:CE});
+    S.history.push({hid,date:t,questId:id,questName:q.name,freq:q.freq||'daily',diff:q.diff||'C',category:q.category,xp:totalXp,status:'COMPLETE',element:CE,passiveBonus:bonusXp});
     if(!q.clog)q.clog=[];q.clog.push({date:t,hid});
     q.streak=ns;if(q.streak>S.maxStreak)S.maxStreak=q.streak;
-    gainXP(xpV+bonus);showNotif(bonus>0?`+${xpV+bonus} XP (Streak Bonus!)`:`+${xpV} XP — Quest Done!`);
+    gainXP(totalXp);
+
+    // Notification with passive info
+    let msg=`+${baseXp} XP`;
+    if(streakBonus>0)msg+=` +${streakBonus} streak`;
+    if(passiveLabel)msg+=` | ${passiveLabel}`;
+    showNotif(msg);
+
     checkPerfectDay();
   }
   updDayStreak();save();renderQuests();refreshAll();
@@ -1190,33 +2164,44 @@ function clearHistory(){if(!confirm('Clear all history?'))return;S.history=[];S.
    ─────────────────────────────────────────────────────────────── */
 
 // isNodeComplete — true only when ALL tasks ticked OR marked done
+// Note: does NOT check predecessors — that's nodeStatus's job
 function isNodeComplete(node){
-  const tasks=node.tasks||[];
   if(node.completed)return true;
+  const tasks=node.tasks||[];
   if(tasks.length>0&&(node.doneTasks||[]).length>=tasks.length)return true;
   return false;
 }
 
-// nodeStatus — uses sequential lock: node N is locked unless node N-1 is complete
-// allNodes = full ordered array passed explicitly so we don't depend on index tricks
+// isPredecessorsDone — ALL nodes before idx must be complete
+function isPredecessorsDone(idx, allNodes){
+  for(let i=0;i<idx;i++){
+    if(!isNodeComplete(allNodes[i]))return false;
+  }
+  return true;
+}
+
+// nodeStatus — sequential lock takes HIGHEST priority
+// A node is locked if ANY predecessor is incomplete, regardless of its own state
 function nodeStatus(node, allNodes){
   if(!allNodes)allNodes=S.nodes||[];
   const idx=allNodes.findIndex(n=>n.id===node.id);
+
+  // Sequential lock: FIRST check — predecessors must ALL be done
+  if(idx>0&&!isPredecessorsDone(idx,allNodes))return'locked';
+
   // Level lock
   if(S.level<(node.reqLevel||1))return'locked';
-  // Sequential lock: every previous node must be complete
-  if(idx>0){
-    for(let i=0;i<idx;i++){
-      if(!isNodeComplete(allNodes[i]))return'locked';
-    }
-  }
-  // Own completion
+
+  // Own completion check
   if(isNodeComplete(node))return'done';
-  // All tasks done but not marked (edge case)
-  const tasks=node.tasks||[];
-  const dt=node.doneTasks||[];
-  if(tasks.length>0&&dt.length>=tasks.length)return'done';
+
   return'active';
+}
+
+// isNodeInteractable — used to guard clicks (task ticks, complete btn)
+// Must pass BOTH sequential lock and level lock
+function isNodeInteractable(node){
+  return nodeStatus(node,S.nodes)!=='locked';
 }
 
 function renderRoadmap(){
@@ -1350,14 +2335,20 @@ function renderRoadmap(){
 
 function toggleNodeTask(nid,ti){
   const node=S.nodes.find(n=>n.id===nid);if(!node)return;
-  // Safety: only allow if not locked
-  if(nodeStatus(node,S.nodes)==='locked'){showNotif('🔒 Complete previous nodes first!');return;}
+  // Hard block — sequential lock overrides everything
+  if(!isNodeInteractable(node)){
+    showNotif('🔒 Complete previous nodes first!');
+    renderRoadmap(); // re-render to ensure UI is correct
+    return;
+  }
   if(!node.doneTasks)node.doneTasks=[];
   const idx=node.doneTasks.indexOf(ti);
   if(idx>=0){
     node.doneTasks.splice(idx,1);
-    // Un-complete node if tasks get unticked below 100%
-    if(node.completed&&(node.doneTasks.length<(node.tasks||[]).length)){node.completed=false;}
+    // Un-complete node if tasks go below 100%
+    if(node.completed&&node.doneTasks.length<(node.tasks||[]).length){
+      node.completed=false;
+    }
   }else{
     node.doneTasks.push(ti);
     if(node.doneTasks.length===(node.tasks||[]).length&&!node.completed){
@@ -1366,9 +2357,14 @@ function toggleNodeTask(nid,ti){
   }
   save();renderRoadmap();
 }
+
 function markNodeDone(nid){
-  const node=S.nodes.find(n=>n.id===nid);if(!node||node.completed)return;
-  if(nodeStatus(node,S.nodes)==='locked'){showNotif('🔒 Complete previous nodes first!');return;}
+  const node=S.nodes.find(n=>n.id===nid);if(!node)return;
+  if(!isNodeInteractable(node)){
+    showNotif('🔒 Complete previous nodes first!');
+    return;
+  }
+  if(node.completed)return;
   node.doneTasks=(node.tasks||[]).map((_,i)=>i);
   completeNode(node);save();renderRoadmap();
 }
@@ -1388,7 +2384,10 @@ function delNode(nid){if(!confirm('Delete node?'))return;S.nodes=S.nodes.filter(
 function openNodeModal(){
   document.getElementById('nodeEditId').value='';document.getElementById('nodeMT').textContent='◈ ADD LEARNING NODE';
   document.getElementById('nodeTitle').value='';document.getElementById('nodeDesc').value='';document.getElementById('nodeTasks').value='';
-  document.getElementById('nodeCat').value='Programming';document.getElementById('nodeReqLvl').value=S.level;
+  // Set default cat then render picker
+  const defCat=getCats('node')[0]?.name||'Programming';
+  document.getElementById('nodeCat').value=defCat;
+  document.getElementById('nodeReqLvl').value=S.level;
   document.getElementById('nodeAiRankVal').value='B';document.getElementById('nodeAiXPVal').value='200';
   document.getElementById('nodeAiRank').textContent='—';document.getElementById('nodeAiXP').textContent='—';document.getElementById('nodeAiDays').textContent='—';
   document.getElementById('nodeAiRank').className=document.getElementById('nodeAiXP').className=document.getElementById('nodeAiDays').className='ai-stat-v analyzing';
@@ -1396,12 +2395,15 @@ function openNodeModal(){
   document.getElementById('nodeAiReason').textContent='Enter a node title — the System will determine difficulty and XP reward.';
   document.getElementById('nodeAiIc').textContent=EL[CE].icon;
   document.getElementById('nodeModal').classList.add('open');
+  renderCatPicker('node',defCat);
   setTimeout(()=>document.getElementById('nodeTitle').focus(),80);
 }
 function openEditNode(nid){
   const n=S.nodes.find(x=>x.id===nid);if(!n)return;
   document.getElementById('nodeEditId').value=nid;document.getElementById('nodeMT').textContent='✎ EDIT NODE';
-  document.getElementById('nodeTitle').value=n.title;document.getElementById('nodeCat').value=n.category||'Programming';
+  document.getElementById('nodeTitle').value=n.title;
+  // Set cat value then render picker
+  document.getElementById('nodeCat').value=n.category||getCats('node')[0]?.name||'Programming';
   document.getElementById('nodeDesc').value=n.desc||'';document.getElementById('nodeTasks').value=(n.tasks||[]).join('\n');
   document.getElementById('nodeReqLvl').value=n.reqLevel||1;document.getElementById('nodeAiRankVal').value=n.rank||'B';document.getElementById('nodeAiXPVal').value=n.xp||200;
   document.getElementById('nodeAiRank').textContent=(n.rank||'B')+'-RANK';document.getElementById('nodeAiXP').textContent=(n.xp||200)+' XP';
@@ -1411,6 +2413,7 @@ function openEditNode(nid){
   document.getElementById('nodeAiReason').textContent='Editing existing node — rank assigned at creation.';
   document.getElementById('nodeAiIc').textContent=EL[CE].icon;
   document.getElementById('nodeModal').classList.add('open');
+  renderCatPicker('node', n.category);
 }
 function closeNodeModal(){document.getElementById('nodeModal').classList.remove('open');}
 function saveNode(){
@@ -1419,7 +2422,8 @@ function saveNode(){
   const tasks=document.getElementById('nodeTasks').value.trim().split('\n').map(t=>t.trim()).filter(t=>t);
   const rank=document.getElementById('nodeAiRankVal').value||'B';
   const xp=Number(document.getElementById('nodeAiXPVal').value)||200;
-  const data={title,category:document.getElementById('nodeCat').value,desc:document.getElementById('nodeDesc').value.trim(),tasks,rank,xp,reqLevel:Number(document.getElementById('nodeReqLvl').value)||1,estDays:14,createdAt:today()};
+  const cat=document.getElementById('nodeCat').value||getCats('node')[0]?.name||'Programming';
+  const data={title,category:cat,desc:document.getElementById('nodeDesc').value.trim(),tasks,rank,xp,reqLevel:Number(document.getElementById('nodeReqLvl').value)||1,estDays:14,createdAt:today()};
   if(id){const n=S.nodes.find(x=>x.id===id);if(n)Object.assign(n,data);showNotif('Node updated!');}
   else{S.nodes.push({...data,id:'n_'+Date.now(),doneTasks:[],completed:false});showNotif(EL[CE].icon+' Node added! ['+rank+'-Rank / +'+xp+' XP]');}
   save();closeNodeModal();renderRoadmap();checkAchs();
@@ -1442,6 +2446,8 @@ function applyElem(name){
   const defAvs=Object.values(EL).map(e=>e.av);
   if(defAvs.includes(S.avatar)||!S.avatar)S.avatar=el.av;
   initParticles(name);save();
+  // Redraw radar with new theme colors
+  setTimeout(()=>{drawRadarChart();updatePassiveDisplay();},100);
 }
 function pickElem(name,fromScreen){
   if(fromScreen){applyElem(name);hideEScreen();updateNav();updateProfile();renderQuests();renderRoadmap();return;}
@@ -1615,11 +2621,528 @@ function exportPDF(){
 function showLvlUp(){const t=document.getElementById('lvlT');document.getElementById('lvlSub').textContent=`Level ${S.level} — ${getCls()[getRank()]||'Ascended'}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showNotif(msg){const el=document.getElementById('notif');el.textContent='> '+msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNodeModal();closeElemPicker();closeCfm();document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNodeModal();closeElemPicker();closeCfm();closeCatManager();closeAttrTest();document.getElementById('globalEditorMo')?.classList.remove('open');document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
 
 /* ───────────────────────────────────────────────────────────────
    INIT
    ─────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   ① AI INTEGRATION — Supabase Edge Function → OpenAI / Gemini
+   Real-time quest difficulty analysis on submit.
+   Falls back to local heuristic if API unavailable.
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── CONFIG (user-configurable in Settings > Integration) ─────
+const AI_CONFIG_KEY='orias_ai_cfg';
+function getAICfg(){
+  try{return JSON.parse(localStorage.getItem(AI_CONFIG_KEY))||{};}catch{return{};}
+}
+function saveAICfg(cfg){localStorage.setItem(AI_CONFIG_KEY,JSON.stringify(cfg));}
+
+// Main AI analyze function — calls Supabase Edge Function
+// which proxies to OpenAI or Gemini.
+// Falls back to local analyzer if not configured.
+async function analyzeQuestAI_Remote(questName, category, freq){
+  const cfg = getAICfg();
+
+  // ── Supabase Edge Function path ──────────────────────────────
+  if(cfg.supabaseUrl && cfg.supabaseAnonKey){
+    try{
+      const res = await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/functions/v1/analyze-quest`,{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+cfg.supabaseAnonKey,
+          'apikey': cfg.supabaseAnonKey
+        },
+        body: JSON.stringify({questName, category, freq, provider: cfg.aiProvider||'openai'})
+      });
+      if(res.ok){
+        const data = await res.json();
+        // Expected: {rank:'B', xp:100, reason:'...', confidence:0.9}
+        if(data.rank && data.xp){
+          showAIBadge('🟢 AI ('+( cfg.aiProvider==='gemini'?'Gemini':'OpenAI')+')', true);
+          return data;
+        }
+      }
+    }catch(e){
+      console.warn('[ORIAS] Supabase Edge Function unavailable:',e.message);
+    }
+  }
+
+  // ── Direct OpenAI fallback (if key configured) ───────────────
+  if(cfg.openaiKey){
+    try{
+      const prompt=`You are a habit tracker AI. Analyze this quest and return ONLY valid JSON.
+
+Quest: "${questName}"
+Category: ${category}
+Frequency: ${freq}
+
+Return JSON exactly:
+{"rank":"C","xp":50,"reason":"Brief 1-sentence explanation","confidence":0.85}
+
+Rank scale: E=trivial(10xp), D=easy(25xp), C=moderate(50xp), B=hard(100xp), A=intense(200xp), S=legendary(500xp)`;
+
+      const res = await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.openaiKey},
+        body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'user',content:prompt}],max_tokens:120,temperature:0.3})
+      });
+      if(res.ok){
+        const data=await res.json();
+        const raw=data.choices?.[0]?.message?.content||'';
+        const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
+        if(json.rank&&json.xp){
+          showAIBadge('🟢 OpenAI GPT-4o-mini', true);
+          return json;
+        }
+      }
+    }catch(e){console.warn('[ORIAS] OpenAI direct call failed:',e.message);}
+  }
+
+  // ── Gemini fallback ──────────────────────────────────────────
+  if(cfg.geminiKey){
+    try{
+      const prompt=`Analyze this habit quest and return ONLY JSON: {"rank":"C","xp":50,"reason":"explanation","confidence":0.85}
+Rank: E=trivial(10xp) D=easy(25xp) C=moderate(50xp) B=hard(100xp) A=intense(200xp) S=legendary(500xp)
+Quest: "${questName}", Category: ${category}, Freq: ${freq}`;
+
+      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.geminiKey}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:120,temperature:0.3}})
+      });
+      if(res.ok){
+        const data=await res.json();
+        const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+        const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
+        if(json.rank&&json.xp){
+          showAIBadge('🟢 Gemini Flash', true);
+          return json;
+        }
+      }
+    }catch(e){console.warn('[ORIAS] Gemini call failed:',e.message);}
+  }
+
+  // ── Local heuristic fallback ─────────────────────────────────
+  showAIBadge('🟡 Local AI', false);
+  return null; // signals to use local analyzeAI()
+}
+
+function showAIBadge(label, isRemote){
+  const badge=document.getElementById('aiBadge');
+  if(badge){
+    badge.textContent=label;
+    badge.style.color=isRemote?'var(--g1)':'var(--txd)';
+    badge.style.borderColor=isRemote?'var(--g1)':'var(--brd)';
+  }
+}
+
+// Override onNameInput to use remote AI when configured
+let aiRemoteTimer=null;
+function onNameInput(){
+  clearTimeout(aiRemoteTimer);
+  const name=document.getElementById('qName').value.trim();
+  if(!name||name.length<3){setAIState('waiting');return;}
+  setAIState('analyzing');
+
+  aiRemoteTimer=setTimeout(async()=>{
+    const cat=document.getElementById('qCat').value||'Other';
+    const freq=document.getElementById('qFreq').value||'daily';
+
+    // Try remote AI first
+    let remote=null;
+    try{ remote=await analyzeQuestAI_Remote(name,cat,freq); }catch(e){}
+
+    if(remote){
+      // Remote result
+      document.getElementById('aiRank').textContent=remote.rank+'-RANK';
+      document.getElementById('aiRank').className='ai-stat-v';
+      document.getElementById('aiXP').textContent=remote.xp+' XP';
+      document.getElementById('aiXP').className='ai-stat-v';
+      document.getElementById('aiFreq').textContent=freq.toUpperCase();
+      document.getElementById('aiFreq').className='ai-stat-v';
+      document.getElementById('aiReason').textContent=(remote.reason||'')+(remote.confidence?` (confidence: ${Math.round(remote.confidence*100)}%)`:'');
+      document.getElementById('qAiRank').value=remote.rank;
+      document.getElementById('qAiXP').value=remote.xp;
+      document.getElementById('qFreq').value=freq;
+      onFreqChange();
+    } else {
+      // Local heuristic
+      const res=analyzeAI(name,false);
+      if(res){
+        document.getElementById('aiRank').textContent=res.r+'-RANK';
+        document.getElementById('aiRank').className='ai-stat-v';
+        document.getElementById('aiXP').textContent=res.xp+' XP';
+        document.getElementById('aiXP').className='ai-stat-v';
+        document.getElementById('aiFreq').textContent=res.f.toUpperCase();
+        document.getElementById('aiFreq').className='ai-stat-v';
+        document.getElementById('aiReason').textContent=res.reason;
+        document.getElementById('qAiRank').value=res.r;
+        document.getElementById('qAiXP').value=res.xp;
+        document.getElementById('qFreq').value=res.f;
+        onFreqChange();
+        autoApplyCat(name.toLowerCase());
+      }
+    }
+  }, 600);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ② GLOBAL STATS — Supabase Postgres RPC
+   Pushes test results anonymously & pulls live global averages.
+   SQL function: rpc('get_attr_global_stats') → returns avg/p10/p90
+   Falls back to DEFAULT_GLOBAL if Supabase not configured.
+   ═══════════════════════════════════════════════════════════════ */
+
+async function pushAttrResultToSupabase(attrId, score){
+  const cfg=getAICfg();
+  if(!cfg.supabaseUrl||!cfg.supabaseAnonKey)return;
+  try{
+    await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/rest/v1/attr_results`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+cfg.supabaseAnonKey,
+        'apikey':cfg.supabaseAnonKey,
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({attr_id:attrId, score, element:CE, created_at:new Date().toISOString()})
+    });
+  }catch(e){console.warn('[ORIAS] Could not push attr result:',e.message);}
+}
+
+async function fetchGlobalStatsFromSupabase(){
+  const cfg=getAICfg();
+  if(!cfg.supabaseUrl||!cfg.supabaseAnonKey)return null;
+  try{
+    // Calls Postgres RPC: SELECT * FROM get_attr_global_stats()
+    // Expected return: [{attr_id:'STR',avg:42,p10:18,p90:78,count:1500}, ...]
+    const res=await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/rest/v1/rpc/get_attr_global_stats`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+cfg.supabaseAnonKey,
+        'apikey':cfg.supabaseAnonKey
+      },
+      body:JSON.stringify({})
+    });
+    if(!res.ok)return null;
+    const rows=await res.json();
+    if(!Array.isArray(rows)||!rows.length)return null;
+
+    // Map to globalStandard shape
+    const std={};
+    rows.forEach(r=>{
+      std[r.attr_id]={
+        avg:Math.round(r.avg||50),
+        top10:Math.round(r.p90||75),
+        bot10:Math.round(r.p10||20),
+        label:`Live data · ${r.count||0} responses`,
+        live:true
+      };
+    });
+    return std;
+  }catch(e){
+    console.warn('[ORIAS] Could not fetch global stats:',e.message);
+    return null;
+  }
+}
+
+// Called after each attribute test to sync with Supabase
+async function syncAttrWithSupabase(attrId, score){
+  // Push this result anonymously
+  await pushAttrResultToSupabase(attrId, score);
+  // Try to pull fresh global stats
+  const live=await fetchGlobalStatsFromSupabase();
+  if(live){
+    if(!S.globalStandard)S.globalStandard={};
+    Object.assign(S.globalStandard, live);
+    save();
+    showNotif('📊 Global stats updated from community data');
+  }
+}
+
+// SQL for Supabase setup (shown in Settings > Integration)
+const SUPABASE_SETUP_SQL=`-- Run this in Supabase SQL Editor:
+
+CREATE TABLE IF NOT EXISTS attr_results (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  attr_id text NOT NULL,
+  score integer NOT NULL CHECK (score BETWEEN 1 AND 100),
+  element text,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION get_attr_global_stats()
+RETURNS TABLE(attr_id text, avg numeric, p10 numeric, p90 numeric, count bigint)
+LANGUAGE sql STABLE AS $$
+  SELECT attr_id,
+    ROUND(AVG(score),1) as avg,
+    ROUND(PERCENTILE_CONT(0.1) WITHIN GROUP (ORDER BY score),1) as p10,
+    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY score),1) as p90,
+    COUNT(*) as count
+  FROM attr_results
+  WHERE created_at > now() - interval '90 days'
+  GROUP BY attr_id;
+$$;
+
+-- Enable Row Level Security (anonymous inserts allowed):
+ALTER TABLE attr_results ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_insert" ON attr_results FOR INSERT TO anon WITH CHECK (true);
+CREATE POLICY "anon_select" ON attr_results FOR SELECT TO anon USING (true);`;
+
+/* ═══════════════════════════════════════════════════════════════
+   ③ ELEMENTAL PASSIVE SKILLS — Each element grants unique buffs
+   Applied in toggleQ() when quest is completed.
+   ═══════════════════════════════════════════════════════════════ */
+
+const PASSIVE_SKILLS={
+  // 🔥 FIRE — Striker: +50% XP bonus on B/A/S rank quests
+  fire:{
+    id:'fire', name:'THE STRIKER',
+    desc:'+50% XP on Hard/Legendary quests (B-Rank and above)',
+    icon:'🔥',
+    apply(q, baseXp, streak, hour){
+      if(['B','A','S'].includes(q.diff||'C')){
+        const bonus=Math.round(baseXp*0.5);
+        return{xp:bonus, label:`🔥 Striker Bonus +${bonus}`, type:'fire'};
+      }
+      return null;
+    }
+  },
+  // ❄️ ICE — Consistent: Streak multiplier scales higher (×1.5 on 7x streak)
+  ice:{
+    id:'ice', name:'THE CONSISTENT',
+    desc:'Streak multiplier ×1.5 every 7 days instead of flat bonus',
+    icon:'❄️',
+    apply(q, baseXp, streak, hour){
+      if(streak>0 && streak%7===0){
+        const bonus=Math.round(baseXp*0.5); // 50% instead of flat 10
+        return{xp:bonus, label:`❄️ Frost Streak +${bonus}`, type:'ice'};
+      }
+      // Also give small trickle every 3 streaks
+      if(streak>0 && streak%3===0 && streak%7!==0){
+        return{xp:5, label:`❄️ Ice Trickle +5`, type:'ice'};
+      }
+      return null;
+    }
+  },
+  // ⚡ THUNDER — Sprinter: +40% XP if completed before 12:00
+  thunder:{
+    id:'thunder', name:'THE SPRINTER',
+    desc:'+40% XP bonus when quest completed before noon (12:00)',
+    icon:'⚡',
+    apply(q, baseXp, streak, hour){
+      if(hour<12){
+        const bonus=Math.round(baseXp*0.4);
+        return{xp:bonus, label:`⚡ Early Strike +${bonus}`, type:'thunder'};
+      }
+      return null;
+    }
+  },
+  // 🌪️ WIND — Versatile: Bonus when multiple categories completed today
+  wind:{
+    id:'wind', name:'THE VERSATILE',
+    desc:'+30 XP bonus when completing quests across 3+ different categories today',
+    icon:'🌪️',
+    apply(q, baseXp, streak, hour){
+      const t=new Date().toISOString().slice(0,10);
+      const todayCats=new Set(S.history.filter(h=>h.date===t).map(h=>h.category));
+      todayCats.add(q.category); // include current
+      if(todayCats.size>=3){
+        return{xp:30, label:`🌪️ Versatile +30`, type:'wind', once:true};
+      }
+      return null;
+    }
+  },
+  // 🌍 EARTH — Tank: Streak penalty protection. Lose only 1 streak instead of full reset on miss
+  earth:{
+    id:'earth', name:'THE TANK',
+    desc:'Miss protection: streak penalty capped at –1 per day. HP drain reduced.',
+    icon:'🌍',
+    // Earth passive is applied in updDayStreak logic (not per-completion)
+    // +bonus XP when completing after a missed day (comeback bonus)
+    apply(q, baseXp, streak, hour){
+      // Small resilience bonus: +15 XP if streak was reset today (comeback)
+      if(S.earthComebackToday){
+        return{xp:15, label:`🌍 Comeback +15`, type:'earth'};
+      }
+      return null;
+    }
+  },
+  // 🌑 VOID — Specialist: Designate one "Focus Quest" — it earns 2× XP
+  void:{
+    id:'void', name:'THE SPECIALIST',
+    desc:'Designate one Focus Quest — it earns 2× XP. Other quests earn normal.',
+    icon:'🌑',
+    apply(q, baseXp, streak, hour){
+      const focusId=S.voidFocusQuestId;
+      if(focusId && q.id===focusId){
+        return{xp:baseXp, label:`🌑 Void Focus ×2 +${baseXp}`, type:'void'};
+      }
+      return null;
+    }
+  }
+};
+
+// Apply elemental passive to XP calculation
+function applyPassiveSkill(q, baseXp, streak){
+  const hour=new Date().getHours();
+  const passive=PASSIVE_SKILLS[CE];
+  if(!passive)return{bonusXp:0,passiveLabel:null};
+
+  const result=passive.apply(q,baseXp,streak,hour);
+  if(!result)return{bonusXp:0,passiveLabel:null};
+
+  // Wind: once-per-day check
+  if(result.type==='wind'&&result.once){
+    const t=today();
+    if(S.windBonusToday===t)return{bonusXp:0,passiveLabel:null};
+    S.windBonusToday=t;
+  }
+
+  return{bonusXp:result.xp||0, passiveLabel:result.label};
+}
+
+// Earth: override day streak update to soften penalty
+function applyEarthStreakProtection(){
+  if(CE!=='earth')return false;
+  // If earth user missed yesterday, reduce streak by 1 instead of resetting
+  const t=today();
+  const yst=new Date();yst.setDate(yst.getDate()-1);
+  const ys=yst.toISOString().slice(0,10);
+  const twoAgo=new Date();twoAgo.setDate(twoAgo.getDate()-2);
+  const ta=twoAgo.toISOString().slice(0,10);
+  const missedYest=!S.history.some(h=>h.date===ys);
+  const hadTwoAgo=S.history.some(h=>h.date===ta);
+  if(missedYest&&hadTwoAgo&&S.currentStreak>1){
+    // Earth: only lose 1 instead of full reset
+    S.currentStreak=Math.max(1,S.currentStreak-1);
+    S.earthComebackToday=true;
+    save();
+    showNotif('🌍 Earth Resilience: Streak protected (–1 only)');
+    return true;
+  }
+  return false;
+}
+
+// Render passive skill info card (used in profile + settings)
+function renderPassiveSkillCard(){
+  const p=PASSIVE_SKILLS[CE];if(!p)return'';
+  const focusQuest=CE==='void'&&S.voidFocusQuestId?S.quests.find(q=>q.id===S.voidFocusQuestId):null;
+  return`<div style="background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 30%,transparent);border-radius:5px;padding:12px 14px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="font-size:18px;">${p.icon}</span>
+      <span style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--g1);letter-spacing:2px;">${p.name}</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);background:var(--crd);padding:2px 6px;border-radius:3px;border:1px solid var(--brd);margin-left:auto;">PASSIVE</span>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);line-height:1.6;">${p.desc}</div>
+    ${CE==='void'?`<div style="margin-top:8px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-bottom:5px;">FOCUS QUEST (2× XP):</div>
+      <select class="fs" onchange="setVoidFocusQuest(this.value)" style="font-size:12px;padding:6px 8px;">
+        <option value="">— None selected —</option>
+        ${S.quests.map(q=>`<option value="${q.id}" ${S.voidFocusQuestId===q.id?'selected':''}>${q.name} (${q.diff}-Rank)</option>`).join('')}
+      </select>
+    </div>`:''}
+    ${CE==='earth'&&S.currentStreak>0?`<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);margin-top:6px;">🛡️ Streak shield active — current streak: ${S.currentStreak}</div>`:''}
+  </div>`;
+}
+
+function setVoidFocusQuest(id){
+  S.voidFocusQuestId=id||null;
+  save();
+  renderQuests();
+  showNotif(id?`🌑 Void Focus set — 2× XP activated`:'🌑 Void Focus cleared');
+}
+
+// Inject passive skill card into profile page
+function updatePassiveDisplay(){
+  const el=document.getElementById('passiveSkillCard');
+  if(el)el.innerHTML=renderPassiveSkillCard();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS — AI INTEGRATION CONFIG
+   ═══════════════════════════════════════════════════════════════ */
+function renderAISettings(){
+  const cfg=getAICfg();
+  const el=document.getElementById('aiSettingsPanel');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="settitle">AI INTEGRATION</div>
+
+    <!-- Supabase -->
+    <div style="margin-bottom:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;">◈ SUPABASE (EDGE FUNCTIONS + POSTGRES RPC)</div>
+      <div class="fg"><label class="fl">Supabase Project URL</label>
+        <input class="fi" id="cfg-sbUrl" placeholder="https://xxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
+      </div>
+      <div class="fg"><label class="fl">Supabase Anon Key</label>
+        <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJ..." value="${cfg.supabaseAnonKey||''}"/>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:8px;">Deploy edge function at <span style="color:var(--g1);">/functions/v1/analyze-quest</span> to proxy AI calls server-side. See SQL setup below.</div>
+    </div>
+
+    <!-- AI Provider -->
+    <div class="fg"><label class="fl">AI Provider (for Edge Function or direct)</label>
+      <select class="fs" id="cfg-provider" style="font-size:13px;">
+        <option value="openai" ${(cfg.aiProvider||'openai')==='openai'?'selected':''}>OpenAI (GPT-4o-mini)</option>
+        <option value="gemini" ${cfg.aiProvider==='gemini'?'selected':''}>Google Gemini Flash</option>
+      </select>
+    </div>
+
+    <!-- Direct keys (fallback) -->
+    <div class="fg"><label class="fl">OpenAI API Key (direct fallback)</label>
+      <input class="fi" id="cfg-oaKey" type="password" placeholder="sk-..." value="${cfg.openaiKey||''}"/>
+    </div>
+    <div class="fg"><label class="fl">Gemini API Key (direct fallback)</label>
+      <input class="fi" id="cfg-gmKey" type="password" placeholder="AIza..." value="${cfg.geminiKey||''}"/>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn bp" style="flex:1;font-size:10px;" onclick="saveAIConfig()">SAVE CONFIG</button>
+      <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">TEST CONNECTION</button>
+    </div>
+
+    <!-- SQL Setup -->
+    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+        SUPABASE SQL SETUP
+        <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY SQL</button>
+      </div>
+      <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;">${esc(SUPABASE_SETUP_SQL)}</pre>
+    </div>`;
+}
+
+function saveAIConfig(){
+  const cfg={
+    supabaseUrl:(document.getElementById('cfg-sbUrl')?.value||'').trim(),
+    supabaseAnonKey:(document.getElementById('cfg-sbKey')?.value||'').trim(),
+    aiProvider:document.getElementById('cfg-provider')?.value||'openai',
+    openaiKey:(document.getElementById('cfg-oaKey')?.value||'').trim(),
+    geminiKey:(document.getElementById('cfg-gmKey')?.value||'').trim(),
+  };
+  saveAICfg(cfg);showNotif('AI config saved!');
+}
+
+async function testAIConnection(){
+  showNotif('Testing connection...');
+  const result=await analyzeQuestAI_Remote('Morning exercise routine','Fitness','daily');
+  if(result){showNotif('✅ AI connected! Test result: '+result.rank+'-Rank, '+result.xp+' XP');}
+  else{showNotif('🟡 Using local AI (no remote key configured)');}
+}
+
+function copySetupSQL(){
+  navigator.clipboard?.writeText(SUPABASE_SETUP_SQL).then(()=>showNotif('SQL copied to clipboard!')).catch(()=>showNotif('Copy the SQL manually from the panel'));
+}
+
+function exportBackup(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`OriasBackup_${today()}.json`;a.click();showNotif('Backup exported!');}
+function importData(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.quests&&d.history){S=d;save();init();showNotif('Backup imported!');}else showNotif('Invalid file');}catch{showNotif('Import failed');}};r.readAsText(f);};inp.click();}
+function resetAll(){if(!confirm('RESET ALL DATA? Cannot be undone!'))return;if(!confirm('Are you absolutely sure?'))return;const el=S.element||'void';S=defS();S.element=el;save();init();showNotif('Reset complete');}
+function defS(){return{playerName:'Orias Hunter',avatar:'🌑',bio:'',element:'void',level:1,xp:0,totalXP:0,currentStreak:0,maxStreak:0,lastCompleted:null,perfectDays:[],achs:{},quests:[],history:[],nodes:[],settings:{streakBonus:10,perfectBonus:25}};}
+
 function init(){
   const saved=S.element||null;
   if(!saved){
@@ -1631,6 +3154,32 @@ function init(){
     applyElem(saved);
   }
   document.getElementById('qStart').value=today();
+  // Initialize themed category chip pickers
+  const defQCat=getCats('quest')[0]?.name||'Fitness';
+  const defNCat=getCats('node')[0]?.name||'Programming';
+  document.getElementById('qCat').value=defQCat;
+  document.getElementById('nodeCat').value=defNCat;
+  renderCatPicker('q',defQCat);
+  renderCatPicker('node',defNCat);
+
+  // ── DATA MIGRATION: enforce sequential lock integrity ──────────
+  // Resets any node that is marked complete but has an incomplete predecessor.
+  // This fixes data from before the sequential lock system was active.
+  if(S.nodes&&S.nodes.length>1){
+    let changed=false;
+    for(let i=1;i<S.nodes.length;i++){
+      const node=S.nodes[i];
+      // If predecessors are not all done, force-reset this node's progress
+      if(!isPredecessorsDone(i,S.nodes)){
+        if(node.completed||((node.doneTasks||[]).length>0)){
+          node.completed=false;
+          node.doneTasks=[];
+          changed=true;
+        }
+      }
+    }
+    if(changed)save();
+  }
 
   // Sample quests if empty
   if(!S.quests.length){
