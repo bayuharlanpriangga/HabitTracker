@@ -271,6 +271,18 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 
 /* ─── ELEM CONFIRM ───────────────────────────────────────── */
 #cfmOvl{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:700;display:none;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(8px);}
+#cfmBox{background:var(--pnl);border:1px solid var(--brdh);border-radius:8px;padding:24px 20px;width:100%;max-width:400px;position:relative;overflow:hidden;box-shadow:0 0 60px color-mix(in srgb,var(--g1) 25%,transparent);}
+#cfmBox::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g1),var(--g2));}
+/* ─── ELEMENT PICKER CARDS ─────────────────────────────────── */
+.ep-card{background:var(--crd);border:1px solid var(--brd);border-radius:6px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .25s;-webkit-tap-highlight-color:transparent;}
+.ep-card:hover,.ep-card:active{border-color:var(--g1);background:var(--crd2);box-shadow:0 0 20px color-mix(in srgb,var(--g1) 30%,transparent);transform:translateY(-2px);}
+.ep-card.ep-current{border-color:var(--g1);background:color-mix(in srgb,var(--g1) 10%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--g1) 22%,transparent);}
+.ep-icon{font-size:28px;margin-bottom:7px;}
+.ep-name{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--txd);transition:color .25s;}
+.ep-card:hover .ep-name,.ep-card.ep-current .ep-name{color:var(--g1);}
+.ep-cur-badge{margin-top:5px;font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--g1);letter-spacing:2px;background:color-mix(in srgb,var(--g1) 12%,transparent);border:1px solid color-mix(in srgb,var(--g1) 40%,transparent);border-radius:3px;padding:1px 5px;display:inline-block;}
+#elemPickerMo .mt{color:var(--g1);border-bottom:1px solid var(--brd);padding-bottom:12px;margin-bottom:4px;}
+.ep-subtitle{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);letter-spacing:2px;text-align:center;margin-bottom:14px;}
 
 /* ─── ELEMENT SCREEN ─────────────────────────────────────── */
 .es-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;max-width:620px;width:100%;}
@@ -667,16 +679,17 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 
 <!-- ELEMENT PICKER MODAL (change) -->
 <div class="mo" id="elemPickerMo">
-  <div class="mbox" style="max-width:580px;">
+  <div class="mbox" style="max-width:560px;">
     <div class="mt">◈ CHANGE ELEMENT</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;" id="elemPickGrid"></div>
-    <button class="btn bc" style="width:100%;" onclick="closeElemPicker()">CANCEL</button>
+    <div class="ep-subtitle" id="epSubtitle">SELECT YOUR ELEMENTAL PATH</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;" id="elemPickGrid"></div>
+    <button class="btn bc" style="width:100%;border-color:var(--brd);color:var(--txd);" onclick="closeElemPicker()">CANCEL</button>
   </div>
 </div>
 
 <!-- ELEMENT CONFIRM -->
 <div id="cfmOvl" onclick="if(event.target===this)closeCfm()">
-  <div id="cfmBox" style="background:var(--pnl);border:1px solid var(--brdh);border-radius:8px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 0 60px color-mix(in srgb,var(--g1) 25%,transparent);max-width:420px;"></div>
+  <div id="cfmBox"></div>
 </div>
 
 <!-- LEVEL UP + NOTIF -->
@@ -723,7 +736,7 @@ const ACH=[
   {id:'q50',ic:'💫',nm:'Veteran',chk:s=>s.history.length>=50},
   {id:'q100',ic:'🏆',nm:'Legend',chk:s=>s.history.length>=100},
   {id:'rm1',ic:'🗺️',nm:'Explorer',chk:s=>(s.nodes||[]).length>=1},
-  {id:'rmd',ic:'🎯',nm:'Pathfinder',chk:s=>(s.nodes||[]).some(n=>n.completed)},
+  {id:'rmd',ic:'🎯',nm:'Pathfinder',chk:s=>(s.nodes||[]).some(n=>isNodeComplete(n))},
   {id:'rankS',ic:'💠',nm:'S-Rank',chk:s=>s.totalXP>=15000},
   {id:'perf',ic:'✨',nm:'Perfect Day',chk:s=>(s.perfectDays||[]).length>=1},
 ];
@@ -1175,37 +1188,114 @@ function clearHistory(){if(!confirm('Clear all history?'))return;S.history=[];S.
 /* ───────────────────────────────────────────────────────────────
    ROADMAP
    ─────────────────────────────────────────────────────────────── */
-function nodeStatus(n){
-  const tasks=n.tasks||[];const done=n.doneTasks||[];
-  if(S.level<(n.reqLevel||1))return'locked';
-  if(n.completed||(tasks.length>0&&done.length>=tasks.length))return'done';
-  if(done.length>0)return'active';
-  return'active'; // unlocked nodes are active by default
+
+// isNodeComplete — true only when ALL tasks ticked OR marked done
+function isNodeComplete(node){
+  const tasks=node.tasks||[];
+  if(node.completed)return true;
+  if(tasks.length>0&&(node.doneTasks||[]).length>=tasks.length)return true;
+  return false;
 }
+
+// nodeStatus — uses sequential lock: node N is locked unless node N-1 is complete
+// allNodes = full ordered array passed explicitly so we don't depend on index tricks
+function nodeStatus(node, allNodes){
+  if(!allNodes)allNodes=S.nodes||[];
+  const idx=allNodes.findIndex(n=>n.id===node.id);
+  // Level lock
+  if(S.level<(node.reqLevel||1))return'locked';
+  // Sequential lock: every previous node must be complete
+  if(idx>0){
+    for(let i=0;i<idx;i++){
+      if(!isNodeComplete(allNodes[i]))return'locked';
+    }
+  }
+  // Own completion
+  if(isNodeComplete(node))return'done';
+  // All tasks done but not marked (edge case)
+  const tasks=node.tasks||[];
+  const dt=node.doneTasks||[];
+  if(tasks.length>0&&dt.length>=tasks.length)return'done';
+  return'active';
+}
+
 function renderRoadmap(){
   const el=EL[CE];
-  document.getElementById('rmSub').textContent=el.lbl+' PATH — KNOWLEDGE PROGRESSION';
+  document.getElementById('rmSub').textContent=el.lbl+' PATH — SEQUENTIAL KNOWLEDGE';
   const filter=document.getElementById('rmFil').value;
   const nodes=[...S.nodes||[]];
-  const tot=nodes.length,dn=nodes.filter(n=>nodeStatus(n)==='done').length,ac=nodes.filter(n=>nodeStatus(n)==='active').length,lk=nodes.filter(n=>nodeStatus(n)==='locked').length;
-  document.getElementById('rm-tot').textContent=tot;document.getElementById('rm-dn').textContent=dn;document.getElementById('rm-ac').textContent=ac;document.getElementById('rm-lk').textContent=lk;
-  const pct=tot?Math.floor(dn/tot*100):0;document.getElementById('rmPct').textContent=pct+'%';document.getElementById('rmPBar').style.width=pct+'%';
-  let visible=nodes;if(filter!=='all')visible=visible.filter(n=>nodeStatus(n)===filter);
-  if(!visible.length){document.getElementById('rmPath').innerHTML=`<div style="text-align:center;padding:50px 20px;color:var(--txd);"><div style="font-size:40px;margin-bottom:10px;opacity:.3;">🗺️</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;line-height:2;">NO NODES YET<br><br>Click [+ ADD NODE] to build your learning roadmap</div></div>`;return;}
+  const tot=nodes.length;
+  const dn=nodes.filter(n=>nodeStatus(n,nodes)==='done').length;
+  const ac=nodes.filter(n=>nodeStatus(n,nodes)==='active').length;
+  const lk=nodes.filter(n=>nodeStatus(n,nodes)==='locked').length;
+  document.getElementById('rm-tot').textContent=tot;
+  document.getElementById('rm-dn').textContent=dn;
+  document.getElementById('rm-ac').textContent=ac;
+  document.getElementById('rm-lk').textContent=lk;
+  const pct=tot?Math.floor(dn/tot*100):0;
+  document.getElementById('rmPct').textContent=pct+'%';
+  document.getElementById('rmPBar').style.width=pct+'%';
+
+  let visible=nodes;
+  if(filter!=='all')visible=visible.filter(n=>nodeStatus(n,nodes)===filter);
+
+  if(!visible.length){
+    document.getElementById('rmPath').innerHTML=`<div style="text-align:center;padding:50px 20px;color:var(--txd);">
+      <div style="font-size:40px;margin-bottom:10px;opacity:.3;">🗺️</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;line-height:2;">NO NODES YET<br><br>Click [+ ADD NODE] to build your roadmap</div>
+    </div>`;
+    return;
+  }
+
   let html='';
-  visible.forEach((node,idx)=>{
-    const st=nodeStatus(node),tasks=node.tasks||[],dt=node.doneTasks||[];
+  visible.forEach((node,vidx)=>{
+    const st=nodeStatus(node,nodes);          // status using full nodes array
+    const realIdx=nodes.indexOf(node);        // position in full list (for numbering)
+    const tasks=node.tasks||[];
+    const dt=node.doneTasks||[];
     const pct2=tasks.length?Math.floor(dt.length/tasks.length*100):0;
-    const isLast=idx===visible.length-1;const prevDone=idx===0||nodeStatus(visible[idx-1])==='done';
+    const isLast=vidx===visible.length-1;
+
+    // Line between nodes: lit if THIS node is done
+    const lineClass=st==='done'?'on':'off';
+
+    // How many tasks are left
+    const remaining=tasks.length-dt.length;
+
+    // Who is blocking this node (first incomplete predecessor)
+    let blockedBy='';
+    if(st==='locked'){
+      for(let i=0;i<realIdx;i++){
+        if(!isNodeComplete(nodes[i])){
+          const bt=nodes[i].tasks||[];const bd=nodes[i].doneTasks||[];
+          const brem=bt.length-bd.length;
+          blockedBy=`Complete Node ${i+1}: "${nodes[i].title}" first (${brem} task${brem!==1?'s':''} remaining)`;
+          break;
+        }
+      }
+      if(!blockedBy&&S.level<(node.reqLevel||1)){
+        blockedBy=`Reach Level ${node.reqLevel} first (you are Level ${S.level})`;
+      }
+    }
+
     html+=`<div class="rm-node">
       <div class="rm-left">
-        <div class="rm-dot ${st}">${nodes.indexOf(node)+1}</div>
-        ${!isLast?`<div class="rm-line ${prevDone?'on':'off'}"></div>`:''}
+        <div class="rm-dot ${st}">${realIdx+1}</div>
+        ${!isLast?`<div class="rm-line ${lineClass}"></div>`:''}
       </div>
       <div class="rm-body">
-        <div class="rm-card ${st}">
+        <div class="rm-card ${st}" style="position:relative;">
+
+          ${st==='locked'?`
+          <!-- LOCKED OVERLAY -->
+          <div style="position:absolute;inset:0;border-radius:5px;background:rgba(0,0,0,.55);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(1px);">
+            <div style="font-size:28px;opacity:.6;">🔒</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:#666;letter-spacing:3px;">LOCKED</div>
+            ${blockedBy?`<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#555;text-align:center;padding:0 14px;line-height:1.6;max-width:280px;">${esc(blockedBy)}</div>`:''}
+          </div>`:''}
+
           <div class="rm-top">
-            <div class="rm-title">${esc(node.title)}</div>
+            <div class="rm-title" style="${st==='locked'?'opacity:.4':''}">${esc(node.title)}</div>
             <div class="rm-tags">
               <span class="tag ${st==='done'?'tag-done':st==='locked'?'tag-lock':'tag-rank'}">${st.toUpperCase()}</span>
               <span class="tag tag-rank">${node.rank||'B'}-RANK</span>
@@ -1213,31 +1303,86 @@ function renderRoadmap(){
               <span class="tag tag-cat">${node.category||'Other'}</span>
             </div>
           </div>
-          ${node.desc?`<div class="rm-desc">${esc(node.desc)}</div>`:''}
-          ${tasks.length?`<div class="rm-tasks">${tasks.map((tk,ti)=>{const tdone=dt.includes(ti);return`<div class="rm-task" onclick="toggleNodeTask('${node.id}',${ti})"><div class="rm-task-box ${tdone?'on':''}">${tdone?'✓':''}</div><span class="rm-task-txt ${tdone?'dn':''}">${esc(tk)}</span></div>`;}).join('')}</div>`:''}
-          ${tasks.length?`<div class="rm-prog-wrap"><div style="display:flex;justify-content:space-between;"><span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">PROGRESS</span><span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);">${dt.length}/${tasks.length}</span></div><div class="rm-prog-bar"><div class="rm-prog-fill" style="width:${pct2}%"></div></div></div>`:''}
-          <div class="rm-actions">
-            ${st!=='done'?`<button class="btn bp" style="font-size:10px;padding:5px 10px;" onclick="markNodeDone('${node.id}')">✓ COMPLETE</button>`:`<span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);">◈ COMPLETED</span>`}
-            <button class="btn bc" style="font-size:10px;padding:5px 10px;" onclick="openEditNode('${node.id}')">✎ EDIT</button>
-            <button class="ib d" onclick="delNode('${node.id}')">✕</button>
+
+          ${node.desc?`<div class="rm-desc" style="${st==='locked'?'opacity:.35':''}">${esc(node.desc)}</div>`:''}
+
+          ${tasks.length?`
+          <div class="rm-tasks" style="${st==='locked'?'opacity:.3;pointer-events:none;':''}">
+            ${tasks.map((tk,ti)=>{
+              const tdone=dt.includes(ti);
+              const clickable=st!=='locked';
+              return`<div class="rm-task" ${clickable?`onclick="toggleNodeTask('${node.id}',${ti})"`:''} style="${!clickable?'cursor:default;':''}"">
+                <div class="rm-task-box ${tdone?'on':''}">${tdone?'✓':''}</div>
+                <span class="rm-task-txt ${tdone?'dn':''}">${esc(tk)}</span>
+                ${tdone?'':`<span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);margin-left:auto;padding-left:6px;">TODO</span>`}
+              </div>`;
+            }).join('')}
           </div>
-          ${(node.reqLevel||1)>1?`<div class="rm-req">Required Level: <span class="hi">${node.reqLevel}</span>${S.level<node.reqLevel?' (Current: '+S.level+' — LOCKED)':''}</div>`:''}
+          <div class="rm-prog-wrap" style="${st==='locked'?'opacity:.3':''}">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">PROGRESS</span>
+              <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${st==='done'?'var(--g1)':st==='locked'?'#555':'var(--g1)'};">${dt.length}/${tasks.length}</span>
+            </div>
+            <div class="rm-prog-bar">
+              <div class="rm-prog-fill" style="width:${st==='locked'?'0':pct2}%"></div>
+            </div>
+            ${st==='active'&&remaining>0?`<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-top:4px;letter-spacing:1px;">${remaining} task${remaining!==1?'s':''} remaining</div>`:''}
+          </div>`:''}
+
+          <div class="rm-actions">
+            ${st==='done'
+              ? `<span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);">◈ NODE COMPLETE — +${node.xp||200} XP EARNED</span>`
+              : st==='locked'
+                ? `<span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#444;letter-spacing:1px;">🔒 COMPLETE PREVIOUS NODE FIRST</span>`
+                : `<button class="btn bp" style="font-size:10px;padding:6px 12px;" onclick="markNodeDone('${node.id}')">✓ MARK COMPLETE</button>`
+            }
+            ${st!=='locked'?`<button class="btn bc" style="font-size:10px;padding:6px 10px;" onclick="openEditNode('${node.id}')">✎</button>`:''}
+            ${st!=='locked'?`<button class="ib d" style="margin-left:auto;" onclick="delNode('${node.id}')">✕</button>`:''}
+          </div>
+
+          ${(node.reqLevel||1)>1?`<div class="rm-req" style="${st==='locked'?'opacity:.4':''}">Required Level: <span class="hi">${node.reqLevel}</span>${S.level<node.reqLevel?' (you are Level '+S.level+')':' ✓'}</div>`:''}
         </div>
       </div>
     </div>`;
   });
   document.getElementById('rmPath').innerHTML=html;
 }
+
 function toggleNodeTask(nid,ti){
   const node=S.nodes.find(n=>n.id===nid);if(!node)return;
+  // Safety: only allow if not locked
+  if(nodeStatus(node,S.nodes)==='locked'){showNotif('🔒 Complete previous nodes first!');return;}
   if(!node.doneTasks)node.doneTasks=[];
   const idx=node.doneTasks.indexOf(ti);
-  if(idx>=0)node.doneTasks.splice(idx,1);
-  else{node.doneTasks.push(ti);if(node.doneTasks.length===(node.tasks||[]).length&&!node.completed){completeNode(node);}}
+  if(idx>=0){
+    node.doneTasks.splice(idx,1);
+    // Un-complete node if tasks get unticked below 100%
+    if(node.completed&&(node.doneTasks.length<(node.tasks||[]).length)){node.completed=false;}
+  }else{
+    node.doneTasks.push(ti);
+    if(node.doneTasks.length===(node.tasks||[]).length&&!node.completed){
+      completeNode(node);
+    }
+  }
   save();renderRoadmap();
 }
-function markNodeDone(nid){const node=S.nodes.find(n=>n.id===nid);if(!node||node.completed)return;node.doneTasks=(node.tasks||[]).map((_,i)=>i);completeNode(node);save();renderRoadmap();}
-function completeNode(node){node.completed=true;const xp=node.xp||200;gainXP(xp);showNotif('🗺️ Node Complete! +'+xp+' XP');checkAchs();}
+function markNodeDone(nid){
+  const node=S.nodes.find(n=>n.id===nid);if(!node||node.completed)return;
+  if(nodeStatus(node,S.nodes)==='locked'){showNotif('🔒 Complete previous nodes first!');return;}
+  node.doneTasks=(node.tasks||[]).map((_,i)=>i);
+  completeNode(node);save();renderRoadmap();
+}
+function completeNode(node){
+  node.completed=true;const xp=node.xp||200;gainXP(xp);
+  showNotif('🗺️ Node Complete! +'+xp+' XP');
+  checkAchs();
+  // Auto-unlock message for next node
+  const idx=(S.nodes||[]).findIndex(n=>n.id===node.id);
+  if(idx>=0&&idx<S.nodes.length-1){
+    const next=S.nodes[idx+1];
+    setTimeout(()=>showNotif('🔓 Node '+(idx+2)+' UNLOCKED: '+next.title),2800);
+  }
+}
 function delNode(nid){if(!confirm('Delete node?'))return;S.nodes=S.nodes.filter(n=>n.id!==nid);save();renderRoadmap();}
 
 function openNodeModal(){
@@ -1305,33 +1450,72 @@ function pickElem(name,fromScreen){
 function hideEScreen(){const s=document.getElementById('escreen');s.classList.add('out');setTimeout(()=>s.style.display='none',700);document.getElementById('app').classList.add('vis');}
 function openElemPicker(){
   const g=document.getElementById('elemPickGrid');
-  const clr={fire:'#ff6020',ice:'#00d8ff',thunder:'#ffe820',wind:'#00ffa8',void:'#cc44ff',earth:'#d4a84b'};
-  g.innerHTML=Object.entries(EL).map(([k,el])=>`<div onclick="pickElem('${k}',false)" style="background:var(--crd);border:1px solid ${k===CE?'var(--g1)':'var(--brd)'};border-radius:6px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='${clr[k]}'" onmouseout="this.style.borderColor='${k===CE?'var(--g1)':'var(--brd)'}'">
-    <div style="font-size:28px;margin-bottom:6px;">${el.icon}</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:${k===CE?'var(--g1)':'var(--txd)'};letter-spacing:2px;">${el.lbl}</div>
-  </div>`).join('');
+  // Update subtitle with current element system name
+  const sub=document.getElementById('epSubtitle');
+  if(sub)sub.textContent='CURRENT: '+EL[CE].sys+' — SELECT NEW PATH';
+  // Each card uses ep-card CSS class — fully themed via CSS vars
+  g.innerHTML=Object.entries(EL).map(([k,el])=>`
+    <div class="ep-card ${k===CE?'ep-current':''}" onclick="pickElem('${k}',false)" data-key="${k}">
+      <div class="ep-icon">${el.icon}</div>
+      <div class="ep-name">${el.lbl}</div>
+      ${k===CE?`<div class="ep-cur-badge">ACTIVE</div>`:''}
+    </div>`).join('');
   document.getElementById('elemPickerMo').classList.add('open');
 }
 function closeElemPicker(){document.getElementById('elemPickerMo').classList.remove('open');}
+
 function showElemConfirm(name){
-  pendElem=name;const el=EL[name],cur=EL[CE];
-  const clr={fire:'#ff6020',ice:'#00d8ff',thunder:'#ffe820',wind:'#00ffa8',void:'#cc44ff',earth:'#d4a84b'};
-  const nc=clr[name]||'#fff',cc=clr[CE]||'var(--g1)';
-  document.getElementById('cfmBox').innerHTML=`<div style="text-align:center;margin-bottom:18px;">
-    <div style="font-size:46px;margin-bottom:7px;">${el.icon}</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:${nc};letter-spacing:4px;margin-bottom:4px;">${el.lbl}</div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${cc};letter-spacing:2px;margin-bottom:14px;">${el.sys}</div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#777;letter-spacing:1px;line-height:1.9;max-width:320px;margin:0 auto;">
-      Switching from <span style="color:${cc};">${cur.lbl}</span> to <span style="color:${nc};">${el.lbl}</span>.<br>
-      All colors, classes, particles, and system names will transform.<br><br>
-      <span style="color:#ff8888;">Your progress, quests, and roadmap will NOT be lost.</span>
+  pendElem=name;
+  const el=EL[name],cur=EL[CE];
+  // Use CSS variables for current theme colors — no hardcoded hex
+  // New element's accent color pulled from EL data for preview only
+  const ELEM_ACCENT={fire:'255,96,32',ice:'0,216,255',thunder:'255,232,32',wind:'0,255,168',void:'204,68,255',earth:'212,168,75'};
+  const na=ELEM_ACCENT[name]||'200,100,255';
+  document.getElementById('cfmBox').innerHTML=`
+    <div style="text-align:center;margin-bottom:18px;">
+      <!-- New element preview icon with its own accent glow -->
+      <div style="width:72px;height:72px;border-radius:50%;background:rgba(${na},.12);border:2px solid rgba(${na},.6);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 0 24px rgba(${na},.3);">
+        <span style="font-size:34px;">${el.icon}</span>
+      </div>
+      <!-- New element name in its accent color -->
+      <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:rgb(${na});letter-spacing:4px;margin-bottom:3px;">${el.lbl}</div>
+      <!-- System name uses CURRENT theme color (var --g1) -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);letter-spacing:3px;margin-bottom:14px;">${el.sys}</div>
+
+      <!-- Description box styled with current theme -->
+      <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:12px 14px;margin-bottom:4px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);line-height:1.9;letter-spacing:.5px;">
+          Switching from <span style="color:var(--g1);font-weight:bold;">${cur.lbl}</span>
+          → <span style="color:rgb(${na});font-weight:bold;">${el.lbl}</span><br>
+          All colors, classes, particles &amp; system names will transform.
+        </div>
+        <div style="margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);background:rgba(255,80,80,.08);border:1px solid rgba(255,80,80,.2);border-radius:3px;padding:5px 8px;">
+          ◈ Progress, quests &amp; roadmap are preserved
+        </div>
+      </div>
     </div>
-  </div>
-  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:#444;text-align:center;letter-spacing:2px;margin-bottom:14px;">◈ CONFIRM ELEMENTAL SHIFT? ◈</div>
-  <div style="display:flex;gap:10px;">
-    <button onclick="closeCfm()" style="flex:1;padding:11px;background:transparent;border:1px solid #333;border-radius:3px;color:#666;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#666';this.style.color='#aaa'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">CANCEL</button>
-    <button onclick="confirmElem()" style="flex:1;padding:11px;background:${nc}18;border:2px solid ${nc};border-radius:3px;color:${nc};font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;box-shadow:0 0 18px ${nc}44;transition:all .2s;" onmouseover="this.style.background='${nc}28'" onmouseout="this.style.background='${nc}18'">CONFIRM</button>
-  </div>`;
+
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);text-align:center;letter-spacing:3px;margin-bottom:14px;">◈ CONFIRM ELEMENTAL SHIFT? ◈</div>
+
+    <div style="display:flex;gap:10px;">
+      <!-- Cancel uses current theme border -->
+      <button onclick="closeCfm()" class="cfm-cancel-btn" style="flex:1;padding:12px;background:transparent;border:1px solid var(--brd);border-radius:3px;color:var(--txd);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">CANCEL</button>
+      <!-- Confirm uses NEW element's accent as preview -->
+      <button onclick="confirmElem()" class="cfm-confirm-btn" style="flex:1;padding:12px;background:rgba(${na},.12);border:2px solid rgb(${na});border-radius:3px;color:rgb(${na});font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;box-shadow:0 0 18px rgba(${na},.3);transition:all .2s;">CONFIRM</button>
+    </div>`;
+
+  // Bind hover via JS (safe for dynamic innerHTML)
+  const cancelBtn=document.querySelector('.cfm-cancel-btn');
+  const confirmBtn=document.querySelector('.cfm-confirm-btn');
+  if(cancelBtn){
+    cancelBtn.onmouseenter=()=>{cancelBtn.style.borderColor='var(--txd)';cancelBtn.style.color='var(--tx)';};
+    cancelBtn.onmouseleave=()=>{cancelBtn.style.borderColor='var(--brd)';cancelBtn.style.color='var(--txd)';};
+  }
+  if(confirmBtn){
+    confirmBtn.onmouseenter=()=>{confirmBtn.style.background=`rgba(${na},.22)`;confirmBtn.style.boxShadow=`0 0 28px rgba(${na},.5)`;};
+    confirmBtn.onmouseleave=()=>{confirmBtn.style.background=`rgba(${na},.12)`;confirmBtn.style.boxShadow=`0 0 18px rgba(${na},.3)`;};
+  }
+
   document.getElementById('cfmOvl').style.display='flex';
 }
 function confirmElem(){if(pendElem){applyElem(pendElem);closeCfm();closeElemPicker();updateNav();updateProfile();renderQuests();renderRoadmap();}pendElem=null;}
