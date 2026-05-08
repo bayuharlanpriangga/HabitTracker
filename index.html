@@ -631,9 +631,10 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
     </div>
     <!-- Row 2: Page navigation tabs -->
     <div class="nav-pages">
-      <button class="np on" onclick="goPage('profile')">👤 Profile</button>
-      <button class="np"    onclick="goPage('tracker')">⚔ Quests</button>
-      <button class="np"    onclick="goPage('roadmap')">🗺 Roadmap</button>
+      <button class="np on" onclick="goPage('profile')">👤</button>
+      <button class="np"    onclick="goPage('tracker')">⚔️</button>
+      <button class="np"    onclick="goPage('roadmap')">🗺️</button>
+      <button class="np"    onclick="goPage('game')">🎮</button>
     </div>
   </nav>
 
@@ -710,6 +711,12 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
             <input class="fi" id="editAvCus" maxlength="2" placeholder="Or paste custom emoji..."/>
           </div>
           <button class="btn bp" onclick="saveProfile()" style="width:100%;">SAVE PROFILE</button>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 0;border-top:1px solid var(--brd);">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;">SOUND EFFECTS</span>
+            <div onclick="toggleSound()" id="soundToggle" style="width:40px;height:22px;border-radius:11px;background:var(--crd);border:1px solid var(--brd);cursor:pointer;position:relative;transition:all .2s;-webkit-tap-highlight-color:transparent;">
+              <div id="soundThumb" style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:var(--txd);transition:all .2s;left:3px;"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Period stats -->
@@ -954,7 +961,89 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
     <div id="rmPath"></div>
   </div>
 
-</div><!-- /app -->
+  <!-- ════════════════════════════════
+       PAGE: GAME HUB
+       ════════════════════════════════ -->
+  <div class="pg" id="pg-game">
+
+    <!-- Header row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--txb);letter-spacing:2px;">🎮 GAME HUB</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-top:2px;" id="gameSub">COMBAT · REWARDS · PROGRESSION</div>
+      </div>
+      <!-- Coin display -->
+      <div style="display:flex;align-items:center;gap:8px;background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:8px 12px;">
+        <span style="font-size:18px;">🪙</span>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);letter-spacing:2px;">COINS</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#ffcc44;" id="coinDisplay">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seasonal event banner -->
+    <div id="seasonalBanner" style="margin-bottom:14px;"></div>
+
+    <!-- Daily Dungeon -->
+    <div id="dungeonContainer" style="margin-bottom:14px;"></div>
+
+    <!-- Boss Quests -->
+    <div class="box" style="margin-bottom:14px;">
+      <div class="blbl">▶ BOSS QUESTS</div>
+      <div id="bossQuestList" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+
+    <!-- 2-col: Gacha + Prestige -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <!-- Gacha -->
+      <div class="box">
+        <div class="blbl">▶ GACHA</div>
+        <div style="text-align:center;margin-bottom:10px;">
+          <div style="font-size:36px;margin-bottom:4px;">🎰</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;">Roll for rare items<br>& cosmetics</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <button class="btn bp" style="font-size:10px;" onclick="doGacha(1)">🎲 Roll × 1 (50🪙)</button>
+          <button class="btn bg" style="font-size:10px;" onclick="doGacha(10)">🎲 Roll × 10 (450🪙)</button>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);margin-top:8px;text-align:center;">Earn 🪙 by completing quests</div>
+      </div>
+
+      <!-- Prestige -->
+      <div class="box">
+        <div class="blbl">▶ PRESTIGE</div>
+        <div id="prestigeInfo" style="text-align:center;margin-bottom:10px;"></div>
+        <button class="btn bp" style="width:100%;font-size:10px;" id="prestigeBtn" onclick="doPrestige()">💎 PRESTIGE</button>
+        <div id="prestigeHistory" style="margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);"></div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="box" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="blbl" style="margin-bottom:0;">▶ LEADERBOARD</div>
+        <button class="btn bc" style="font-size:9px;padding:4px 10px;" onclick="renderLeaderboard()">🔄 REFRESH</button>
+      </div>
+      <div id="leaderboardContent" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);text-align:center;padding:16px;">Tap refresh to load</div>
+    </div>
+
+    <!-- Skill Tree -->
+    <div class="box" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="blbl" style="margin-bottom:0;">▶ SKILL TREE</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);" id="skillPtDisplay">0 SP free</div>
+      </div>
+      <div id="skillTreeContent"></div>
+    </div>
+
+    <!-- Inventory -->
+    <div class="box">
+      <div class="blbl">▶ INVENTORY</div>
+      <div id="inventoryContent"></div>
+    </div>
+
+  </div>
 
 <!-- ════════════════════════════════
      ROADMAP NODE MODAL (with AI analyze)
@@ -1181,7 +1270,7 @@ let calY=new Date().getFullYear(), calM=new Date().getMonth();
 let ptAnim=null, pendElem=null;
 let aiTimer=null, nodeAiTimer=null;
 
-function defS(){return{playerName:'Orias Hunter',avatar:'🌑',bio:'',element:'void',level:1,xp:0,totalXP:0,currentStreak:0,maxStreak:0,lastCompleted:null,perfectDays:[],achs:{},quests:[],history:[],nodes:[],settings:{streakBonus:10,perfectBonus:25}};}
+function defS(){return{playerName:'Orias Hunter',avatar:'🌑',bio:'',element:'void',level:1,xp:0,totalXP:0,currentStreak:0,maxStreak:0,lastCompleted:null,perfectDays:[],achs:{},quests:[],history:[],nodes:[],settings:{streakBonus:10,perfectBonus:25,sound:true},gachaCoins:0,items:[],titles:[],skills:{},prestige:0,prestigeHistory:[],bossKills:{},bossProgress:{},dungeonDone:{}};}
 function loadState(){try{const s=JSON.parse(localStorage.getItem('orias_v5'));if(s&&s.quests)return s;}catch(e){}return defS();}
 function save(){localStorage.setItem('orias_v5',JSON.stringify(S));}
 
@@ -1926,8 +2015,8 @@ function initAttrSection(){
 function gainXP(a){
   S.xp+=a;S.totalXP+=a;
   const n=xpForLvl(S.level);
-  if(S.xp>=n){S.xp-=n;S.level++;showLvlUp();}
-  checkAchs();save();refreshAll();
+  if(S.xp>=n){S.xp-=n;S.level++;showLvlUp();sfx('levelup');}
+  checkAchs();checkBossQuests();save();refreshAll();
 }
 function loseXP(a){S.xp=Math.max(0,S.xp-a);S.totalXP=Math.max(0,S.totalXP-a);save();refreshAll();}
 function refreshAll(){updateNav();if(document.getElementById('pg-profile').classList.contains('on'))updateProfile();updateTrackerStat();}
@@ -1974,6 +2063,7 @@ function updateProfile(){
   updatePassiveDisplay();
   renderAccountPanel();
   renderAISettings();
+  updateSoundToggle();
 }
 function updateTrackerStat(){
   const t=today(),due=S.quests.filter(isDue),dn=due.filter(isDone).length;
@@ -2003,11 +2093,27 @@ function renderAvGrid(){
   g.innerHTML=opts.map(e=>`<div style="font-size:22px;background:var(--crd);border:1px solid ${S.avatar===e?'var(--g1)':'var(--brd)'};border-radius:4px;padding:7px 4px;text-align:center;cursor:pointer;transition:all .2s;" onclick="pickAvatar('${e}')">${e}</div>`).join('');
 }
 function pickAvatar(e){S.avatar=e;save();document.getElementById('profAv').textContent=e;renderAvGrid();}
+function toggleSound(){
+  S.settings.sound=!S.settings.sound;save();
+  const tog=document.getElementById('soundToggle');
+  const thumb=document.getElementById('soundThumb');
+  if(tog){tog.style.background=S.settings.sound?'var(--g1)':'var(--crd)';tog.style.borderColor=S.settings.sound?'var(--g1)':'var(--brd)';}
+  if(thumb){thumb.style.left=S.settings.sound?'21px':'3px';thumb.style.background=S.settings.sound?'var(--bg)':'var(--txd)';}
+  if(S.settings.sound)sfx('click');
+}
+function updateSoundToggle(){
+  const on=S.settings?.sound!==false;
+  const tog=document.getElementById('soundToggle');
+  const thumb=document.getElementById('soundThumb');
+  if(tog){tog.style.background=on?'var(--g1)':'var(--crd)';tog.style.borderColor=on?'var(--g1)':'var(--brd)';}
+  if(thumb){thumb.style.left=on?'21px':'3px';thumb.style.background=on?'var(--bg)':'var(--txd)';}
+}
 function saveProfile(){
   S.playerName=document.getElementById('editName').value.trim()||'Orias Hunter';
   S.bio=document.getElementById('editBio').value.trim();
   const ca=document.getElementById('editAvCus').value.trim();if(ca){S.avatar=ca;}
-  save();updateProfile();showNotif('Profile saved!');}
+  save();updateProfile();showNotif('Profile saved!');sfx('click');
+}
 
 /* ───────────────────────────────────────────────────────────────
    QUESTS
@@ -2215,18 +2321,33 @@ function toggleQ(id){
     // ── Apply Elemental Passive Skill ─────────────────────────
     const {bonusXp, passiveLabel}=applyPassiveSkill(q,baseXp,ns);
 
-    const totalXp=baseXp+streakBonus+bonusXp;
+    // ── Prestige multiplier ───────────────────────────────────
+    const prestigeMult=getPrestigeMultiplier();
+    const skillXPBoost=hasSkill('st_xp2')?1.1:1;
+    const totalXp=Math.round((baseXp+streakBonus+bonusXp)*prestigeMult*skillXPBoost);
+
+    // ── Earn gacha coins (1 coin per 10 XP) ──────────────────
+    earnCoins(Math.max(1,Math.floor(totalXp/10)));
+
     const hid='h_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
     S.history.push({hid,date:t,questId:id,questName:q.name,freq:q.freq||'daily',diff:q.diff||'C',category:q.category,xp:totalXp,status:'COMPLETE',element:CE,passiveBonus:bonusXp});
     if(!q.clog)q.clog=[];q.clog.push({date:t,hid});
     q.streak=ns;if(q.streak>S.maxStreak)S.maxStreak=q.streak;
-    gainXP(totalXp);
+    gainXP(totalXp);sfx('complete');
+    floatXP(totalXp);
 
     // Notification with passive info
     let msg=`+${baseXp} XP`;
     if(streakBonus>0)msg+=` +${streakBonus} streak`;
-    if(passiveLabel)msg+=` | ${passiveLabel}`;
+    if(bonusXp>0)msg+=` | ${passiveLabel}`;
+    if(prestigeMult>1)msg+=` (×${prestigeMult} prestige)`;
     showNotif(msg);
+
+    // Combo check
+    triggerCombo();
+
+    // Boss check (async, non-blocking)
+    setTimeout(()=>checkBossQuests(),300);
 
     checkPerfectDay();
   }
@@ -2727,11 +2848,12 @@ function initParticles(elem){
 function goPage(name){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.np').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pg-'+name).classList.add('on');
-  document.querySelectorAll('.np').forEach(b=>{if(b.getAttribute('onclick').includes("'"+name+"'"))b.classList.add('on');});
+  document.getElementById('pg-'+name)?.classList.add('on');
+  document.querySelectorAll('.np').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+name+"'"))b.classList.add('on');});
   if(name==='tracker'){renderQuests();renderCalendar();}
   if(name==='roadmap')renderRoadmap();
   if(name==='profile'){updateProfile();}
+  if(name==='game')renderGameHub();
 }
 function subTab(name){
   ['q','cal','his'].forEach(n=>{
@@ -2811,14 +2933,15 @@ async function analyzeQuestAI_Remote(questName, category, freq){
   const cfg = getAICfg();
 
   // ── Supabase Edge Function path ──────────────────────────────
-  if(cfg.supabaseUrl && cfg.supabaseAnonKey){
+  const {url:sbUrl,anon:sbAnon}=getSBCreds();
+  if(sbUrl && sbAnon){
     try{
-      const res = await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/functions/v1/analyze-quest`,{
+      const res = await fetch(`${sbUrl.replace(/\/$/,'')}/functions/v1/analyze-quest`,{
         method:'POST',
         headers:{
           'Content-Type':'application/json',
-          'Authorization':'Bearer '+cfg.supabaseAnonKey,
-          'apikey': cfg.supabaseAnonKey
+          'Authorization':'Bearer '+sbAnon,
+          'apikey': sbAnon
         },
         body: JSON.stringify({questName, category, freq, provider: cfg.aiProvider||'openai'})
       });
@@ -2866,28 +2989,31 @@ Rank scale: E=trivial(10xp), D=easy(25xp), C=moderate(50xp), B=hard(100xp), A=in
     }catch(e){console.warn('[ORIAS] OpenAI direct call failed:',e.message);}
   }
 
-  // ── Gemini fallback ──────────────────────────────────────────
+  // ── Gemini fallback (tries multiple models) ──────────────────
   if(cfg.geminiKey){
-    try{
-      const prompt=`Analyze this habit quest and return ONLY JSON: {"rank":"C","xp":50,"reason":"explanation","confidence":0.85}
+    const GEMINI_MODELS=['gemini-2.0-flash','gemini-1.5-flash-latest','gemini-1.5-flash','gemini-pro'];
+    const prompt=`Analyze this habit quest and return ONLY JSON: {"rank":"C","xp":50,"reason":"explanation","confidence":0.85}
 Rank: E=trivial(10xp) D=easy(25xp) C=moderate(50xp) B=hard(100xp) A=intense(200xp) S=legendary(500xp)
 Quest: "${questName}", Category: ${category}, Freq: ${freq}`;
-
-      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.geminiKey}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:120,temperature:0.3}})
-      });
-      if(res.ok){
-        const data=await res.json();
-        const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-        const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
-        if(json.rank&&json.xp){
-          showAIBadge('🟢 Gemini Flash', true);
-          return json;
+    for(const model of GEMINI_MODELS){
+      try{
+        const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cfg.geminiKey}`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:120,temperature:0.3}})
+        });
+        if(res.ok){
+          const data=await res.json();
+          const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+          const json=JSON.parse(raw.replace(/```json|```/g,'').trim());
+          if(json.rank&&json.xp){
+            showAIBadge('🟢 Gemini ('+model+')', true);
+            return json;
+          }
         }
-      }
-    }catch(e){console.warn('[ORIAS] Gemini call failed:',e.message);}
+      }catch(e){continue;}
+    }
+    console.warn('[ORIAS] All Gemini models failed');
   }
 
   // ── Local heuristic fallback ─────────────────────────────────
@@ -2962,14 +3088,15 @@ function onNameInput(){
 
 async function pushAttrResultToSupabase(attrId, score){
   const cfg=getAICfg();
-  if(!cfg.supabaseUrl||!cfg.supabaseAnonKey)return;
+  const {url:sbUrl2,anon:sbAnon2}=getSBCreds();
+  if(!sbUrl2||!sbAnon2)return;
   try{
-    await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/rest/v1/attr_results`,{
+    await fetch(`${sbUrl2.replace(/\/$/,'')}/rest/v1/attr_results`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Bearer '+cfg.supabaseAnonKey,
-        'apikey':cfg.supabaseAnonKey,
+        'Authorization':'Bearer '+sbAnon2,
+        'apikey':sbAnon2,
         'Prefer':'return=minimal'
       },
       body:JSON.stringify({attr_id:attrId, score, element:CE, created_at:new Date().toISOString()})
@@ -2979,16 +3106,15 @@ async function pushAttrResultToSupabase(attrId, score){
 
 async function fetchGlobalStatsFromSupabase(){
   const cfg=getAICfg();
-  if(!cfg.supabaseUrl||!cfg.supabaseAnonKey)return null;
+  const {url:sbUrl3,anon:sbAnon3}=getSBCreds();
+  if(!sbUrl3||!sbAnon3)return null;
   try{
-    // Calls Postgres RPC: SELECT * FROM get_attr_global_stats()
-    // Expected return: [{attr_id:'STR',avg:42,p10:18,p90:78,count:1500}, ...]
-    const res=await fetch(`${cfg.supabaseUrl.replace(/\/$/,'')}/rest/v1/rpc/get_attr_global_stats`,{
+    const res=await fetch(`${sbUrl3.replace(/\/$/,'')}/rest/v1/rpc/get_attr_global_stats`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Bearer '+cfg.supabaseAnonKey,
-        'apikey':cfg.supabaseAnonKey
+        'Authorization':'Bearer '+sbAnon3,
+        'apikey':sbAnon3
       },
       body:JSON.stringify({})
     });
@@ -3029,33 +3155,7 @@ async function syncAttrWithSupabase(attrId, score){
 }
 
 // SQL for Supabase setup (shown in Settings > Integration)
-const SUPABASE_SETUP_SQL=`-- Run this in Supabase SQL Editor:
-
-CREATE TABLE IF NOT EXISTS attr_results (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  attr_id text NOT NULL,
-  score integer NOT NULL CHECK (score BETWEEN 1 AND 100),
-  element text,
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE OR REPLACE FUNCTION get_attr_global_stats()
-RETURNS TABLE(attr_id text, avg numeric, p10 numeric, p90 numeric, count bigint)
-LANGUAGE sql STABLE AS $$
-  SELECT attr_id,
-    ROUND(AVG(score),1) as avg,
-    ROUND(PERCENTILE_CONT(0.1) WITHIN GROUP (ORDER BY score),1) as p10,
-    ROUND(PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY score),1) as p90,
-    COUNT(*) as count
-  FROM attr_results
-  WHERE created_at > now() - interval '90 days'
-  GROUP BY attr_id;
-$$;
-
--- Enable Row Level Security (anonymous inserts allowed):
-ALTER TABLE attr_results ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "anon_insert" ON attr_results FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "anon_select" ON attr_results FOR SELECT TO anon USING (true);`;
+const SUPABASE_SETUP_SQL='';
 
 /* ═══════════════════════════════════════════════════════════════
    ③ ELEMENTAL PASSIVE SKILLS — Each element grants unique buffs
@@ -3239,7 +3339,8 @@ function renderAccountPanel(){
   if(!el)return;
 
   const cfg=getAICfg();
-  const sbConfigured=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
+  const {url:sbUrl,anon:sbAnon}=getSBCreds();
+  const sbConfigured=!!(sbUrl&&sbAnon);
 
   if(currentUser){
     // ── LOGGED IN STATE ─────────────────────────────────────
@@ -3312,8 +3413,13 @@ function renderAccountPanel(){
         </div>
       </div>
 
-      <div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;color:#ffcc44;line-height:1.7;">
-        ◈ Tanpa login, semua data tersimpan lokal di browser ini saja dan akan hilang jika cache dibersihkan.
+      <div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:10px 12px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;font-size:8px;color:#ffcc44;line-height:1.8;">
+        ⚠ UNTUK DEVELOPER:<br>
+        Buka file HTML → cari konstanta:<br>
+        <code style="background:rgba(0,0,0,.3);padding:3px 6px;border-radius:3px;display:block;margin:5px 0;color:var(--tx);">const SUPABASE_URL  = '';<br>const SUPABASE_ANON = '';</code>
+        Isi dengan Project URL dan anon key dari Supabase Dashboard → Settings → API.<br>
+        Setelah diisi, semua user langsung bisa login tanpa config apapun.
+      </div>an lokal di browser ini saja dan akan hilang jika cache dibersihkan.
       </div>`;
   }
 }
@@ -3323,9 +3429,11 @@ function renderAISettings(){
   const el=document.getElementById('aiSettingsPanel');
   if(!el)return;
 
+  const {url:sbUrl,anon:sbAnon}=getSBCreds();
   const hasGemini=!!cfg.geminiKey;
   const hasOpenAI=!!cfg.openaiKey;
-  const hasSB=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
+  const hasSB=!!(sbUrl&&sbAnon);
+  const sbHardcoded=!!(SUPABASE_URL&&SUPABASE_ANON);
   const aiReady=hasGemini||hasOpenAI||hasSB;
   const autoProvider=cfg.aiProvider||(hasGemini?'gemini':'openai');
 
@@ -3341,12 +3449,21 @@ function renderAISettings(){
     </div>
     <div id="aiPanelBody">
       <!-- Supabase (shared for auth + AI) -->
-      <div class="fg"><label class="fl">Supabase Project URL <span style="color:var(--txd);">(Settings > API di dashboard)</span></label>
-        <input class="fi" id="cfg-sbUrl" placeholder="https://xxxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
-      </div>
-      <div class="fg"><label class="fl">Supabase Anon Key (public)</label>
-        <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJhbGci..." value="${cfg.supabaseAnonKey||''}"/>
-      </div>
+      ${sbHardcoded
+        ? `<div style="display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 25%,transparent);border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+            <span style="font-size:16px;">✅</span>
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--g1);letter-spacing:2px;">SUPABASE CONFIGURED</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-top:2px;">Hardcoded by developer — user tidak perlu config apapun.</div>
+            </div>
+           </div>`
+        : `<div class="fg"><label class="fl">Supabase Project URL <span style="color:var(--txd);">(Settings > API di dashboard)</span></label>
+            <input class="fi" id="cfg-sbUrl" placeholder="https://xxxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
+           </div>
+           <div class="fg"><label class="fl">Supabase Anon Key (public)</label>
+            <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJhbGci..." value="${cfg.supabaseAnonKey||''}"/>
+           </div>`
+      }
 
       <!-- AI Keys (optional, just for quest analysis) -->
       <details style="margin-bottom:10px;" ${aiReady?'open':''}>
@@ -3377,18 +3494,6 @@ function renderAISettings(){
         <button class="btn bp" style="font-size:11px;" onclick="saveAIConfig()">💾 SAVE CONFIG</button>
         <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">🔄 TEST</button>
       </div>
-
-      <!-- SQL Setup -->
-      <details>
-        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ SQL SETUP (jalankan di Supabase SQL Editor)</summary>
-        <div style="margin-top:8px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">Copy → paste ke SQL Editor di Supabase</span>
-            <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY SQL</button>
-          </div>
-          <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;max-height:120px;">${esc(SUPABASE_SETUP_SQL.split('\n').slice(0,12).join('\n'))}\n...</pre>
-        </div>
-      </details>
     </div>`;
 }
 
@@ -3408,21 +3513,30 @@ function autoDetectProvider(){
 
 
 function saveAIConfig(){
-  // Read from DOM — all fields rendered by renderAISettings
   const gmKey=(document.getElementById('cfg-gmKey')?.value||'').trim();
   const oaKey=(document.getElementById('cfg-oaKey')?.value||'').trim();
-  const sbUrl=(document.getElementById('cfg-sbUrl')?.value||'').trim().replace(/\/$/,'');
-  const sbKey=(document.getElementById('cfg-sbKey')?.value||'').trim();
   const provider=document.getElementById('cfg-provider')?.value||(gmKey?'gemini':'openai');
 
-  if(!gmKey && !oaKey && !sbKey){showNotif('⚠ Enter at least one API key');return;}
+  // Only save URL/anon from form if NOT hardcoded
+  const sbUrl=SUPABASE_URL||(document.getElementById('cfg-sbUrl')?.value||'').trim();
+  const sbAnon=SUPABASE_ANON||(document.getElementById('cfg-sbKey')?.value||'').trim();
 
-  const cfg={geminiKey:gmKey, openaiKey:oaKey, supabaseUrl:sbUrl, supabaseAnonKey:sbKey, aiProvider:provider};
+  if(!gmKey && !oaKey && !sbAnon){
+    showNotif('⚠ Enter at least one API key or Supabase config');return;
+  }
+
+  const existing=getAICfg();
+  const cfg={
+    ...existing,
+    geminiKey:gmKey||existing.geminiKey||'',
+    openaiKey:oaKey||existing.openaiKey||'',
+    supabaseUrl:sbUrl,
+    supabaseAnonKey:sbAnon,
+    aiProvider:provider
+  };
   saveAICfg(cfg);
   showNotif('✅ Config saved!');
-  // Refresh panel to show status
   renderAISettings();
-  // Auto-test
   setTimeout(()=>runTestAIConnection(), 300);
 }
 
@@ -3432,32 +3546,39 @@ async function runTestAIConnection(){
   const log=[];
   showNotif('🔄 Testing...');
 
-  // Test Gemini first (free, most common)
+  // Test Gemini — try multiple models until one works
   if(cfg.geminiKey){
     log.push('Trying Gemini Direct...');
-    try{
-      const prompt='Return ONLY valid JSON: {"rank":"C","xp":50,"reason":"test ok","confidence":0.99}';
-      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.geminiKey}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:80,temperature:0}})
-      });
-      if(r.ok){
-        const d=await r.json();
-        const raw=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
-        let json;
-        try{json=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(pe){log.push('Gemini JSON parse error: '+raw.substring(0,80));json=null;}
-        if(json?.rank){
-          showNotif('✅ Gemini Flash connected!');
-          showLongNotif('✅ GEMINI FLASH CONNECTED\n\nYour quests will now be analyzed by Google Gemini AI in real-time.\n\nTest response:\n• Rank: '+json.rank+'-Rank\n• XP: '+json.xp+'\n• Confidence: '+(json.confidence||1)*100+'%\n\nTap anywhere to close.');
-          return;
+    const GEMINI_MODELS=['gemini-2.0-flash','gemini-1.5-flash-latest','gemini-1.5-flash','gemini-pro'];
+    let geminiOk=false;
+    for(const model of GEMINI_MODELS){
+      try{
+        const prompt='Return ONLY valid JSON: {"rank":"C","xp":50,"reason":"test ok","confidence":0.99}';
+        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cfg.geminiKey}`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:80,temperature:0}})
+        });
+        if(r.ok){
+          const d=await r.json();
+          const raw=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+          let json;
+          try{json=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(pe){continue;}
+          if(json?.rank){
+            showNotif('✅ Gemini connected! ('+model+')');
+            showLongNotif('✅ GEMINI CONNECTED\n\nModel: '+model+'\n\nQuests will be analyzed by Gemini AI.\n\nTest response:\n• Rank: '+json.rank+'-Rank\n• XP: '+json.xp+'\n\nTap to close.');
+            // Save the working model name so we use it going forward
+            const cfg2=getAICfg();cfg2.geminiModel=model;saveAICfg(cfg2);
+            geminiOk=true;break;
+          }
+        } else {
+          const err=await r.text().catch(()=>'');
+          let msg='';try{msg=JSON.parse(err)?.error?.message||'';}catch{}
+          log.push('Gemini '+model+' '+r.status+': '+(msg||err).substring(0,100));
         }
-      } else {
-        const err=await r.text().catch(()=>'');
-        const errData=JSON.parse(err||'{}');
-        log.push('Gemini '+r.status+': '+(errData.error?.message||err).substring(0,150));
-      }
-    }catch(e){log.push('Gemini network error: '+e.message);}
+      }catch(e){log.push('Gemini '+model+' error: '+e.message);continue;}
+    }
+    if(geminiOk)return;
   }
 
   // Test OpenAI
@@ -3486,12 +3607,13 @@ async function runTestAIConnection(){
   }
 
   // Test Supabase Edge
-  if(cfg.supabaseUrl && cfg.supabaseAnonKey){
+  const {url:sbUrl4,anon:sbAnon4}=getSBCreds();
+  if(sbUrl4 && sbAnon4){
     log.push('Trying Supabase Edge Function...');
     try{
-      const r=await fetch(`${cfg.supabaseUrl}/functions/v1/analyze-quest`,{
+      const r=await fetch(`${sbUrl4}/functions/v1/analyze-quest`,{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.supabaseAnonKey,'apikey':cfg.supabaseAnonKey},
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+sbAnon4,'apikey':sbAnon4},
         body:JSON.stringify({questName:'Test',category:'Other',freq:'daily',provider:cfg.aiProvider||'gemini'})
       });
       if(r.ok){
@@ -3515,9 +3637,7 @@ async function testAIConnection(){return runTestAIConnection();}
 
 
 
-function copySetupSQL(){
-  navigator.clipboard?.writeText(SUPABASE_SETUP_SQL+'\n'+AUTH_SETUP_SQL).then(()=>showNotif('SQL copied!')).catch(()=>showNotif('Copy the SQL manually'));
-}
+function copySetupSQL(){showNotif('SQL setup: lihat file terpisah');}
 
 function showLongNotif(msg){
   let p=document.getElementById('longNotifPanel');
@@ -3552,13 +3672,31 @@ let syncTimer = null;   // Debounce timer for cloud sync
 let isOnline = false;   // Whether cloud sync is active
 const DB_TABLE = 'orias_data'; // Supabase table name
 
+/* ══════════════════════════════════════════════════════════════
+   ★ HARDCODED SUPABASE CONFIG — ISI OLEH DEVELOPER (SEKALI SAJA)
+   ══════════════════════════════════════════════════════════════
+   Anon key itu PUBLIC — aman di-hardcode di frontend.
+   User tidak perlu config apapun. Mereka langsung bisa login.
+   ────────────────────────────────────────────────────────────
+   Cara isi:
+   1. Buka supabase.com/dashboard → pilih project lo
+   2. Settings → API
+   3. Copy "Project URL" dan "anon public" key
+   4. Paste di bawah, replace teks placeholder
+   ────────────────────────────────────────────────────────────*/
+const SUPABASE_URL  = 'https://lzyaeetfqqxvytleycjs.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYXhkamx5aWp5Znpza2JzaGN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTY5MjYsImV4cCI6MjA5MzI5MjkyNn0.9vJCqtnE9k33BD6oe0AwZW_xvvZa2Dak1BzA-P9FfzE';
+
 /* ── INIT SUPABASE CLIENT ─────────────────────────────────── */
 function initSupabase(){
+  // Priority: hardcoded constants → localStorage override (for dev testing)
   const cfg = getAICfg();
-  if(!cfg.supabaseUrl || !cfg.supabaseAnonKey) return null;
+  const url  = SUPABASE_URL  || cfg.supabaseUrl  || '';
+  const anon = SUPABASE_ANON || cfg.supabaseAnonKey || '';
+
+  if(!url || !anon) return null;
   try{
-    // supabase is the global from the CDN script
-    SB = window.supabase?.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+    SB = window.supabase?.createClient(url, anon, {
       auth:{
         autoRefreshToken:true,
         persistSession:true,
@@ -3570,6 +3708,15 @@ function initSupabase(){
     console.warn('[AUTH] Could not init Supabase:', e.message);
     return null;
   }
+}
+
+// Helper: get effective Supabase credentials (hardcoded or from localStorage)
+function getSBCreds(){
+  const cfg = getAICfg();
+  return {
+    url:  SUPABASE_URL  || cfg.supabaseUrl  || '',
+    anon: SUPABASE_ANON || cfg.supabaseAnonKey || ''
+  };
 }
 
 /* ── AUTH SCREEN CONTROL ─────────────────────────────────── */
@@ -3899,26 +4046,7 @@ async function forceSyncNow(){
 }
 
 /* ── SUPABASE SQL SETUP ───────────────────────────────────── */
-// Add to SUPABASE_SETUP_SQL — append the auth table DDL
-const AUTH_SETUP_SQL=`
--- Also run this for user data storage:
-CREATE TABLE IF NOT EXISTS orias_data (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
-  data jsonb NOT NULL DEFAULT '{}',
-  updated_at timestamptz DEFAULT now()
-);
-
--- Row Level Security — users can only access their own data
-ALTER TABLE orias_data ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users read own data"   ON orias_data FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users write own data"  ON orias_data FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users update own data" ON orias_data FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users delete own data" ON orias_data FOR DELETE USING (auth.uid() = user_id);
-
--- Enable realtime for multi-device sync:
-ALTER PUBLICATION supabase_realtime ADD TABLE orias_data;
-`;
+const AUTH_SETUP_SQL='';
 
 /* ── BOOT SEQUENCE ─────────────────────────────────────────── */
 async function bootAuth(){
@@ -3964,6 +4092,460 @@ async function bootAuth(){
       currentUser=session.user;updateNavUser(session.user);
     }
   });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   🎮 GAME SYSTEMS v2 — Combat, Social, Rewards, Progression, Sound
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── SOUND ENGINE ────────────────────────────────────────────── */
+let AudioCtx=null;
+function getACtx(){if(!AudioCtx&&window.AudioContext)try{AudioCtx=new AudioContext();}catch(e){}return AudioCtx;}
+function playTone(freq,dur,type='sine',vol=0.18,delay=0){
+  const ctx=getACtx();if(!ctx)return;
+  if(ctx.state==='suspended')ctx.resume();
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.type=type;o.frequency.setValueAtTime(freq,ctx.currentTime+delay);
+  g.gain.setValueAtTime(0,ctx.currentTime+delay);
+  g.gain.linearRampToValueAtTime(vol,ctx.currentTime+delay+0.01);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+dur);
+  o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+dur);
+}
+function sfx(type){
+  if(!S.settings?.sound)return;
+  if(type==='complete'){playTone(440,.1,'sine',.15);playTone(550,.1,'sine',.15,.1);playTone(660,.2,'sine',.18,.18);}
+  else if(type==='levelup'){[330,440,550,660,880].forEach((f,i)=>playTone(f,.18,'sine',.2,i*.09));}
+  else if(type==='boss'){playTone(110,.4,'sawtooth',.12);playTone(220,.3,'square',.1,.2);}
+  else if(type==='unlock'){playTone(523,.12,'sine',.15);playTone(659,.12,'sine',.15,.12);playTone(784,.25,'sine',.18,.24);}
+  else if(type==='combo'){playTone(660,.08,'square',.12);playTone(880,.08,'square',.14,.09);playTone(1100,.15,'square',.16,.18);}
+  else if(type==='gacha'){[220,330,440,550,660,880].forEach((f,i)=>playTone(f,.1,'sine',.15,i*.06));}
+  else if(type==='error'){playTone(200,.2,'sawtooth',.12);playTone(150,.3,'sawtooth',.1,.15);}
+  else if(type==='click'){playTone(800,.05,'sine',.06);}
+}
+
+/* ── XP ANIMATION ────────────────────────────────────────────── */
+function floatXP(amount, elem='', x, y){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;left:${x||window.innerWidth/2}px;top:${y||120}px;font-family:'Orbitron',sans-serif;font-size:${Math.min(22,12+amount/20)}px;font-weight:900;color:var(--g1);pointer-events:none;z-index:9999;text-shadow:0 0 14px var(--g1);transform:translateX(-50%);transition:all 1.2s cubic-bezier(.2,.8,.4,1);opacity:1;`;
+  el.textContent=`+${amount} XP${elem?' '+elem:''}`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{el.style.transform='translateX(-50%) translateY(-80px)';el.style.opacity='0';});
+  setTimeout(()=>el.remove(),1300);
+}
+
+/* ── COMBO SYSTEM ────────────────────────────────────────────── */
+let comboCount=0,comboTimer=null;
+function triggerCombo(){
+  comboCount++;clearTimeout(comboTimer);
+  comboTimer=setTimeout(()=>{comboCount=0;},3600000); // 1 hour window
+  if(comboCount>=3){
+    const bonus=comboCount*10;
+    const label=['','','','🔥 COMBO x3!','⚡ COMBO x4!','💥 COMBO x5!','🌟 COMBO x6!'][Math.min(comboCount,6)]||`🔥 COMBO x${comboCount}!`;
+    showNotif(label+` +${bonus} XP`);
+    sfx('combo');gainXP(bonus);
+    showComboEffect(comboCount);
+  }
+}
+function showComboEffect(n){
+  const el=document.createElement('div');
+  const clrs=['','','','#ff6040','#ffaa00','#ff2288','#cc44ff'];
+  const clr=clrs[Math.min(n,6)]||'var(--g1)';
+  el.style.cssText=`position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:9998;font-family:'Orbitron',sans-serif;font-size:clamp(28px,8vw,56px);font-weight:900;color:${clr};text-shadow:0 0 30px ${clr};pointer-events:none;transition:all .4s cubic-bezier(.34,1.56,.64,1);letter-spacing:4px;white-space:nowrap;`;
+  el.textContent=`COMBO ×${n}`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{el.style.transform='translate(-50%,-50%) scale(1)';});
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translate(-50%,-60%) scale(1.1)';},800);
+  setTimeout(()=>el.remove(),1300);
+}
+
+/* ── BOSS QUEST SYSTEM ───────────────────────────────────────── */
+const BOSS_QUESTS=[
+  {id:'boss_phoenix',name:'🔥 Defeat the Phoenix',desc:'Complete 5 quests in one day',icon:'🐦‍🔥',xp:500,rank:'S',req:{type:'daily_count',count:5},reward:{title:'Phoenix Slayer',item:'🔥 Ember Crown'}},
+  {id:'boss_glacier',name:'❄️ Conquer the Glacier',desc:'Maintain a 7-day streak',icon:'🏔️',xp:750,rank:'S',req:{type:'streak',count:7},reward:{title:'Frost Conqueror',item:'❄️ Ice Shard'}},
+  {id:'boss_thunder',name:'⚡ Storm the Thunder Gate',desc:'Complete 3 quests before 9AM',icon:'⛩️',xp:400,rank:'A',req:{type:'early_bird',count:3,hour:9},reward:{title:'Storm Rider',item:'⚡ Thunder Badge'}},
+  {id:'boss_void',name:'🌑 Descend into the Void',desc:'Complete 10 quests total today',icon:'🕳️',xp:1000,rank:'S',req:{type:'daily_count',count:10},reward:{title:'Void Walker',item:'🌑 Void Essence'}},
+  {id:'boss_earth',name:'🌍 Shake the Earth',desc:'Complete quests in 4 different categories today',icon:'🌋',xp:600,rank:'A',req:{type:'category_variety',count:4},reward:{title:'Earth Shaker',item:'🌍 Terra Stone'}},
+  {id:'boss_hydra',name:'🐉 Slay the Hydra',desc:'Complete 3 roadmap nodes',icon:'🐉',xp:800,rank:'S',req:{type:'nodes_done',count:3},reward:{title:'Hydra Slayer',item:'🐉 Dragon Scale'}},
+  {id:'boss_shadow',name:'👤 Face Your Shadow',desc:'Complete the attribute test for all 6 attributes',icon:'🪞',xp:600,rank:'A',req:{type:'all_attrs_tested'},reward:{title:'Self Master',item:'🪞 Mirror Shard'}},
+];
+function checkBossQuests(){
+  if(!S.bossProgress)S.bossProgress={};
+  if(!S.bossKills)S.bossKills={};
+  const t=today();
+  const todayHistory=S.history.filter(h=>h.date===t);
+  BOSS_QUESTS.forEach(boss=>{
+    if(S.bossKills[boss.id])return; // already killed
+    let progress=0,goal=1,done=false;
+    const req=boss.req;
+    if(req.type==='daily_count'){goal=req.count;progress=todayHistory.length;done=progress>=goal;}
+    else if(req.type==='streak'){goal=req.count;progress=S.currentStreak;done=progress>=goal;}
+    else if(req.type==='early_bird'){goal=req.count;progress=todayHistory.filter(h=>new Date().getHours()<req.hour).length;done=progress>=goal;}
+    else if(req.type==='category_variety'){goal=req.count;progress=new Set(todayHistory.map(h=>h.category)).size;done=progress>=goal;}
+    else if(req.type==='nodes_done'){goal=req.count;progress=(S.nodes||[]).filter(n=>n.completed).length;done=progress>=goal;}
+    else if(req.type==='all_attrs_tested'){done=S.attrs&&['STR','INT','AGI','VIT','FOC','SOC'].every(a=>S.attrs[a]);progress=done?1:0;goal=1;}
+    if(done&&!S.bossKills[boss.id]){killBoss(boss);}
+  });
+}
+function killBoss(boss){
+  S.bossKills[boss.id]=today();
+  if(!S.titles)S.titles=[];
+  if(!S.titles.includes(boss.reward.title))S.titles.push(boss.reward.title);
+  if(!S.items)S.items=[];
+  S.items.push({id:boss.id+'_'+Date.now(),name:boss.reward.item,from:boss.name,date:today()});
+  gainXP(boss.xp);sfx('boss');
+  showBossVictory(boss);save();
+}
+function showBossVictory(boss){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);';
+  ov.innerHTML=`<div style="text-align:center;max-width:380px;animation:fadeIn .5s ease;">
+    <div style="font-size:64px;margin-bottom:8px;">${boss.icon}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#ff4444;letter-spacing:4px;margin-bottom:6px;">BOSS DEFEATED</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--g1);letter-spacing:2px;margin-bottom:6px;">${boss.name}</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--txd);margin-bottom:16px;">${boss.desc}</div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="background:color-mix(in srgb,var(--g1) 12%,transparent);border:1px solid var(--g1);border-radius:5px;padding:10px 16px;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--g1);">+${boss.xp} XP</div>
+      <div style="background:rgba(255,200,0,.12);border:1px solid #ffcc44;border-radius:5px;padding:10px 16px;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:#ffcc44;">${boss.rank}-RANK</div>
+    </div>
+    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:10px;margin-bottom:14px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-bottom:5px;">REWARDS EARNED</div>
+      <div style="font-size:18px;">${boss.reward.item}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);">Title: "${boss.reward.title}"</div>
+    </div>
+    <button onclick="this.closest('div[style]').remove()" style="background:color-mix(in srgb,var(--g1) 15%,transparent);border:2px solid var(--g1);border-radius:5px;padding:12px 30px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--g1);cursor:pointer;letter-spacing:2px;">CLAIM REWARD</button>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+/* ── DAILY DUNGEON ────────────────────────────────────────────── */
+const DUNGEON_THEMES=[
+  {name:'🔥 Ignis Cavern',quests:['Morning workout','Drink 8 glasses water','Read 20 pages','No social media 2 hours','Sleep before midnight'],bonus:'2× XP for Fitness quests'},
+  {name:'🧊 Frost Citadel',quests:['Cold shower','Meditate 10 minutes','Plan tomorrow','Inbox zero','Journal entry'],bonus:'Streak +2 today'},
+  {name:'⚡ Thunder Keep',quests:['Complete hardest task first','3 deep work sessions','No distractions 1 hour','Finish pending task','Review weekly goals'],bonus:'2× XP if done before noon'},
+  {name:'🌿 Wind Sanctuary',quests:['Walk 30 minutes','Creative activity','Call/text a friend','Try something new','Gratitude list'],bonus:'+30 XP per category variety'},
+  {name:'🌑 Void Rift',quests:['Focus on main quest only','1 deep work block 2h','No multitasking','Single-task all day','Review Void quest progress'],bonus:'Void Focus 3× XP today'},
+  {name:'🌍 Terra Stronghold',quests:['Eat healthy all day','Exercise outdoors','Tidy workspace','Help someone','Go to bed on time'],bonus:'Miss protection extended'},
+  {name:'💠 Crystal Spire',quests:['Learn something new','Practice a skill','Make progress on roadmap','Write a summary','Teach someone'],bonus:'Roadmap XP 2× today'},
+];
+function getDungeonOfDay(){
+  const d=new Date();const idx=(d.getFullYear()*365+d.getMonth()*31+d.getDate())%DUNGEON_THEMES.length;
+  return DUNGEON_THEMES[idx];
+}
+function renderDailyDungeon(){
+  const dg=getDungeonOfDay();
+  const t=today();
+  const done=S.dungeonDone?.[t]||[];
+  const pct=Math.floor(done.length/dg.quests.length*100);
+  return`<div style="background:linear-gradient(135deg,var(--crd),var(--crd2));border:1px solid var(--brdh);border-radius:6px;padding:14px;margin-bottom:14px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g1),var(--g2));"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);letter-spacing:3px;margin-bottom:3px;">◈ DAILY DUNGEON</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--txb);">${dg.name}</div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--g1);">${pct}%</div>
+    </div>
+    <div style="height:5px;background:var(--brd);border-radius:3px;overflow:hidden;margin-bottom:10px;">
+      <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--xs),var(--g1));border-radius:3px;transition:width .5s;"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">
+      ${dg.quests.map((q,i)=>{const isDone=done.includes(i);return`<div onclick="toggleDungeon(${i})" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:${isDone?'color-mix(in srgb,var(--g1) 10%,transparent)':'var(--crd)'};border:1px solid ${isDone?'var(--g1)':'var(--brd)'};border-radius:4px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;">
+        <div style="width:18px;height:18px;border-radius:3px;border:2px solid ${isDone?'var(--g1)':'var(--brd)'};background:${isDone?'var(--g1)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:${isDone?'var(--bg)':'transparent'};flex-shrink:0;transition:all .2s;">✓</div>
+        <span style="font-size:12px;color:${isDone?'var(--txd)':'var(--tx)'};${isDone?'text-decoration:line-through;':''}">${q}</span>
+      </div>`;}).join('')}
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);">⚡ BONUS: ${dg.bonus}</div>
+    ${pct===100?`<div style="margin-top:8px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--g1);text-align:center;letter-spacing:2px;">◈ DUNGEON CLEARED! +200 XP BONUS ◈</div>`:''}
+  </div>`;
+}
+function toggleDungeon(idx){
+  const t=today();
+  if(!S.dungeonDone)S.dungeonDone={};
+  if(!S.dungeonDone[t])S.dungeonDone[t]=[];
+  const arr=S.dungeonDone[t];
+  const i=arr.indexOf(idx);
+  if(i>=0)arr.splice(i,1);
+  else{
+    arr.push(idx);sfx('complete');
+    if(arr.length===getDungeonOfDay().quests.length){gainXP(200);sfx('boss');showNotif('🏰 Dungeon Cleared! +200 XP');}
+    else showNotif(`+15 XP — Dungeon: ${arr.length}/${getDungeonOfDay().quests.length}`);
+    gainXP(15);
+  }
+  save();
+  const dd=document.getElementById('dungeonContainer');
+  if(dd)dd.innerHTML=renderDailyDungeon();
+}
+
+/* ── PRESTIGE SYSTEM ─────────────────────────────────────────── */
+const PRESTIGE_LEVELS=[
+  {level:1,name:'Awakened',icon:'⭐',bonus:'Streak bonus +5 XP per day',minLevel:25},
+  {level:2,name:'Ascendant',icon:'🌟',bonus:'+10% XP all quests',minLevel:50},
+  {level:3,name:'Sovereign',icon:'👑',bonus:'Boss XP 1.5×',minLevel:75},
+  {level:4,name:'Transcendent',icon:'💎',bonus:'+25% XP all quests',minLevel:100},
+  {level:5,name:'Immortal',icon:'🔮',bonus:'2× XP all quests',minLevel:150},
+];
+function canPrestige(){return S.level>=(PRESTIGE_LEVELS[(S.prestige||0)]?.minLevel||25);}
+function doPrestige(){
+  if(!canPrestige())return;
+  const next=S.prestige=(S.prestige||0)+1;
+  const info=PRESTIGE_LEVELS[next-1];
+  S.level=1;S.xp=0;
+  if(!S.prestigeHistory)S.prestigeHistory=[];
+  S.prestigeHistory.push({level:next,date:today(),totalXP:S.totalXP});
+  save();refreshAll();sfx('levelup');
+  showNotif(`💎 PRESTIGE ${next}: ${info.name}! ${info.bonus}`);
+}
+function getPrestigeMultiplier(){
+  const p=S.prestige||0;if(!p)return 1;
+  if(p>=5)return 2;if(p>=4)return 1.25;if(p>=2)return 1.1;return 1;
+}
+
+/* ── GACHA / ITEM DROP SYSTEM ────────────────────────────────── */
+const GACHA_ITEMS=[
+  {id:'shard_fire',name:'🔥 Fire Shard',rarity:'common',desc:'Fragment of pure flame',chance:0.30},
+  {id:'shard_ice',name:'❄️ Ice Shard',rarity:'common',desc:'Crystallized frozen will',chance:0.30},
+  {id:'coin_gold',name:'💰 Gold Coin',rarity:'uncommon',desc:'Ancient currency of hunters',chance:0.18},
+  {id:'orb_void',name:'🌑 Void Orb',rarity:'rare',desc:'A mysterious dark orb',chance:0.10},
+  {id:'crown_flame',name:'🔥 Flame Crown',rarity:'epic',desc:'Worn by the greatest warriors',chance:0.06},
+  {id:'gem_sky',name:'💠 Sky Crystal',rarity:'epic',desc:'Fallen from the heavens',chance:0.04},
+  {id:'ring_eternal',name:'♾️ Eternal Ring',rarity:'legendary',desc:'Forged at the dawn of time',chance:0.015},
+  {id:'blade_void',name:'🗡️ Void Blade',rarity:'legendary',desc:'A weapon that cuts reality itself',chance:0.005},
+];
+const RARITY_CLR={common:'#aaa',uncommon:'#4caf50',rare:'#2196f3',epic:'#9c27b0',legendary:'#ffcc00'};
+function rollGacha(){
+  const r=Math.random();let cumul=0;
+  for(const item of GACHA_ITEMS){cumul+=item.chance;if(r<=cumul)return item;}
+  return GACHA_ITEMS[0];
+}
+function doGacha(count=1){
+  const cost=count===10?450:50;
+  if(!S.gachaCoins||S.gachaCoins<cost){showNotif(`⚠ Need ${cost} coins (you have ${S.gachaCoins||0})`);sfx('error');return;}
+  S.gachaCoins-=cost;
+  if(!S.items)S.items=[];
+  const results=Array.from({length:count},()=>rollGacha());
+  results.forEach(item=>S.items.push({...item,id:item.id+'_'+Date.now(),date:today(),from:'gacha'}));
+  save();sfx('gacha');showGachaResult(results);
+}
+function showGachaResult(items){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.93);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px);';
+  const hasLegendary=items.some(i=>i.rarity==='legendary');
+  ov.innerHTML=`<div style="text-align:center;max-width:480px;width:100%;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--g1);letter-spacing:3px;margin-bottom:14px;">${hasLegendary?'✨ LEGENDARY DROP!':'◈ GACHA RESULT'}</div>
+    <div style="display:grid;grid-template-columns:repeat(${items.length>5?5:items.length},1fr);gap:8px;margin-bottom:16px;">
+      ${items.map(item=>`<div style="background:var(--crd);border:2px solid ${RARITY_CLR[item.rarity]};border-radius:6px;padding:10px 6px;text-align:center;box-shadow:0 0 12px ${RARITY_CLR[item.rarity]}44;">
+        <div style="font-size:22px;margin-bottom:4px;">${item.name.split(' ')[0]}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:6px;color:${RARITY_CLR[item.rarity]};letter-spacing:1px;">${item.rarity.toUpperCase()}</div>
+        <div style="font-family:'Rajdhani',monospace;font-size:9px;color:var(--txd);margin-top:2px;">${item.name.slice(2)}</div>
+      </div>`).join('')}
+    </div>
+    <button onclick="this.closest('div[style]').remove()" style="background:color-mix(in srgb,var(--g1) 15%,transparent);border:2px solid var(--g1);border-radius:5px;padding:12px 30px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--g1);cursor:pointer;letter-spacing:2px;">COLLECT</button>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+/* ── LEADERBOARD ─────────────────────────────────────────────── */
+async function fetchLeaderboard(){
+  const {url,anon}=getSBCreds();if(!url||!anon)return[];
+  try{
+    const res=await fetch(`${url}/rest/v1/orias_data?select=data&order=data->totalXP.desc&limit=20`,{
+      headers:{'apikey':anon,'Authorization':'Bearer '+anon}
+    });
+    if(!res.ok)return[];
+    const rows=await res.json();
+    return rows.map(r=>r.data).filter(d=>d&&d.totalXP>0).slice(0,20);
+  }catch(e){return[];}
+}
+function renderLeaderboard(){
+  const el=document.getElementById('leaderboardContent');
+  if(!el)return;
+  el.innerHTML=`<div style="text-align:center;padding:20px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);">Loading...</div>`;
+  fetchLeaderboard().then(data=>{
+    if(!data.length){el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:9px;">No data yet — be the first!</div>`;return;}
+    el.innerHTML=data.map((d,i)=>{
+      const rank=getRankFromXP(d.totalXP||0);
+      const isMe=d.playerName===S.playerName&&d.totalXP===S.totalXP;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${isMe?'color-mix(in srgb,var(--g1) 10%,transparent)':'var(--crd)'};border:1px solid ${isMe?'var(--g1)':'var(--brd)'};border-radius:4px;margin-bottom:5px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:${i<3?['#ffd700','#c0c0c0','#cd7f32'][i]:'var(--txd)'};width:24px;text-align:center;">${i+1}</div>
+        <div style="font-size:18px;">${d.avatar||'👤'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--txb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d.playerName||'Hunter')}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">Lv.${d.level||1} · ${d.element||'void'} · ${d.currentStreak||0}🔥</div>
+        </div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:var(--g1);">${(d.totalXP||0).toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  });
+}
+function getRankFromXP(xp){for(let i=7;i>=0;i--)if(xp>=RANK_XP[i])return RANKS[i];return'E';}
+
+/* ── SKILL TREE ───────────────────────────────────────────────── */
+const SKILL_TREE=[
+  {id:'st_hp',name:'Iron Will',icon:'🛡️',desc:'Streak protection: lose only 1 streak per miss',unlock:5,cost:1,passive:'earth_protect'},
+  {id:'st_xp1',name:'Knowledge Seeker',icon:'📚',desc:'+5 XP bonus on all Mind/Work quests',unlock:5,cost:1,passive:'mind_bonus'},
+  {id:'st_combo',name:'Combo Master',icon:'💥',desc:'Combo window extended to 2 hours',unlock:10,cost:2,passive:'combo_extend'},
+  {id:'st_boss',name:'Boss Hunter',icon:'⚔️',desc:'Boss quest XP increased by 50%',unlock:10,cost:2,passive:'boss_boost'},
+  {id:'st_gacha',name:'Lucky Draw',icon:'🎰',desc:'Gacha cost reduced to 40 coins (from 50)',unlock:15,cost:3,passive:'gacha_discount'},
+  {id:'st_xp2',name:'Veteran Hunter',icon:'🌟',desc:'+10% XP on all quests',unlock:15,cost:3,passive:'global_xp_boost'},
+  {id:'st_streak',name:'Streak Legend',icon:'🔥',desc:'Streak bonus doubles every 14 days',unlock:20,cost:4,passive:'streak_double'},
+  {id:'st_dungeon',name:'Dungeon Master',icon:'🏰',desc:'Dungeon quest XP doubled',unlock:20,cost:4,passive:'dungeon_boost'},
+  {id:'st_prestige',name:'Enlightened',icon:'💎',desc:'Prestige bonus +0.25× extra',unlock:30,cost:5,passive:'prestige_boost'},
+  {id:'st_element',name:'Elemental Mastery',icon:'✨',desc:'Elemental passive bonus doubled',unlock:25,cost:5,passive:'element_double'},
+];
+function getSkillPoints(){return Math.floor(S.level/5)+(S.prestige||0)*2;}
+function getUsedSkillPoints(){return Object.values(S.skills||{}).reduce((s,v)=>s+(v?SKILL_TREE.find(sk=>sk.id===v?.id)?.cost||0:0),0);}
+function renderSkillTree(){
+  const el=document.getElementById('skillTreeContent');if(!el)return;
+  const sp=getSkillPoints(),used=Object.keys(S.skills||{}).length*1;
+  const free=sp-SKILL_TREE.filter(s=>S.skills?.[s.id]).reduce((t,s)=>t+s.cost,0);
+  el.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);margin-bottom:10px;">Skill Points: <span style="color:var(--g1);font-weight:700;">${free}</span> available / ${sp} total</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+    ${SKILL_TREE.map(sk=>{
+      const owned=!!(S.skills?.[sk.id]);
+      const canUnlock=S.level>=sk.unlock&&free>=sk.cost&&!owned;
+      const locked=S.level<sk.unlock;
+      return`<div style="background:${owned?'color-mix(in srgb,var(--g1) 10%,transparent)':'var(--crd)'};border:1px solid ${owned?'var(--g1)':locked?'var(--brd)':'var(--brdh)'};border-radius:5px;padding:10px;opacity:${locked?'.4':'1'};transition:all .2s;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+          <span style="font-size:18px;">${sk.icon}</span>
+          <div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:${owned?'var(--g1)':'var(--txb)'};letter-spacing:1px;">${sk.name}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">Lv.${sk.unlock} req · ${sk.cost} SP</div>
+          </div>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:10px;color:var(--txd);margin-bottom:6px;line-height:1.4;">${sk.desc}</div>
+        ${owned?`<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);">✓ ACTIVE</div>`
+          :canUnlock?`<button onclick="unlockSkill('${sk.id}')" class="btn bp" style="width:100%;font-size:9px;padding:5px;">UNLOCK (${sk.cost} SP)</button>`
+          :`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">${locked?`Reach Lv.${sk.unlock}`:'Not enough SP'}</div>`}
+      </div>`;
+    }).join('')}
+    </div>`;
+}
+function unlockSkill(id){
+  const sk=SKILL_TREE.find(s=>s.id===id);if(!sk)return;
+  const sp=getSkillPoints();
+  const used=SKILL_TREE.filter(s=>S.skills?.[s.id]).reduce((t,s)=>t+s.cost,0);
+  if(sp-used<sk.cost){showNotif('⚠ Not enough skill points');sfx('error');return;}
+  if(S.level<sk.unlock){showNotif(`⚠ Reach Level ${sk.unlock} first`);sfx('error');return;}
+  if(!S.skills)S.skills={};
+  S.skills[id]=true;save();sfx('unlock');showNotif(`✨ Skill unlocked: ${sk.name}!`);
+  renderSkillTree();
+}
+function hasSkill(id){return !!(S.skills?.[id]);}
+
+/* ── SEASONAL EVENTS ─────────────────────────────────────────── */
+const SEASONAL_EVENTS=[
+  {id:'ramadan',name:'Ramadan Mubarak',icon:'🌙',desc:'Complete 30 consecutive days of Fajr/Subuh quest',months:[2,3],xpBonus:1.5,theme:'gold'},
+  {id:'newyear',name:'New Year Sprint',icon:'🎆',desc:'Complete all quests on January 1st',months:[0],xpBonus:2,theme:'silver'},
+  {id:'summer',name:'Summer Grind',icon:'☀️',desc:'7-day streak during summer months',months:[5,6,7],xpBonus:1.3,theme:'orange'},
+  {id:'halloween',name:'Shadow Hunt',icon:'🎃',desc:'Complete void/dark themed quests in October',months:[9],xpBonus:1.4,theme:'purple'},
+  {id:'christmas',name:'Winter Quest',icon:'❄️',desc:'Complete ice/cold themed quests in December',months:[11],xpBonus:1.5,theme:'blue'},
+];
+function getCurrentEvent(){
+  const m=new Date().getMonth();
+  return SEASONAL_EVENTS.find(e=>e.months.includes(m))||null;
+}
+
+/* ── INVENTORY / ITEMS PANEL ─────────────────────────────────── */
+function renderInventory(){
+  const el=document.getElementById('inventoryContent');if(!el)return;
+  const items=S.items||[];
+  if(!items.length){el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:9px;line-height:2;">No items yet.<br>Defeat bosses and roll gacha to collect items.</div>`;return;}
+  const grouped={};items.forEach(it=>{if(!grouped[it.rarity])grouped[it.rarity]=[];grouped[it.rarity].push(it);});
+  el.innerHTML=['legendary','epic','rare','uncommon','common'].filter(r=>grouped[r]).map(r=>`
+    <div style="margin-bottom:10px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:${RARITY_CLR[r]};letter-spacing:3px;margin-bottom:6px;">${r.toUpperCase()}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;">
+        ${grouped[r].map(it=>`<div style="background:var(--crd);border:1px solid ${RARITY_CLR[it.rarity]};border-radius:5px;padding:8px 5px;text-align:center;">
+          <div style="font-size:20px;">${it.name.split(' ')[0]}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:6px;color:${RARITY_CLR[it.rarity]};margin-top:2px;">${it.name.slice(2).substring(0,12)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ── GACHA COINS EARN ─────────────────────────────────────────── */
+function earnCoins(amount){
+  S.gachaCoins=(S.gachaCoins||0)+amount;save();
+  if(amount>0)showNotif(`🪙 +${amount} coins`);
+}
+
+function renderGameHub(){
+  // Coin display
+  const cd=document.getElementById('coinDisplay');
+  if(cd)cd.textContent=(S.gachaCoins||0).toLocaleString();
+
+  // Skill points
+  const sp=document.getElementById('skillPtDisplay');
+  const free=getSkillPoints()-SKILL_TREE.filter(s=>S.skills?.[s.id]).reduce((t,s)=>t+s.cost,0);
+  if(sp)sp.textContent=`${free} SP free`;
+
+  // Seasonal event
+  const ev=getCurrentEvent();
+  const sb=document.getElementById('seasonalBanner');
+  if(sb)sb.innerHTML=ev?`<div style="background:linear-gradient(135deg,var(--crd),var(--crd2));border:1px solid var(--brdh);border-radius:6px;padding:12px 14px;display:flex;align-items:center;gap:10px;"><span style="font-size:28px;">${ev.icon}</span><div><div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--g1);">${ev.name}</div><div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">${ev.desc} · ${ev.xpBonus}× XP bonus active</div></div></div>`:'';
+
+  // Daily dungeon
+  const dd=document.getElementById('dungeonContainer');
+  if(dd)dd.innerHTML=renderDailyDungeon();
+
+  // Boss quests
+  const bl=document.getElementById('bossQuestList');
+  if(bl){
+    const t=today();
+    const todayH=S.history.filter(h=>h.date===t);
+    bl.innerHTML=BOSS_QUESTS.map(boss=>{
+      const killed=!!S.bossKills?.[boss.id];
+      let progress=0,goal=1;
+      const req=boss.req;
+      if(req.type==='daily_count'){goal=req.count;progress=todayH.length;}
+      else if(req.type==='streak'){goal=req.count;progress=S.currentStreak;}
+      else if(req.type==='early_bird'){goal=req.count;progress=todayH.filter(()=>new Date().getHours()<req.hour).length;}
+      else if(req.type==='category_variety'){goal=req.count;progress=new Set(todayH.map(h=>h.category)).size;}
+      else if(req.type==='nodes_done'){goal=req.count;progress=(S.nodes||[]).filter(n=>n.completed).length;}
+      else if(req.type==='all_attrs_tested'){goal=1;progress=S.attrs&&['STR','INT','AGI','VIT','FOC','SOC'].every(a=>S.attrs[a])?1:0;}
+      const pct=Math.min(100,Math.floor(progress/goal*100));
+      return`<div style="background:var(--crd);border:1px solid ${killed?'var(--g1)':'var(--brd)'};border-radius:5px;padding:11px;opacity:${killed?.7:1};">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:22px;">${boss.icon}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:${killed?'var(--g1)':'var(--txb)'};">${boss.name}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">${boss.desc}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--g1);">+${boss.xp}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--g2);">${boss.rank}-RANK</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:4px;background:var(--brd);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${killed?'var(--g1)':'linear-gradient(90deg,var(--xs),var(--g1))'};border-radius:2px;transition:width .5s;"></div></div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${killed?'var(--g1)':'var(--txd)'};">${killed?'✓ SLAIN':`${progress}/${goal}`}</span>
+        </div>
+        ${killed?`<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);margin-top:5px;">Reward: ${boss.reward.item} · Title: "${boss.reward.title}"</div>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  // Prestige info
+  const pi=document.getElementById('prestigeInfo');
+  if(pi){
+    const p=S.prestige||0;
+    const next=PRESTIGE_LEVELS[p];
+    const cur=PRESTIGE_LEVELS[p-1];
+    pi.innerHTML=`<div style="font-size:28px;">${p>0?PRESTIGE_LEVELS[p-1].icon:'⚪'}</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--g1);margin:4px 0;">${p>0?`Prestige ${p}: ${cur.name}`:'No Prestige Yet'}</div>
+      ${next?`<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.6;">Next: ${next.name}<br>Req: Lv.${next.minLevel} (you: ${S.level})</div>`:'<div style="font-family:\'Share Tech Mono\',monospace;font-size:8px;color:var(--g1);">MAX PRESTIGE!</div>'}`;
+  }
+  const pb=document.getElementById('prestigeBtn');
+  if(pb){pb.disabled=!canPrestige();pb.style.opacity=canPrestige()?'1':'.4';}
+  const ph=document.getElementById('prestigeHistory');
+  if(ph&&S.prestigeHistory?.length)ph.innerHTML='Past prestiges: '+S.prestigeHistory.map(p=>`P${p.level} (${p.date})`).join(', ');
+
+  // Skill tree + inventory
+  renderSkillTree();
+  renderInventory();
 }
 
 function init(){
