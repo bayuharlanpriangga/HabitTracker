@@ -723,8 +723,13 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
           </div>
         </div>
 
-        <!-- AI Integration Settings -->
-        <div class="box setsec" id="aiSettingsPanel">
+        <!-- ① ACCOUNT PANEL -->
+        <div class="box" id="accountPanel">
+          <!-- filled by renderAccountPanel() -->
+        </div>
+
+        <!-- ② AI INTEGRATION PANEL (quest analysis only) -->
+        <div class="box" id="aiSettingsPanel">
           <!-- filled by renderAISettings() -->
         </div>
 
@@ -1967,6 +1972,7 @@ function updateProfile(){
   document.getElementById('editBio').value=S.bio||'';
   renderAchievements();renderTopCat();renderHeatmap();renderAvGrid();initAttrSection();
   updatePassiveDisplay();
+  renderAccountPanel();
   renderAISettings();
 }
 function updateTrackerStat(){
@@ -3224,92 +3230,163 @@ function updatePassiveDisplay(){
 /* ═══════════════════════════════════════════════════════════════
    SETTINGS — AI INTEGRATION CONFIG
    ═══════════════════════════════════════════════════════════════ */
+/* ──────────────────────────────────────────────────────────────
+   ACCOUNT PANEL — shown in Profile page, clearly separated
+   from AI settings
+   ────────────────────────────────────────────────────────────── */
+function renderAccountPanel(){
+  const el=document.getElementById('accountPanel');
+  if(!el)return;
+
+  const cfg=getAICfg();
+  const sbConfigured=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
+
+  if(currentUser){
+    // ── LOGGED IN STATE ─────────────────────────────────────
+    const name=S.playerName||currentUser.email.split('@')[0];
+    const email=currentUser.email;
+    el.innerHTML=`
+      <div class="blbl" style="margin-bottom:10px;">▶ ACCOUNT</div>
+      <div style="display:flex;align-items:center;gap:12px;background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:12px;margin-bottom:12px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:color-mix(in srgb,var(--g1) 15%,transparent);border:2px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--g1);flex-shrink:0;">${esc(name.charAt(0).toUpperCase())}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--txb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(name)}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(email)}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:4px;">
+            <div class="sync-dot ${isOnline?'':'off'}" style="width:7px;height:7px;"></div>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:${isOnline?'var(--g1)':'var(--txd)'};">${isOnline?'CLOUD SYNC ACTIVE':'OFFLINE — LOCAL ONLY'}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <button class="btn bp" style="width:100%;font-size:11px;" onclick="forceSyncNow()">🔄 SYNC NOW</button>
+        <button class="btn bc" style="width:100%;font-size:11px;" onclick="exportBackup()">⬇ BACKUP DATA</button>
+        <button class="btn bd" style="width:100%;font-size:11px;" onclick="doLogout()">↩ LOGOUT</button>
+      </div>`;
+  } else if(sbConfigured){
+    // ── SUPABASE CONFIGURED BUT NOT LOGGED IN ───────────────
+    el.innerHTML=`
+      <div class="blbl" style="margin-bottom:10px;">▶ ACCOUNT</div>
+      <div style="background:color-mix(in srgb,var(--g1) 6%,transparent);border:1px solid color-mix(in srgb,var(--g1) 25%,transparent);border-radius:4px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.8;">
+          Supabase configured ✓<br>
+          <span style="color:var(--g1);">Not logged in</span> — data stored locally only.
+        </div>
+      </div>
+      <button class="btn bp" style="width:100%;font-size:11px;" onclick="document.getElementById('accountPanel').querySelector('.blbl');showAuthScreen();">⚡ LOGIN / REGISTER</button>`;
+  } else {
+    // ── SUPABASE NOT CONFIGURED ─────────────────────────────
+    el.innerHTML=`
+      <div class="blbl" style="margin-bottom:10px;">▶ ACCOUNT</div>
+
+      <!-- Step 1 callout -->
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--g1) 15%,transparent);border:1.5px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;color:var(--g1);flex-shrink:0;">1</div>
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--txb);letter-spacing:1px;margin-bottom:3px;">SETUP SUPABASE</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;">
+            Buka <a href="https://supabase.com" target="_blank" style="color:var(--g1);">supabase.com</a> → buat project baru<br>
+            → salin <strong style="color:var(--tx);">Project URL</strong> dan <strong style="color:var(--tx);">anon key</strong><br>
+            → paste di panel <strong style="color:var(--g1);">SUPABASE CONFIG</strong> di bawah
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--g1) 15%,transparent);border:1.5px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;color:var(--g1);flex-shrink:0;">2</div>
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--txb);letter-spacing:1px;margin-bottom:3px;">RUN SQL SETUP</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;">
+            Di Supabase → SQL Editor → paste SQL setup<br>
+            (tombol COPY SQL ada di panel bawah)
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--g1) 15%,transparent);border:1.5px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;color:var(--g1);flex-shrink:0;">3</div>
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:var(--txb);letter-spacing:1px;margin-bottom:3px;">REFRESH & LOGIN</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;">
+            Refresh halaman → layar login muncul<br>
+            → daftar/masuk → data tersync ke cloud ✓
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;color:#ffcc44;line-height:1.7;">
+        ◈ Tanpa login, semua data tersimpan lokal di browser ini saja dan akan hilang jika cache dibersihkan.
+      </div>`;
+  }
+}
+
 function renderAISettings(){
   const cfg=getAICfg();
   const el=document.getElementById('aiSettingsPanel');
   if(!el)return;
 
-  // Detect current status
   const hasGemini=!!cfg.geminiKey;
   const hasOpenAI=!!cfg.openaiKey;
-  const hasSupabase=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
-  const isConfigured=hasGemini||hasOpenAI||hasSupabase;
-
-  // Auto-detect best provider
+  const hasSB=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
+  const aiReady=hasGemini||hasOpenAI||hasSB;
   const autoProvider=cfg.aiProvider||(hasGemini?'gemini':'openai');
-
-  const statusHtml=isConfigured
-    ? `<div style="display:flex;align-items:center;gap:7px;background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 25%,transparent);border-radius:4px;padding:8px 10px;margin-bottom:12px;">
-        <span style="font-size:14px;">${hasGemini?'✨':hasOpenAI?'🤖':'🔗'}</span>
-        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);">${hasGemini?'Gemini Flash ready':hasOpenAI?'OpenAI GPT-4o-mini ready':'Supabase Edge configured'}</span>
-        <span style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">CLICK TEST TO VERIFY</span>
-       </div>`
-    : `<div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:8px 10px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:9px;color:#ffcc44;">
-        ⚠ No API key configured — using local AI heuristic
-       </div>`;
 
   el.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div class="blbl" style="margin-bottom:0;">▶ AI INTEGRATION</div>
-      <button class="btn bc" style="font-size:9px;padding:4px 10px;" onclick="toggleAIPanel()">▾ TOGGLE</button>
+      <div class="blbl" style="margin-bottom:0;">▶ SUPABASE CONFIG</div>
+      <button class="btn bc" style="font-size:9px;padding:4px 10px;" onclick="toggleAIPanel()">▾</button>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:10px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:8px 10px;">
+      Supabase URL & Anon Key dipakai untuk:<br>
+      <span style="color:var(--g1);">① Login/Register</span> — simpan data per user ke cloud<br>
+      <span style="color:var(--g2);">② AI Quest Analysis</span> — opsional, via Edge Function
     </div>
     <div id="aiPanelBody">
-      ${statusHtml}
-
-      <!-- QUICKSTART: just Gemini key is enough -->
-      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;">◈ QUICKSTART — PASTE YOUR GEMINI KEY (FREE)</div>
-      <div class="fg">
-        <label class="fl">Gemini API Key <span style="color:var(--txd);">(get free key at aistudio.google.com)</span></label>
-        <input class="fi" id="cfg-gmKey" type="password" placeholder="AIzaSy..." value="${cfg.geminiKey||''}" oninput="autoDetectProvider()"/>
+      <!-- Supabase (shared for auth + AI) -->
+      <div class="fg"><label class="fl">Supabase Project URL <span style="color:var(--txd);">(Settings > API di dashboard)</span></label>
+        <input class="fi" id="cfg-sbUrl" placeholder="https://xxxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
+      </div>
+      <div class="fg"><label class="fl">Supabase Anon Key (public)</label>
+        <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJhbGci..." value="${cfg.supabaseAnonKey||''}"/>
       </div>
 
-      <!-- OR divider -->
-      <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px;">
-        <div style="flex:1;height:1px;background:var(--brd);"></div>
-        <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">OR</span>
-        <div style="flex:1;height:1px;background:var(--brd);"></div>
-      </div>
-
-      <!-- OpenAI -->
-      <div class="fg">
-        <label class="fl">OpenAI API Key <span style="color:var(--txd);">(platform.openai.com/api-keys)</span></label>
-        <input class="fi" id="cfg-oaKey" type="password" placeholder="sk-proj-..." value="${cfg.openaiKey||''}" oninput="autoDetectProvider()"/>
-      </div>
-
-      <!-- Collapse: Supabase advanced -->
-      <details style="margin-bottom:10px;">
-        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ ADVANCED: SUPABASE EDGE FUNCTIONS (server-side, more secure)</summary>
-        <div style="padding-top:10px;">
-          <div class="fg"><label class="fl">Supabase Project URL</label>
-            <input class="fi" id="cfg-sbUrl" placeholder="https://xxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
-          </div>
-          <div class="fg"><label class="fl">Supabase Anon Key</label>
-            <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJhbGci..." value="${cfg.supabaseAnonKey||''}"/>
-          </div>
-          <div class="fg"><label class="fl">AI Provider for Edge Function</label>
-            <select class="fs" id="cfg-provider" style="font-size:13px;">
-              <option value="gemini" ${autoProvider==='gemini'?'selected':''}>Google Gemini Flash</option>
-              <option value="openai" ${autoProvider==='openai'?'selected':''}>OpenAI GPT-4o-mini</option>
-            </select>
-          </div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:8px;">Deploy edge function: <span style="color:var(--g1);">supabase functions deploy analyze-quest</span></div>
+      <!-- AI Keys (optional, just for quest analysis) -->
+      <details style="margin-bottom:10px;" ${aiReady?'open':''}>
+        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ AI QUEST ANALYSIS KEY (opsional)</summary>
+        <div style="padding-top:8px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:8px;">
+          Tanpa key ini, AI analisis quest pakai heuristik lokal (tetap berfungsi).<br>
+          Dengan key, analisis lebih akurat via AI.
         </div>
+        <div class="fg">
+          <label class="fl">Gemini API Key — GRATIS di <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--g1);">aistudio.google.com</a></label>
+          <input class="fi" id="cfg-gmKey" type="password" placeholder="AIzaSy..." value="${cfg.geminiKey||''}" oninput="autoDetectProvider()"/>
+        </div>
+        <div class="fg">
+          <label class="fl">OpenAI API Key (alternatif)</label>
+          <input class="fi" id="cfg-oaKey" type="password" placeholder="sk-proj-..." value="${cfg.openaiKey||''}" oninput="autoDetectProvider()"/>
+        </div>
+        <div class="fg">
+          <label class="fl">AI Provider</label>
+          <select class="fs" id="cfg-provider" style="font-size:13px;">
+            <option value="gemini" ${autoProvider==='gemini'?'selected':''}>Gemini Flash (recommended)</option>
+            <option value="openai" ${autoProvider==='openai'?'selected':''}>OpenAI GPT-4o-mini</option>
+          </select>
+        </div>
+        ${aiReady?`<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 22%,transparent);border-radius:4px;margin-bottom:6px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);">✓ ${hasGemini?'Gemini':hasOpenAI?'OpenAI':'Supabase Edge'} configured — <button onclick="testAIConnection()" style="background:none;border:none;color:var(--g1);cursor:pointer;font-family:inherit;font-size:8px;text-decoration:underline;padding:0;">test</button></div>`:''}
       </details>
 
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
-        <button class="btn bp" style="font-size:11px;" onclick="saveAIConfig()">💾 SAVE &amp; TEST</button>
-        <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">🔄 RE-TEST</button>
+        <button class="btn bp" style="font-size:11px;" onclick="saveAIConfig()">💾 SAVE CONFIG</button>
+        <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">🔄 TEST</button>
       </div>
 
-      <!-- Supabase SQL -->
+      <!-- SQL Setup -->
       <details>
-        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ SUPABASE SQL SETUP (for Global Stats)</summary>
+        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ SQL SETUP (jalankan di Supabase SQL Editor)</summary>
         <div style="margin-top:8px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">Run in Supabase SQL Editor</span>
-            <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY</button>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">Copy → paste ke SQL Editor di Supabase</span>
+            <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY SQL</button>
           </div>
-          <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;max-height:160px;">${esc(SUPABASE_SETUP_SQL)}</pre>
+          <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;max-height:120px;">${esc(SUPABASE_SETUP_SQL.split('\n').slice(0,12).join('\n'))}\n...</pre>
         </div>
       </details>
     </div>`;
@@ -3329,17 +3406,6 @@ function autoDetectProvider(){
   else if(oaKey&&oaKey.startsWith('sk-'))sel.value='openai';
 }
 
-
-function saveAIConfig(){
-  const cfg={
-    supabaseUrl:(document.getElementById('cfg-sbUrl')?.value||'').trim(),
-    supabaseAnonKey:(document.getElementById('cfg-sbKey')?.value||'').trim(),
-    aiProvider:document.getElementById('cfg-provider')?.value||'openai',
-    openaiKey:(document.getElementById('cfg-oaKey')?.value||'').trim(),
-    geminiKey:(document.getElementById('cfg-gmKey')?.value||'').trim(),
-  };
-  saveAICfg(cfg);showNotif('AI config saved!');
-}
 
 function saveAIConfig(){
   // Read from DOM — all fields rendered by renderAISettings
@@ -3635,6 +3701,7 @@ async function doLogout(){
   currentUser=null;isOnline=false;
   updateSyncDot('off');
   updateNavUser(null);
+  renderAccountPanel();
   showNotif('Logged out');
   // Show auth screen again
   showAuthScreen();
@@ -3678,6 +3745,7 @@ async function onAuthSuccess(user){
   updateSyncDot('on');
   updateNavUser(user);
   hideAuthScreen();
+  renderAccountPanel(); // Refresh profile panel
 
   // Start app
   if(!S.element){
