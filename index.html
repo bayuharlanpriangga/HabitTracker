@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ORIAS LEVELING</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -29,6 +30,56 @@ canvas#cv{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;}
 /* ─── ELEMENT SCREEN ─────────────────────────────────────────── */
 #escreen{position:fixed;inset:0;z-index:1000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .7s;}
 #escreen.out{opacity:0;pointer-events:none;}
+/* ─── AUTH SCREEN ─────────────────────────────────────────── */
+#authScreen{
+  position:fixed;inset:0;z-index:1100;
+  background:#000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;transition:opacity .5s;
+}
+#authScreen.out{opacity:0;pointer-events:none;}
+.auth-box{
+  background:var(--pnl);border:1px solid var(--brdh);
+  border-radius:10px;padding:28px 24px;
+  width:100%;max-width:380px;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 60px color-mix(in srgb,var(--g1) 25%,transparent);
+}
+.auth-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g1),var(--g2));}
+.auth-logo{font-family:'Orbitron',sans-serif;font-size:clamp(22px,5vw,32px);font-weight:900;color:var(--g1);letter-spacing:5px;text-align:center;margin-bottom:4px;}
+.auth-sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);letter-spacing:3px;text-align:center;margin-bottom:22px;}
+.auth-tabs{display:flex;background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:3px;margin-bottom:18px;gap:3px;}
+.auth-tab{flex:1;padding:8px;border:none;border-radius:3px;background:transparent;color:var(--txd);font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.auth-tab.on{background:color-mix(in srgb,var(--g1) 15%,transparent);color:var(--g1);border:1px solid color-mix(in srgb,var(--g1) 40%,transparent);}
+.auth-err{background:rgba(255,40,80,.1);border:1px solid rgba(255,40,80,.3);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:#ff6080;margin-bottom:10px;display:none;}
+.auth-err.show{display:block;}
+.auth-ok{background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 30%,transparent);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);margin-bottom:10px;display:none;}
+.auth-ok.show{display:block;}
+.auth-loading{display:none;text-align:center;padding:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--txd);letter-spacing:2px;animation:pulse .8s infinite alternate;}
+.auth-loading.show{display:block;}
+/* User avatar in nav */
+.nav-user{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  color:var(--txd);cursor:pointer;
+  padding:4px 8px;border:1px solid var(--brd);
+  border-radius:4px;transition:all .2s;flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.nav-user:hover{border-color:var(--g1);color:var(--g1);}
+.nav-user-av{font-size:14px;}
+/* Sync indicator */
+.sync-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#00ff88;flex-shrink:0;
+  animation:pulse .8s infinite alternate;
+  margin-left:2px;
+}
+.sync-dot.off{background:#ff4466;animation:none;}
+.sync-dot.syncing{background:#ffcc00;}
+
 .es-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,4vw,44px);font-weight:900;color:#fff;letter-spacing:5px;text-align:center;margin-bottom:5px;}
 .es-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:#555;letter-spacing:4px;margin-bottom:36px;text-align:center;}
 .es-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:660px;width:100%;}
@@ -50,16 +101,31 @@ canvas#cv{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;}
 /* ─── NAV ─────────────────────────────────────────────── */
 #app{opacity:0;transition:opacity .5s;min-height:100vh;display:flex;flex-direction:column;}
 #app.vis{opacity:1;}
-.nav{position:sticky;top:0;z-index:50;background:var(--pnl);border-bottom:1px solid var(--brd);display:flex;align-items:stretch;overflow:hidden;}
-.nav-brand{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;color:var(--g1);padding:0 10px;letter-spacing:2px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--brd);flex-shrink:0;white-space:nowrap;}
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:var(--pnl);
+  border-bottom:1px solid var(--brd);
+  display:flex;flex-direction:column;  /* 2-row layout */
+}
+/* ─ Row 1: brand + xp + element button ─ */
+.nav-top{
+  display:flex;align-items:center;
+  height:46px;padding:0 10px;gap:8px;
+  overflow:hidden;
+}
+.nav-brand{
+  font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;
+  color:var(--g1);letter-spacing:2px;flex-shrink:0;
+  display:flex;flex-direction:column;justify-content:center;white-space:nowrap;
+}
 .nav-brand small{font-size:7px;color:var(--txd);letter-spacing:2px;margin-top:1px;}
-.nav-pages{display:flex;gap:0;flex-shrink:0;}
-.np{padding:0 10px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--txd);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;height:46px;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
-.np:hover{color:var(--tx);}
-.np.on{color:var(--g1);border-bottom-color:var(--g1);}
-.nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;padding:0 8px;flex-shrink:0;}
-.xp-widget{display:flex;align-items:center;gap:6px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:5px 8px;width:130px;min-width:0;}
-@media(max-width:380px){.xp-widget{width:96px;}}
+/* XP widget stretches to fill gap between brand and ebtn */
+.xp-widget{
+  flex:1;min-width:0;
+  display:flex;align-items:center;gap:6px;
+  background:var(--crd);border:1px solid var(--brd);
+  border-radius:4px;padding:5px 8px;
+}
 .xp-rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:900;border:1.5px solid currentColor;flex-shrink:0;}
 .rE{color:#888;border-color:#888;}.rD{color:#4caf50;border-color:#4caf50;}.rC{color:#2196f3;border-color:#2196f3;}.rB{color:#9c27b0;border-color:#9c27b0;}.rA{color:#ff9800;border-color:#ff9800;}
 .rS{color:var(--g1);border-color:var(--g1);animation:rg 2s ease-in-out infinite alternate;}
@@ -72,7 +138,37 @@ canvas#cv{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;}
 .xp-txt{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);}
 .xp-track{height:3px;background:var(--brd);border-radius:2px;overflow:hidden;}
 .xp-fill{height:100%;background:linear-gradient(90deg,var(--xs),var(--g1));border-radius:2px;transition:width .5s;}
-.ebtn{display:flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--g1) 10%,transparent);border:1px solid var(--g1);border-radius:4px;padding:5px 8px;cursor:pointer;transition:all .2s;font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;color:var(--g1);letter-spacing:1px;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+/* Element button — always fully visible, never clipped */
+.ebtn{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:5px;
+  background:color-mix(in srgb,var(--g1) 12%,transparent);
+  border:2px solid var(--g1);border-radius:6px;
+  padding:5px 11px;min-width:64px;
+  cursor:pointer;transition:all .2s;
+  font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;
+  color:var(--g1);letter-spacing:1px;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:0 0 10px color-mix(in srgb,var(--g1) 25%,transparent);
+}
+.ebtn:active{background:color-mix(in srgb,var(--g1) 25%,transparent);}
+.ebtn-icon{font-size:15px;line-height:1;}
+/* ─ Row 2: page tabs full-width ─ */
+.nav-pages{
+  display:flex;
+  border-top:1px solid var(--brd);
+}
+.np{
+  flex:1;height:36px;padding:0 6px;
+  background:transparent;border:none;
+  border-bottom:2px solid transparent;
+  color:var(--txd);font-family:'Rajdhani',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;text-transform:uppercase;
+  text-align:center;-webkit-tap-highlight-color:transparent;
+}
+.np:hover{color:var(--tx);}
+.np.on{color:var(--g1);border-bottom-color:var(--g1);background:color-mix(in srgb,var(--g1) 5%,transparent);}
 
 /* ─── PAGES ─────────────────────────────────────────────── */
 .pg{display:none;flex:1;padding:12px 12px 64px;max-width:1280px;margin:0 auto;width:100%;}
@@ -415,6 +511,83 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 <canvas id="cv"></canvas>
 
 <!-- ═══════════════════════════════════════════════════════════
+     AUTH SCREEN — Login / Register
+     ═══════════════════════════════════════════════════════════ -->
+<div id="authScreen" class="z1" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-logo">ORIAS</div>
+    <div class="auth-sub">◈ LEVELING SYSTEM — SIGN IN TO CONTINUE ◈</div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="tabLogin" onclick="switchAuthTab('login')">LOGIN</button>
+      <button class="auth-tab"    id="tabReg"   onclick="switchAuthTab('register')">REGISTER</button>
+    </div>
+
+    <!-- Feedback -->
+    <div class="auth-err" id="authErr"></div>
+    <div class="auth-ok"  id="authOk"></div>
+    <div class="auth-loading" id="authLoading">◈ AUTHENTICATING ◈</div>
+
+    <!-- Login form -->
+    <div id="formLogin">
+      <div class="fg"><label class="fl">Email</label>
+        <input class="fi" id="loginEmail" type="email" placeholder="hunter@domain.com" autocomplete="email" style="font-size:16px;"/>
+      </div>
+      <div class="fg"><label class="fl">Password</label>
+        <input class="fi" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" style="font-size:16px;" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn bp" style="width:100%;padding:12px;font-size:12px;" onclick="doLogin()">⚡ ENTER THE SYSTEM</button>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn bc" style="font-size:10px;width:100%;padding:10px;" onclick="doGoogleLogin()">
+          <span style="margin-right:6px;">G</span> Continue with Google
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);">
+        <span style="cursor:pointer;" onclick="showForgotPass()">Forgot password?</span>
+      </div>
+    </div>
+
+    <!-- Register form -->
+    <div id="formReg" style="display:none;">
+      <div class="fg"><label class="fl">Display Name</label>
+        <input class="fi" id="regName" placeholder="Your hunter name" maxlength="22" style="font-size:16px;"/>
+      </div>
+      <div class="fg"><label class="fl">Email</label>
+        <input class="fi" id="regEmail" type="email" placeholder="hunter@domain.com" autocomplete="email" style="font-size:16px;"/>
+      </div>
+      <div class="fg"><label class="fl">Password</label>
+        <input class="fi" id="regPass" type="password" placeholder="Min 6 characters" autocomplete="new-password" style="font-size:16px;" onkeydown="if(event.key==='Enter')doRegister()"/>
+      </div>
+      <button class="btn bp" style="width:100%;padding:12px;font-size:12px;" onclick="doRegister()">◈ CREATE ACCOUNT</button>
+      <div style="text-align:center;margin-top:10px;">
+        <button class="btn bc" style="font-size:10px;width:100%;padding:10px;" onclick="doGoogleLogin()">
+          <span style="margin-right:6px;">G</span> Continue with Google
+        </button>
+      </div>
+    </div>
+
+    <!-- Forgot password form (hidden) -->
+    <div id="formForgot" style="display:none;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);margin-bottom:12px;line-height:1.6;">Enter your email — we will send a reset link.</div>
+      <div class="fg"><label class="fl">Email</label>
+        <input class="fi" id="forgotEmail" type="email" placeholder="hunter@domain.com" style="font-size:16px;"/>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn bc" style="flex:1;font-size:10px;" onclick="switchAuthTab('login')">BACK</button>
+        <button class="btn bp" style="flex:1;font-size:10px;" onclick="doForgotPass()">SEND RESET</button>
+      </div>
+    </div>
+
+    <!-- Setup notice for new users -->
+    <div style="margin-top:16px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);text-align:center;line-height:1.7;">
+      Requires Supabase configured in settings.<br>
+      <span style="cursor:pointer;color:var(--g1);" onclick="skipAuthForNow()">▶ Continue offline (local only)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
      ELEMENT PICKER SCREEN
      ═══════════════════════════════════════════════════════════ -->
 <div id="escreen" class="z1">
@@ -436,13 +609,9 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
 <div id="app" class="z1">
   <!-- NAV -->
   <nav class="nav">
-    <div class="nav-brand">ORIAS<small id="navSys">VOID SYSTEM</small></div>
-    <div class="nav-pages">
-      <button class="np on" onclick="goPage('profile')">👤 Profile</button>
-      <button class="np"    onclick="goPage('tracker')">⚔ Quests</button>
-      <button class="np"    onclick="goPage('roadmap')">🗺 Roadmap</button>
-    </div>
-    <div class="nav-right">
+    <!-- Row 1: Brand + XP + Element button -->
+    <div class="nav-top">
+      <div class="nav-brand">ORIAS<small id="navSys">VOID SYSTEM</small></div>
       <div class="xp-widget">
         <div class="xp-rank rE" id="nvRank">E</div>
         <div class="xp-info">
@@ -450,9 +619,21 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
           <div class="xp-track"><div class="xp-fill" id="nvXpFill" style="width:0%"></div></div>
         </div>
       </div>
-      <div class="ebtn" onclick="openElemPicker()" id="nvElem">
-        <span id="nvElemIc">🌑</span><span id="nvElemLbl">VOID</span>
+      <!-- User account indicator -->
+      <div class="nav-user" id="navUser" onclick="openUserMenu()" title="Account">
+        <span class="nav-user-av" id="navUserAv">👤</span>
+        <div class="sync-dot off" id="syncDot"></div>
       </div>
+      <div class="ebtn" onclick="openElemPicker()" id="nvElem">
+        <span class="ebtn-icon" id="nvElemIc">🌑</span>
+        <span id="nvElemLbl">VOID</span>
+      </div>
+    </div>
+    <!-- Row 2: Page navigation tabs -->
+    <div class="nav-pages">
+      <button class="np on" onclick="goPage('profile')">👤 Profile</button>
+      <button class="np"    onclick="goPage('tracker')">⚔ Quests</button>
+      <button class="np"    onclick="goPage('roadmap')">🗺 Roadmap</button>
     </div>
   </nav>
 
@@ -925,6 +1106,16 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
   </div>
 </div>
 
+<!-- USER ACCOUNT MENU -->
+<div class="mo" id="userMenuMo">
+  <div class="mbox" style="max-width:360px;">
+    <div class="mt">◈ ACCOUNT</div>
+    <div id="userMenuBody">
+      <!-- filled by openUserMenu() -->
+    </div>
+  </div>
+</div>
+
 <!-- LEVEL UP + NOTIF -->
 <div class="lvlt" id="lvlT"><div style="font-size:30px;margin-bottom:5px;" id="lvlIc">⚡</div><div class="lvlt-t">LEVEL UP!</div><div class="lvlt-s" id="lvlSub">Level 2 achieved</div></div>
 <div class="notif" id="notif"></div>
@@ -1084,39 +1275,7 @@ function analyzeAI(name, isRoadmap=false){
   return best;
 }
 
-// Quest AI input handler — debounced, auto-fills hidden fields
-function onNameInput(){
-  clearTimeout(aiTimer);
-  const name=document.getElementById('qName').value.trim();
-  if(!name||name.length<2){
-    setAIState('waiting');
-    document.getElementById('qAiRank').value='C';
-    document.getElementById('qAiXP').value='50';
-    return;
-  }
-  setAIState('analyzing');
-  aiTimer=setTimeout(()=>{
-    const res=analyzeAI(name,false);
-    if(res){
-      document.getElementById('aiRank').textContent=res.r+'-RANK';
-      document.getElementById('aiRank').className='ai-stat-v';
-      document.getElementById('aiXP').textContent=res.xp+' XP';
-      document.getElementById('aiXP').className='ai-stat-v';
-      document.getElementById('aiFreq').textContent=res.f.toUpperCase();
-      document.getElementById('aiFreq').className='ai-stat-v';
-      document.getElementById('aiReason').textContent=res.reason;
-      document.getElementById('aiBadge').textContent='ANALYZED ✓';
-      // Auto-apply frequency suggestion
-      document.getElementById('qFreq').value=res.f;
-      onFreqChange();
-      // Auto-apply category if confident
-      if(res.r!=='C'||res.score>6)autoApplyCat(document.getElementById('qName').value.toLowerCase());
-      // Store in hidden fields — LOCKED
-      document.getElementById('qAiRank').value=res.r;
-      document.getElementById('qAiXP').value=res.xp;
-    }
-  },450);
-}
+// onNameInput defined below with remote AI support
 
 function setAIState(state){
   const rank=document.getElementById('aiRank'),xp=document.getElementById('aiXP'),fr=document.getElementById('aiFreq');
@@ -2621,7 +2780,7 @@ function exportPDF(){
 function showLvlUp(){const t=document.getElementById('lvlT');document.getElementById('lvlSub').textContent=`Level ${S.level} — ${getCls()[getRank()]||'Ascended'}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showNotif(msg){const el=document.getElementById('notif');el.textContent='> '+msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNodeModal();closeElemPicker();closeCfm();closeCatManager();closeAttrTest();document.getElementById('globalEditorMo')?.classList.remove('open');document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNodeModal();closeElemPicker();closeCfm();closeCatManager();closeAttrTest();document.getElementById('globalEditorMo')?.classList.remove('open');document.getElementById('userMenuMo')?.classList.remove('open');document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
 
 /* ───────────────────────────────────────────────────────────────
    INIT
@@ -2739,15 +2898,14 @@ function showAIBadge(label, isRemote){
   }
 }
 
-// Override onNameInput to use remote AI when configured
-let aiRemoteTimer=null;
+// onNameInput — unified remote+local AI handler
 function onNameInput(){
-  clearTimeout(aiRemoteTimer);
+  clearTimeout(aiTimer);
   const name=document.getElementById('qName').value.trim();
   if(!name||name.length<3){setAIState('waiting');return;}
   setAIState('analyzing');
 
-  aiRemoteTimer=setTimeout(async()=>{
+  aiTimer=setTimeout(async()=>{
     const cat=document.getElementById('qCat').value||'Other';
     const freq=document.getElementById('qFreq').value||'daily';
 
@@ -3070,51 +3228,107 @@ function renderAISettings(){
   const cfg=getAICfg();
   const el=document.getElementById('aiSettingsPanel');
   if(!el)return;
+
+  // Detect current status
+  const hasGemini=!!cfg.geminiKey;
+  const hasOpenAI=!!cfg.openaiKey;
+  const hasSupabase=!!(cfg.supabaseUrl&&cfg.supabaseAnonKey);
+  const isConfigured=hasGemini||hasOpenAI||hasSupabase;
+
+  // Auto-detect best provider
+  const autoProvider=cfg.aiProvider||(hasGemini?'gemini':'openai');
+
+  const statusHtml=isConfigured
+    ? `<div style="display:flex;align-items:center;gap:7px;background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 25%,transparent);border-radius:4px;padding:8px 10px;margin-bottom:12px;">
+        <span style="font-size:14px;">${hasGemini?'✨':hasOpenAI?'🤖':'🔗'}</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--g1);">${hasGemini?'Gemini Flash ready':hasOpenAI?'OpenAI GPT-4o-mini ready':'Supabase Edge configured'}</span>
+        <span style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">CLICK TEST TO VERIFY</span>
+       </div>`
+    : `<div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:8px 10px;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:9px;color:#ffcc44;">
+        ⚠ No API key configured — using local AI heuristic
+       </div>`;
+
   el.innerHTML=`
-    <div class="settitle">AI INTEGRATION</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="blbl" style="margin-bottom:0;">▶ AI INTEGRATION</div>
+      <button class="btn bc" style="font-size:9px;padding:4px 10px;" onclick="toggleAIPanel()">▾ TOGGLE</button>
+    </div>
+    <div id="aiPanelBody">
+      ${statusHtml}
 
-    <!-- Supabase -->
-    <div style="margin-bottom:10px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;">◈ SUPABASE (EDGE FUNCTIONS + POSTGRES RPC)</div>
-      <div class="fg"><label class="fl">Supabase Project URL</label>
-        <input class="fi" id="cfg-sbUrl" placeholder="https://xxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
+      <!-- QUICKSTART: just Gemini key is enough -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;">◈ QUICKSTART — PASTE YOUR GEMINI KEY (FREE)</div>
+      <div class="fg">
+        <label class="fl">Gemini API Key <span style="color:var(--txd);">(get free key at aistudio.google.com)</span></label>
+        <input class="fi" id="cfg-gmKey" type="password" placeholder="AIzaSy..." value="${cfg.geminiKey||''}" oninput="autoDetectProvider()"/>
       </div>
-      <div class="fg"><label class="fl">Supabase Anon Key</label>
-        <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJ..." value="${cfg.supabaseAnonKey||''}"/>
+
+      <!-- OR divider -->
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px;">
+        <div style="flex:1;height:1px;background:var(--brd);"></div>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">OR</span>
+        <div style="flex:1;height:1px;background:var(--brd);"></div>
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:8px;">Deploy edge function at <span style="color:var(--g1);">/functions/v1/analyze-quest</span> to proxy AI calls server-side. See SQL setup below.</div>
-    </div>
 
-    <!-- AI Provider -->
-    <div class="fg"><label class="fl">AI Provider (for Edge Function or direct)</label>
-      <select class="fs" id="cfg-provider" style="font-size:13px;">
-        <option value="openai" ${(cfg.aiProvider||'openai')==='openai'?'selected':''}>OpenAI (GPT-4o-mini)</option>
-        <option value="gemini" ${cfg.aiProvider==='gemini'?'selected':''}>Google Gemini Flash</option>
-      </select>
-    </div>
-
-    <!-- Direct keys (fallback) -->
-    <div class="fg"><label class="fl">OpenAI API Key (direct fallback)</label>
-      <input class="fi" id="cfg-oaKey" type="password" placeholder="sk-..." value="${cfg.openaiKey||''}"/>
-    </div>
-    <div class="fg"><label class="fl">Gemini API Key (direct fallback)</label>
-      <input class="fi" id="cfg-gmKey" type="password" placeholder="AIza..." value="${cfg.geminiKey||''}"/>
-    </div>
-
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-      <button class="btn bp" style="flex:1;font-size:10px;" onclick="saveAIConfig()">SAVE CONFIG</button>
-      <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">TEST CONNECTION</button>
-    </div>
-
-    <!-- SQL Setup -->
-    <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g2);letter-spacing:2px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
-        SUPABASE SQL SETUP
-        <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY SQL</button>
+      <!-- OpenAI -->
+      <div class="fg">
+        <label class="fl">OpenAI API Key <span style="color:var(--txd);">(platform.openai.com/api-keys)</span></label>
+        <input class="fi" id="cfg-oaKey" type="password" placeholder="sk-proj-..." value="${cfg.openaiKey||''}" oninput="autoDetectProvider()"/>
       </div>
-      <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;">${esc(SUPABASE_SETUP_SQL)}</pre>
+
+      <!-- Collapse: Supabase advanced -->
+      <details style="margin-bottom:10px;">
+        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ ADVANCED: SUPABASE EDGE FUNCTIONS (server-side, more secure)</summary>
+        <div style="padding-top:10px;">
+          <div class="fg"><label class="fl">Supabase Project URL</label>
+            <input class="fi" id="cfg-sbUrl" placeholder="https://xxx.supabase.co" value="${cfg.supabaseUrl||''}"/>
+          </div>
+          <div class="fg"><label class="fl">Supabase Anon Key</label>
+            <input class="fi" id="cfg-sbKey" type="password" placeholder="eyJhbGci..." value="${cfg.supabaseAnonKey||''}"/>
+          </div>
+          <div class="fg"><label class="fl">AI Provider for Edge Function</label>
+            <select class="fs" id="cfg-provider" style="font-size:13px;">
+              <option value="gemini" ${autoProvider==='gemini'?'selected':''}>Google Gemini Flash</option>
+              <option value="openai" ${autoProvider==='openai'?'selected':''}>OpenAI GPT-4o-mini</option>
+            </select>
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);line-height:1.7;margin-bottom:8px;">Deploy edge function: <span style="color:var(--g1);">supabase functions deploy analyze-quest</span></div>
+        </div>
+      </details>
+
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px;">
+        <button class="btn bp" style="font-size:11px;" onclick="saveAIConfig()">💾 SAVE &amp; TEST</button>
+        <button class="btn bc" style="font-size:10px;" onclick="testAIConnection()">🔄 RE-TEST</button>
+      </div>
+
+      <!-- Supabase SQL -->
+      <details>
+        <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;cursor:pointer;padding:4px 0;">◈ SUPABASE SQL SETUP (for Global Stats)</summary>
+        <div style="margin-top:8px;background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">Run in Supabase SQL Editor</span>
+            <button class="btn bc" style="font-size:9px;padding:3px 8px;" onclick="copySetupSQL()">COPY</button>
+          </div>
+          <pre style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);overflow-x:auto;line-height:1.5;white-space:pre-wrap;max-height:160px;">${esc(SUPABASE_SETUP_SQL)}</pre>
+        </div>
+      </details>
     </div>`;
 }
+
+function toggleAIPanel(){
+  const b=document.getElementById('aiPanelBody');
+  if(b)b.style.display=b.style.display==='none'?'block':'none';
+}
+
+function autoDetectProvider(){
+  const gmKey=(document.getElementById('cfg-gmKey')?.value||'').trim();
+  const oaKey=(document.getElementById('cfg-oaKey')?.value||'').trim();
+  const sel=document.getElementById('cfg-provider');
+  if(!sel)return;
+  if(gmKey&&gmKey.startsWith('AIza'))sel.value='gemini';
+  else if(oaKey&&oaKey.startsWith('sk-'))sel.value='openai';
+}
+
 
 function saveAIConfig(){
   const cfg={
@@ -3127,32 +3341,566 @@ function saveAIConfig(){
   saveAICfg(cfg);showNotif('AI config saved!');
 }
 
-async function testAIConnection(){
-  showNotif('Testing connection...');
-  const result=await analyzeQuestAI_Remote('Morning exercise routine','Fitness','daily');
-  if(result){showNotif('✅ AI connected! Test result: '+result.rank+'-Rank, '+result.xp+' XP');}
-  else{showNotif('🟡 Using local AI (no remote key configured)');}
+function saveAIConfig(){
+  // Read from DOM — all fields rendered by renderAISettings
+  const gmKey=(document.getElementById('cfg-gmKey')?.value||'').trim();
+  const oaKey=(document.getElementById('cfg-oaKey')?.value||'').trim();
+  const sbUrl=(document.getElementById('cfg-sbUrl')?.value||'').trim().replace(/\/$/,'');
+  const sbKey=(document.getElementById('cfg-sbKey')?.value||'').trim();
+  const provider=document.getElementById('cfg-provider')?.value||(gmKey?'gemini':'openai');
+
+  if(!gmKey && !oaKey && !sbKey){showNotif('⚠ Enter at least one API key');return;}
+
+  const cfg={geminiKey:gmKey, openaiKey:oaKey, supabaseUrl:sbUrl, supabaseAnonKey:sbKey, aiProvider:provider};
+  saveAICfg(cfg);
+  showNotif('✅ Config saved!');
+  // Refresh panel to show status
+  renderAISettings();
+  // Auto-test
+  setTimeout(()=>runTestAIConnection(), 300);
 }
 
+// Renamed to avoid recursive loop — called after save
+async function runTestAIConnection(){
+  const cfg=getAICfg();
+  const log=[];
+  showNotif('🔄 Testing...');
+
+  // Test Gemini first (free, most common)
+  if(cfg.geminiKey){
+    log.push('Trying Gemini Direct...');
+    try{
+      const prompt='Return ONLY valid JSON: {"rank":"C","xp":50,"reason":"test ok","confidence":0.99}';
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cfg.geminiKey}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:80,temperature:0}})
+      });
+      if(r.ok){
+        const d=await r.json();
+        const raw=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+        let json;
+        try{json=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(pe){log.push('Gemini JSON parse error: '+raw.substring(0,80));json=null;}
+        if(json?.rank){
+          showNotif('✅ Gemini Flash connected!');
+          showLongNotif('✅ GEMINI FLASH CONNECTED\n\nYour quests will now be analyzed by Google Gemini AI in real-time.\n\nTest response:\n• Rank: '+json.rank+'-Rank\n• XP: '+json.xp+'\n• Confidence: '+(json.confidence||1)*100+'%\n\nTap anywhere to close.');
+          return;
+        }
+      } else {
+        const err=await r.text().catch(()=>'');
+        const errData=JSON.parse(err||'{}');
+        log.push('Gemini '+r.status+': '+(errData.error?.message||err).substring(0,150));
+      }
+    }catch(e){log.push('Gemini network error: '+e.message);}
+  }
+
+  // Test OpenAI
+  if(cfg.openaiKey){
+    log.push('Trying OpenAI...');
+    try{
+      const r=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.openaiKey},
+        body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'user',content:'Return ONLY JSON: {"rank":"C","xp":50,"reason":"test ok"}'}],max_tokens:60,temperature:0})
+      });
+      if(r.ok){
+        const d=await r.json();
+        const raw=d.choices?.[0]?.message?.content||'';
+        let json;try{json=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch{json=null;}
+        if(json?.rank){
+          showNotif('✅ OpenAI GPT-4o-mini connected!');
+          showLongNotif('✅ OPENAI CONNECTED\n\nGPT-4o-mini will analyze your quests.\n\nTest: '+json.rank+'-Rank. Tap to close.');
+          return;
+        }
+      } else {
+        const err=await r.text().catch(()=>'');
+        log.push('OpenAI '+r.status+': '+err.substring(0,150));
+      }
+    }catch(e){log.push('OpenAI network error: '+e.message);}
+  }
+
+  // Test Supabase Edge
+  if(cfg.supabaseUrl && cfg.supabaseAnonKey){
+    log.push('Trying Supabase Edge Function...');
+    try{
+      const r=await fetch(`${cfg.supabaseUrl}/functions/v1/analyze-quest`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.supabaseAnonKey,'apikey':cfg.supabaseAnonKey},
+        body:JSON.stringify({questName:'Test',category:'Other',freq:'daily',provider:cfg.aiProvider||'gemini'})
+      });
+      if(r.ok){
+        const d=await r.json();
+        if(d.rank){showNotif('✅ Supabase Edge connected!');showLongNotif('✅ SUPABASE EDGE CONNECTED\n\n'+JSON.stringify(d,null,2));return;}
+        else log.push('Edge returned: '+JSON.stringify(d).substring(0,100));
+      }else log.push('Edge HTTP '+r.status);
+    }catch(e){log.push('Edge error: '+e.message);}
+  }
+
+  // All failed
+  const noKeys=!cfg.geminiKey && !cfg.openaiKey && !cfg.supabaseAnonKey;
+  showNotif('❌ '+(noKeys?'No API key configured':'Connection failed — see details'));
+  showLongNotif((noKeys
+    ? '❌ NO API KEY\n\nPaste your Gemini API key (free) from:\naistudio.google.com/apikey\n\nThen click SAVE & TEST.'
+    : '❌ CONNECTION FAILED\n\n'+log.map(l=>'• '+l).join('\n')+'\n\nCheck:\n• API key is correct\n• Key has no IP restrictions\n• Billing enabled (OpenAI)\n\nTap to close.'
+  ));
+}
+
+async function testAIConnection(){return runTestAIConnection();}
+
+
+
 function copySetupSQL(){
-  navigator.clipboard?.writeText(SUPABASE_SETUP_SQL).then(()=>showNotif('SQL copied to clipboard!')).catch(()=>showNotif('Copy the SQL manually from the panel'));
+  navigator.clipboard?.writeText(SUPABASE_SETUP_SQL+'\n'+AUTH_SETUP_SQL).then(()=>showNotif('SQL copied!')).catch(()=>showNotif('Copy the SQL manually'));
+}
+
+function showLongNotif(msg){
+  let p=document.getElementById('longNotifPanel');
+  if(!p){
+    p=document.createElement('div');p.id='longNotifPanel';
+    p.style.cssText='position:fixed;bottom:64px;right:14px;left:14px;max-width:420px;margin:0 auto;background:var(--pnl);border:1px solid var(--g1);border-radius:6px;padding:14px 16px;font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--tx);z-index:900;box-shadow:0 0 30px color-mix(in srgb,var(--g1) 25%,transparent);line-height:1.8;';
+    document.body.appendChild(p);
+  }
+  p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-family:\'Orbitron\',sans-serif;font-size:9px;color:var(--g1);letter-spacing:2px;">◈ AI DIAGNOSTICS</span><span style="cursor:pointer;color:var(--txd);font-size:16px;line-height:1;" onclick="document.getElementById('longNotifPanel').remove()">✕</span></div><div>`+msg.replace(/\n/g,'<br>')+'</div>';
+  clearTimeout(p._t);p._t=setTimeout(()=>p?.remove(),14000);
 }
 
 function exportBackup(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`OriasBackup_${today()}.json`;a.click();showNotif('Backup exported!');}
 function importData(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.quests&&d.history){S=d;save();init();showNotif('Backup imported!');}else showNotif('Invalid file');}catch{showNotif('Import failed');}};r.readAsText(f);};inp.click();}
 function resetAll(){if(!confirm('RESET ALL DATA? Cannot be undone!'))return;if(!confirm('Are you absolutely sure?'))return;const el=S.element||'void';S=defS();S.element=el;save();init();showNotif('Reset complete');}
-function defS(){return{playerName:'Orias Hunter',avatar:'🌑',bio:'',element:'void',level:1,xp:0,totalXP:0,currentStreak:0,maxStreak:0,lastCompleted:null,perfectDays:[],achs:{},quests:[],history:[],nodes:[],settings:{streakBonus:10,perfectBonus:25}};}
+// defS defined above
 
-function init(){
-  const saved=S.element||null;
-  if(!saved){
+/* ═══════════════════════════════════════════════════════════════
+   AUTH SYSTEM — Supabase Auth + Cloud Sync
+   ─────────────────────────────────────────────────────────────
+   Flow:
+   1. On load → check Supabase config
+   2. If configured → show auth screen (login/register)
+   3. On login success → load user data from DB, start session
+   4. If not configured → skip auth, use localStorage (offline)
+   5. Save = write localStorage + sync to Supabase (debounced)
+   ═══════════════════════════════════════════════════════════════ */
+
+let SB = null;          // Supabase client instance
+let currentUser = null; // Supabase user object
+let syncTimer = null;   // Debounce timer for cloud sync
+let isOnline = false;   // Whether cloud sync is active
+const DB_TABLE = 'orias_data'; // Supabase table name
+
+/* ── INIT SUPABASE CLIENT ─────────────────────────────────── */
+function initSupabase(){
+  const cfg = getAICfg();
+  if(!cfg.supabaseUrl || !cfg.supabaseAnonKey) return null;
+  try{
+    // supabase is the global from the CDN script
+    SB = window.supabase?.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+      auth:{
+        autoRefreshToken:true,
+        persistSession:true,
+        detectSessionInUrl:true
+      }
+    });
+    return SB;
+  }catch(e){
+    console.warn('[AUTH] Could not init Supabase:', e.message);
+    return null;
+  }
+}
+
+/* ── AUTH SCREEN CONTROL ─────────────────────────────────── */
+function showAuthScreen(){
+  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('authScreen').style.opacity='1';
+  // Apply current element theme
+  document.body.className = S.element||'void';
+}
+function hideAuthScreen(){
+  const s=document.getElementById('authScreen');
+  s.style.opacity='0';
+  setTimeout(()=>{s.style.display='none';},500);
+}
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').classList.toggle('on',tab==='login');
+  document.getElementById('tabReg').classList.toggle('on',tab==='register');
+  document.getElementById('formLogin').style.display=tab==='login'?'block':'none';
+  document.getElementById('formReg').style.display=tab==='register'?'block':'none';
+  document.getElementById('formForgot').style.display='none';
+  clearAuthFeedback();
+}
+function showForgotPass(){
+  document.getElementById('formLogin').style.display='none';
+  document.getElementById('formForgot').style.display='block';
+  clearAuthFeedback();
+}
+function clearAuthFeedback(){
+  document.getElementById('authErr').className='auth-err';
+  document.getElementById('authOk').className='auth-ok';
+  document.getElementById('authLoading').className='auth-loading';
+}
+function authErr(msg){
+  clearAuthFeedback();
+  const el=document.getElementById('authErr');
+  el.textContent='⚠ '+msg;el.className='auth-err show';
+}
+function authOk(msg){
+  clearAuthFeedback();
+  const el=document.getElementById('authOk');
+  el.textContent='✓ '+msg;el.className='auth-ok show';
+}
+function authLoading(show){
+  document.getElementById('authLoading').className='auth-loading'+(show?' show':'');
+  ['loginEmail','loginPass','regEmail','regPass','regName','forgotEmail'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.disabled=show;
+  });
+}
+
+/* ── AUTH ACTIONS ─────────────────────────────────────────── */
+async function doLogin(){
+  if(!SB){authErr('Supabase not configured. Set up in Profile > AI Integration.');return;}
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!email||!pass){authErr('Enter email and password.');return;}
+  authLoading(true);
+  try{
+    const {data,error}=await SB.auth.signInWithPassword({email,password:pass});
+    if(error)throw error;
+    await onAuthSuccess(data.user);
+  }catch(e){
+    authLoading(false);
+    authErr(friendlyAuthError(e.message));
+  }
+}
+
+async function doRegister(){
+  if(!SB){authErr('Supabase not configured. Set up in Profile > AI Integration.');return;}
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPass').value;
+  if(!name){authErr('Enter a display name.');return;}
+  if(!email){authErr('Enter your email.');return;}
+  if(pass.length<6){authErr('Password must be at least 6 characters.');return;}
+  authLoading(true);
+  try{
+    const {data,error}=await SB.auth.signUp({
+      email,password:pass,
+      options:{data:{display_name:name}}
+    });
+    if(error)throw error;
+    if(data.user?.identities?.length===0){
+      authLoading(false);
+      authErr('Email already registered. Please login instead.');
+      return;
+    }
+    if(data.session){
+      // Auto-confirmed (email confirmation disabled)
+      S.playerName=name;
+      await onAuthSuccess(data.user);
+    }else{
+      authLoading(false);
+      authOk('Account created! Check your email to confirm, then login.');
+      switchAuthTab('login');
+    }
+  }catch(e){
+    authLoading(false);
+    authErr(friendlyAuthError(e.message));
+  }
+}
+
+async function doGoogleLogin(){
+  if(!SB){authErr('Supabase not configured.');return;}
+  try{
+    const {error}=await SB.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.href}
+    });
+    if(error)throw error;
+  }catch(e){authErr(friendlyAuthError(e.message));}
+}
+
+async function doForgotPass(){
+  if(!SB){authErr('Supabase not configured.');return;}
+  const email=document.getElementById('forgotEmail').value.trim();
+  if(!email){authErr('Enter your email.');return;}
+  authLoading(true);
+  try{
+    const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
+    if(error)throw error;
+    authLoading(false);
+    authOk('Reset link sent! Check your inbox.');
+  }catch(e){authLoading(false);authErr(friendlyAuthError(e.message));}
+}
+
+async function doLogout(){
+  document.getElementById('userMenuMo')?.classList.remove('open');
+  if(SB)await SB.auth.signOut();
+  currentUser=null;isOnline=false;
+  updateSyncDot('off');
+  updateNavUser(null);
+  showNotif('Logged out');
+  // Show auth screen again
+  showAuthScreen();
+}
+
+function skipAuthForNow(){
+  hideAuthScreen();
+  document.getElementById('app').classList.add('vis');
+  if(S.element)applyElem(S.element);
+  else{document.getElementById('escreen').style.display='flex';}
+  showNotif('Running offline — data saved locally');
+}
+
+function friendlyAuthError(msg){
+  if(!msg)return'Unknown error';
+  if(msg.includes('Invalid login'))return'Wrong email or password.';
+  if(msg.includes('Email not confirmed'))return'Please confirm your email first.';
+  if(msg.includes('User already'))return'Email already registered.';
+  if(msg.includes('Password'))return'Password too weak (min 6 chars).';
+  if(msg.includes('rate limit'))return'Too many attempts. Wait a moment.';
+  if(msg.includes('network'))return'Network error. Check connection.';
+  return msg.replace('AuthApiError: ','').substring(0,120);
+}
+
+/* ── ON AUTH SUCCESS ──────────────────────────────────────── */
+async function onAuthSuccess(user){
+  currentUser=user;
+  authLoading(false);
+
+  // Load user data from Supabase
+  const cloudData=await loadFromCloud(user.id);
+  if(cloudData){
+    S=cloudData;
+    // Merge AI config from cloud if local is empty
+  }else{
+    // First time — push local data to cloud
+    await saveToCloud();
+  }
+
+  isOnline=true;
+  updateSyncDot('on');
+  updateNavUser(user);
+  hideAuthScreen();
+
+  // Start app
+  if(!S.element){
     document.getElementById('escreen').style.display='flex';
     document.getElementById('app').classList.remove('vis');
   }else{
     document.getElementById('escreen').style.display='none';
     document.getElementById('app').classList.add('vis');
-    applyElem(saved);
+    applyElem(S.element);
   }
+
+  // Subscribe to realtime changes (other devices)
+  setupRealtimeSync(user.id);
+
+  showNotif('◈ Welcome back, '+( S.playerName||user.email.split('@')[0])+'!');
+}
+
+/* ── CLOUD SAVE / LOAD ────────────────────────────────────── */
+async function loadFromCloud(userId){
+  if(!SB||!userId)return null;
+  try{
+    const {data,error}=await SB
+      .from(DB_TABLE)
+      .select('data')
+      .eq('user_id',userId)
+      .single();
+    if(error){
+      if(error.code==='PGRST116')return null; // no row yet
+      console.warn('[CLOUD] Load error:',error.message);
+      return null;
+    }
+    return data?.data||null;
+  }catch(e){console.warn('[CLOUD] Load failed:',e.message);return null;}
+}
+
+async function saveToCloud(){
+  if(!SB||!currentUser)return;
+  updateSyncDot('syncing');
+  try{
+    const {error}=await SB
+      .from(DB_TABLE)
+      .upsert({
+        user_id:currentUser.id,
+        data:S,
+        updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
+    if(error)throw error;
+    updateSyncDot('on');
+  }catch(e){
+    console.warn('[CLOUD] Save failed:',e.message);
+    updateSyncDot('off');
+  }
+}
+
+// Debounced save — called on every state change
+function save(){
+  localStorage.setItem('orias_v5',JSON.stringify(S));
+  // Debounce cloud sync by 2s
+  if(isOnline&&currentUser){
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(()=>saveToCloud(),2000);
+  }
+}
+
+/* ── REALTIME SYNC (multi-device) ─────────────────────────── */
+function setupRealtimeSync(userId){
+  if(!SB)return;
+  SB.channel('orias-sync-'+userId)
+    .on('postgres_changes',{
+      event:'UPDATE',schema:'public',table:DB_TABLE,
+      filter:`user_id=eq.${userId}`
+    },(payload)=>{
+      // Another device saved — merge if newer
+      const remote=payload.new?.data;
+      if(remote&&remote.totalXP>S.totalXP){
+        S=remote;
+        localStorage.setItem('orias_v5',JSON.stringify(S));
+        refreshAll();
+        showNotif('🔄 Synced from another device');
+      }
+    })
+    .subscribe();
+}
+
+/* ── SYNC DOT & NAV USER ──────────────────────────────────── */
+function updateSyncDot(state){
+  const dot=document.getElementById('syncDot');
+  if(!dot)return;
+  dot.className='sync-dot'+(state==='off'?' off':state==='syncing'?' syncing':'');
+  dot.title=state==='on'?'Synced to cloud':state==='syncing'?'Syncing...':'Offline (local only)';
+}
+function updateNavUser(user){
+  const el=document.getElementById('navUserAv');
+  if(!el)return;
+  if(user){
+    // Show first letter of email or display name
+    const name=user.user_metadata?.display_name||user.email||'?';
+    el.textContent=name.charAt(0).toUpperCase();
+    el.style.fontFamily='Orbitron,sans-serif';
+    el.style.fontSize='11px';
+    el.style.fontWeight='900';
+    el.style.color='var(--g1)';
+  }else{
+    el.textContent='👤';
+    el.style.cssText='';
+  }
+}
+
+/* ── USER MENU MODAL ──────────────────────────────────────── */
+function openUserMenu(){
+  const body=document.getElementById('userMenuBody');
+  if(!body)return;
+  if(!currentUser){
+    body.innerHTML=`
+      <div style="text-align:center;padding:12px 0;">
+        <div style="font-size:32px;margin-bottom:8px;">👤</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);line-height:1.8;margin-bottom:14px;">Running offline.<br>Data saved locally only.</div>
+        <button class="btn bp" style="width:100%;margin-bottom:8px;" onclick="document.getElementById('userMenuMo').classList.remove('open');showAuthScreen();">◈ LOGIN / REGISTER</button>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">Set up Supabase in Profile > AI Integration first</div>
+      </div>`;
+  }else{
+    const email=currentUser.email;
+    const name=S.playerName||email;
+    const lastSync=S.lastSync?new Date(S.lastSync).toLocaleString():'Never';
+    body.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--crd);border:1px solid var(--brd);border-radius:5px;margin-bottom:14px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--g1) 15%,transparent);border:2px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--g1);">${name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--txb);">${esc(name)}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">${esc(email)}</div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px;">
+            <div class="sync-dot ${isOnline?'':'off'}" style="width:7px;height:7px;"></div>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);">${isOnline?'CLOUD SYNC ACTIVE':'OFFLINE'}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <button class="btn bp" style="width:100%;font-size:10px;" onclick="forceSyncNow()">🔄 SYNC NOW</button>
+        <button class="btn bc" style="width:100%;font-size:10px;" onclick="exportBackup()">⬇ BACKUP DATA</button>
+        <button class="btn bd" style="width:100%;font-size:10px;" onclick="doLogout()">↩ LOGOUT</button>
+      </div>`;
+  }
+  document.getElementById('userMenuMo').classList.add('open');
+}
+
+async function forceSyncNow(){
+  if(!isOnline||!currentUser){showNotif('Not logged in');return;}
+  showNotif('🔄 Syncing...');
+  await saveToCloud();
+  showNotif('✅ Synced to cloud!');
+}
+
+/* ── SUPABASE SQL SETUP ───────────────────────────────────── */
+// Add to SUPABASE_SETUP_SQL — append the auth table DDL
+const AUTH_SETUP_SQL=`
+-- Also run this for user data storage:
+CREATE TABLE IF NOT EXISTS orias_data (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  data jsonb NOT NULL DEFAULT '{}',
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Row Level Security — users can only access their own data
+ALTER TABLE orias_data ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users read own data"   ON orias_data FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users write own data"  ON orias_data FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users update own data" ON orias_data FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users delete own data" ON orias_data FOR DELETE USING (auth.uid() = user_id);
+
+-- Enable realtime for multi-device sync:
+ALTER PUBLICATION supabase_realtime ADD TABLE orias_data;
+`;
+
+/* ── BOOT SEQUENCE ─────────────────────────────────────────── */
+async function bootAuth(){
+  // Init Supabase
+  const sb=initSupabase();
+  if(!sb){
+    // No Supabase configured → skip auth, run offline
+    skipAuthForNow();
+    return;
+  }
+
+  // Check for existing session (returning user)
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session?.user){
+      // Already logged in
+      await onAuthSuccess(session.user);
+      return;
+    }
+  }catch(e){console.warn('[AUTH] getSession failed:',e.message);}
+
+  // Check URL hash for OAuth callback or password reset
+  const hash=window.location.hash;
+  if(hash.includes('access_token')||hash.includes('type=recovery')){
+    try{
+      const {data:{session},error}=await sb.auth.exchangeCodeForSession(window.location.search);
+      if(session?.user){await onAuthSuccess(session.user);return;}
+    }catch(e){}
+  }
+
+  // Not logged in → show auth screen
+  document.getElementById('app').classList.remove('vis');
+  showAuthScreen();
+
+  // Listen for auth state changes
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){
+      if(!currentUser)await onAuthSuccess(session.user);
+    }else if(event==='SIGNED_OUT'){
+      currentUser=null;isOnline=false;
+      updateSyncDot('off');updateNavUser(null);
+    }else if(event==='USER_UPDATED'&&session?.user){
+      currentUser=session.user;updateNavUser(session.user);
+    }
+  });
+}
+
+function init(){
+  // Note: screen display (auth/escreen/app) is handled by bootAuth()
+  // This function only sets up state and renders UI components
   document.getElementById('qStart').value=today();
   // Initialize themed category chip pickers
   const defQCat=getCats('quest')[0]?.name||'Fitness';
@@ -3204,7 +3952,15 @@ function init(){
 
   updateNav();renderQuests();renderRoadmap();
 }
-init();
+
+// Boot: init state then handle auth
+(async()=>{
+  // First init state (loads localStorage)
+  init();
+  // Then handle auth flow
+  await bootAuth();
+})();
+
 </script>
 </body>
 </html>
