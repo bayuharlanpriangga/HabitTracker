@@ -2460,6 +2460,7 @@ function isNodeComplete(node){
 
 // isPredecessorsDone — ALL nodes before idx must be complete
 function isPredecessorsDone(idx, allNodes){
+  if(idx<=0)return true; // first node always unlocked
   for(let i=0;i<idx;i++){
     if(!isNodeComplete(allNodes[i]))return false;
   }
@@ -2467,25 +2468,30 @@ function isPredecessorsDone(idx, allNodes){
 }
 
 // nodeStatus — sequential lock takes HIGHEST priority
-// A node is locked if ANY predecessor is incomplete, regardless of its own state
 function nodeStatus(node, allNodes){
   if(!allNodes)allNodes=S.nodes||[];
   const idx=allNodes.findIndex(n=>n.id===node.id);
+  if(idx<0)return'active'; // node not found, treat as active
 
-  // Sequential lock: FIRST check — predecessors must ALL be done
-  if(idx>0&&!isPredecessorsDone(idx,allNodes))return'locked';
+  // First node is ALWAYS active/done (never locked by predecessors)
+  if(idx===0){
+    if(isNodeComplete(node))return'done';
+    if(S.level<(node.reqLevel||1))return'locked';
+    return'active';
+  }
+
+  // Sequential lock: ALL predecessors must be complete
+  if(!isPredecessorsDone(idx,allNodes))return'locked';
 
   // Level lock
   if(S.level<(node.reqLevel||1))return'locked';
 
-  // Own completion check
+  // Own completion
   if(isNodeComplete(node))return'done';
-
   return'active';
 }
 
-// isNodeInteractable — used to guard clicks (task ticks, complete btn)
-// Must pass BOTH sequential lock and level lock
+// isNodeInteractable
 function isNodeInteractable(node){
   return nodeStatus(node,S.nodes)!=='locked';
 }
@@ -2665,8 +2671,13 @@ function completeNode(node){
     setTimeout(()=>showNotif('🔓 Node '+(idx+2)+' UNLOCKED: '+next.title),2800);
   }
 }
-function delNode(nid){if(!confirm('Delete node?'))return;S.nodes=S.nodes.filter(n=>n.id!==nid);save();renderRoadmap();}
-
+function delNode(nid){
+  if(!confirm('Delete node?'))return;
+  S.nodes=S.nodes.filter(n=>n.id!==nid);
+  // After deletion, re-evaluate: new first node should never be locked by predecessors
+  // No extra logic needed since nodeStatus() uses live index — just save and re-render
+  save();renderRoadmap();showNotif('Node deleted');
+}
 function openNodeModal(){
   document.getElementById('nodeEditId').value='';document.getElementById('nodeMT').textContent='◈ ADD LEARNING NODE';
   document.getElementById('nodeTitle').value='';document.getElementById('nodeDesc').value='';document.getElementById('nodeTasks').value='';
@@ -3685,7 +3696,7 @@ const DB_TABLE = 'orias_data'; // Supabase table name
    4. Paste di bawah, replace teks placeholder
    ────────────────────────────────────────────────────────────*/
 const SUPABASE_URL  = 'https://lzyaeetfqqxvytleycjs.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eWFlZXRmcXF4dnl0bGV5Y2pzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNTc4NDksImV4cCI6MjA5MzczMzg0OX0.CLfisM8z5q4fEqAFqDHDj2z1iXGGvXkj7Tl_EIriaS4';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjYXhkamx5aWp5Znpza2JzaGN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTY5MjYsImV4cCI6MjA5MzI5MjkyNn0.9vJCqtnE9k33BD6oe0AwZW_xvvZa2Dak1BzA-P9FfzE';
 
 /* ── INIT SUPABASE CLIENT ─────────────────────────────────── */
 function initSupabase(){
@@ -4562,12 +4573,11 @@ function init(){
 
   // ── DATA MIGRATION: enforce sequential lock integrity ──────────
   // Resets any node that is marked complete but has an incomplete predecessor.
-  // This fixes data from before the sequential lock system was active.
+  // Skips index 0 — first node is never locked by predecessors.
   if(S.nodes&&S.nodes.length>1){
     let changed=false;
     for(let i=1;i<S.nodes.length;i++){
       const node=S.nodes[i];
-      // If predecessors are not all done, force-reset this node's progress
       if(!isPredecessorsDone(i,S.nodes)){
         if(node.completed||((node.doneTasks||[]).length>0)){
           node.completed=false;
