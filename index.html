@@ -1637,7 +1637,7 @@ function openAttrTest(attrId){
   document.getElementById('testProgFill').style.width='0%';
   document.getElementById('testMact').innerHTML=`<button class="btn bc" onclick="closeAttrTest()">CANCEL</button>`;
   renderTestQ();
-  document.getElementById('attrTestMo').classList.add('open');
+  document.getElementById('attrTestMo').classList.add('open');pushModalState();
 }
 
 function showAttrSelector(){
@@ -1895,7 +1895,7 @@ function openGlobalEditor(){
     </div>
   </div>`;
   document.getElementById('globalEditorInner').innerHTML=html;
-  document.getElementById('globalEditorMo').classList.add('open');
+  document.getElementById('globalEditorMo').classList.add('open');pushModalState();
 }
 function updateGlobalStd(attrId,key,val){
   if(!S.globalStandard)S.globalStandard={};
@@ -2181,7 +2181,7 @@ function openCatManager(type){
   document.getElementById('catNewName').value='';
   document.getElementById('catNewEmoji').value='';
   catSelectedEmoji='⚡';
-  document.getElementById('catManagerMo').classList.add('open');
+  document.getElementById('catManagerMo').classList.add('open');pushModalState();
   setTimeout(()=>document.getElementById('catNewName').focus(),80);
 }
 
@@ -2691,7 +2691,7 @@ function openNodeModal(){
   document.getElementById('nodeAiBadge').textContent='TYPE TO ANALYZE';
   document.getElementById('nodeAiReason').textContent='Enter a node title — the System will determine difficulty and XP reward.';
   document.getElementById('nodeAiIc').textContent=EL[CE].icon;
-  document.getElementById('nodeModal').classList.add('open');
+  document.getElementById('nodeModal').classList.add('open');pushModalState();
   renderCatPicker('node',defCat);
   setTimeout(()=>document.getElementById('nodeTitle').focus(),80);
 }
@@ -2763,7 +2763,7 @@ function openElemPicker(){
       <div class="ep-name">${el.lbl}</div>
       ${k===CE?`<div class="ep-cur-badge">ACTIVE</div>`:''}
     </div>`).join('');
-  document.getElementById('elemPickerMo').classList.add('open');
+  document.getElementById('elemPickerMo').classList.add('open');pushModalState();
 }
 function closeElemPicker(){document.getElementById('elemPickerMo').classList.remove('open');}
 
@@ -2819,7 +2819,7 @@ function showElemConfirm(name){
     confirmBtn.onmouseleave=()=>{confirmBtn.style.background=`rgba(${na},.12)`;confirmBtn.style.boxShadow=`0 0 18px rgba(${na},.3)`;};
   }
 
-  document.getElementById('cfmOvl').style.display='flex';
+  document.getElementById('cfmOvl').style.display='flex';pushModalState();
 }
 function confirmElem(){if(pendElem){applyElem(pendElem);closeCfm();closeElemPicker();updateNav();updateProfile();renderQuests();renderRoadmap();}pendElem=null;}
 function closeCfm(){document.getElementById('cfmOvl').style.display='none';pendElem=null;}
@@ -2920,6 +2920,62 @@ function showLvlUp(){const t=document.getElementById('lvlT');document.getElement
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showNotif(msg){const el=document.getElementById('notif');el.textContent='> '+msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNodeModal();closeElemPicker();closeCfm();closeCatManager();closeAttrTest();document.getElementById('globalEditorMo')?.classList.remove('open');document.getElementById('userMenuMo')?.classList.remove('open');document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}});
+
+/* ── HARDWARE BACK BUTTON (Android) ──────────────────────────
+   Push a dummy history state when any modal/overlay opens.
+   When user presses back, popstate fires → close modal instead
+   of navigating away from the page.
+   ─────────────────────────────────────────────────────────── */
+function pushModalState(){
+  history.pushState({modal:true}, '', window.location.href);
+}
+
+window.addEventListener('popstate', e => {
+  // Check if any modal/overlay is open — if so, close it
+  const cfm = document.getElementById('cfmOvl');
+  const auth = document.getElementById('authScreen');
+  const anyMoOpen = document.querySelector('.mo.open');
+  const cfmOpen = cfm && cfm.style.display !== 'none';
+  const sqlOpen = document.getElementById('sqlViewerMo')?.classList.contains('open');
+
+  if(anyMoOpen){
+    anyMoOpen.classList.remove('open');
+    history.pushState({modal:true}, '', window.location.href); // keep state for next back
+    return;
+  }
+  if(cfmOpen){
+    closeCfm();
+    history.pushState({modal:true}, '', window.location.href);
+    return;
+  }
+  // No modal open → push state again so next back also stays on page
+  // (prevents browser from leaving the SPA)
+  history.pushState({}, '', window.location.href);
+});
+
+// Push initial state so first back press is intercepted
+history.pushState({}, '', window.location.href);
+
+/* ── TAP OUTSIDE TO CLOSE — all .mo modals ───────────────────
+   Each .mo overlay already covers full screen.
+   Click on the overlay background (not the .mbox) → close.
+   ─────────────────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  // Handle .mo overlays — close if click is on the backdrop (not inside .mbox)
+  if(e.target.classList.contains('mo') && e.target.classList.contains('open')){
+    e.target.classList.remove('open');
+  }
+});
+
+// Also make cfmOvl close on backdrop tap (already has onclick but reinforce)
+document.getElementById('cfmOvl')?.addEventListener('click', e => {
+  if(e.target === document.getElementById('cfmOvl')) closeCfm();
+});
+
+// Auth screen: tap outside the auth-box to go offline
+document.getElementById('authScreen')?.addEventListener('click', e => {
+  if(e.target === document.getElementById('authScreen')) skipAuthForNow();
+});
 
 /* ───────────────────────────────────────────────────────────────
    INIT
@@ -3427,7 +3483,7 @@ function renderAccountPanel(){
       <div style="background:rgba(255,200,0,.06);border:1px solid rgba(255,200,0,.2);border-radius:4px;padding:10px 12px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;font-size:8px;color:#ffcc44;line-height:1.8;">
         ⚠ UNTUK DEVELOPER:<br>
         Buka file HTML → cari konstanta:<br>
-        <code style="background:rgba(0,0,0,.3);padding:3px 6px;border-radius:3px;display:block;margin:5px 0;color:var(--tx);">const SUPABASE_URL  = '';<br>const SUPABASE_ANON = '';</code>
+        <code style="background:rgba(0,0,0,.3);padding:3px 6px;border-radius:3px;display:block;margin:5px 0;color:var(--tx);">const SUPABASE_URL  = 'https://lzyaeetfqqxvytleycjs.supabase.co';<br>const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eWFlZXRmcXF4dnl0bGV5Y2pzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNTc4NDksImV4cCI6MjA5MzczMzg0OX0.CLfisM8z5q4fEqAFqDHDj2z1iXGGvXkj7Tl_EIriaS4';</code>
         Isi dengan Project URL dan anon key dari Supabase Dashboard → Settings → API.<br>
         Setelah diisi, semua user langsung bisa login tanpa config apapun.
       </div>an lokal di browser ini saja dan akan hilang jika cache dibersihkan.
@@ -3732,7 +3788,7 @@ function getSBCreds(){
 
 /* ── AUTH SCREEN CONTROL ─────────────────────────────────── */
 function showAuthScreen(){
-  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('authScreen').style.display='flex';pushModalState();
   document.getElementById('authScreen').style.opacity='1';
   // Apply current element theme
   document.body.className = S.element||'void';
@@ -4046,7 +4102,7 @@ function openUserMenu(){
         <button class="btn bd" style="width:100%;font-size:10px;" onclick="doLogout()">↩ LOGOUT</button>
       </div>`;
   }
-  document.getElementById('userMenuMo').classList.add('open');
+  document.getElementById('userMenuMo').classList.add('open');pushModalState();
 }
 
 async function forceSyncNow(){
