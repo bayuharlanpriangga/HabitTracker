@@ -754,6 +754,8 @@ textarea.fi{resize:none;font-size:13px;line-height:1.6;}
       </div>
 
       <div style="display:flex;flex-direction:column;gap:12px;">
+        <!-- Friends & UID -->
+        <div class="box" id="friendsPanel"></div>
         <!-- Achievements -->
         <div class="box">
           <div class="blbl">▶ ACHIEVEMENTS</div>
@@ -1904,9 +1906,7 @@ function updateGlobalStd(attrId,key,val){
   save();
 }
 function resetGlobalStd(){
-  if(!confirm('Reset all global standards to default values?'))return;
-  S.globalStandard={};save();
-  openGlobalEditor();showNotif('Global standard reset to defaults');
+  themedConfirm('Reset all global standards to defaults?',()=>{S.globalStandard={};save();openGlobalEditor();showNotif('Global standard reset to defaults');},null,'RESET','CANCEL',true);
 }
 
 /* ── RENDER ATTRIBUTE CARDS ─────────────────────────────────── */
@@ -2064,6 +2064,7 @@ function updateProfile(){
   renderAccountPanel();
   renderAISettings();
   updateSoundToggle();
+  renderFriendsPanel();
 }
 function updateTrackerStat(){
   const t=today(),due=S.quests.filter(isDue),dn=due.filter(isDone).length;
@@ -2300,8 +2301,8 @@ function editQuest(id){
   renderCatPicker('q', q.category);
   onFreqChange();goPage('tracker');
 }
-function delQuest(id){if(!confirm('Remove this quest?'))return;S.quests=S.quests.filter(q=>q.id!==id);save();renderQuests();refreshAll();}
-function resetPeriod(){if(!confirm('Reset current period?'))return;const t=today();S.quests.forEach(q=>{if(!q.clog)return;const pk=getPK(q.freq||'daily',t);const rem=q.clog.filter(e=>getPK(q.freq||'daily',e.date)===pk);q.clog=q.clog.filter(e=>getPK(q.freq||'daily',e.date)!==pk);rem.forEach(r=>{S.history=S.history.filter(h=>h.hid!==r.hid);});});save();renderQuests();refreshAll();showNotif('Period reset');}
+function delQuest(id){themedConfirm('Remove this quest?',()=>{S.quests=S.quests.filter(q=>q.id!==id);save();renderQuests();refreshAll();},null,'REMOVE','CANCEL',true);}
+function resetPeriod(){themedConfirm('Reset current period? This cannot be undone.',()=>{const t=today();S.quests.forEach(q=>{if(!q.clog)return;const pk=getPK(q.freq||'daily',t);const rem=q.clog.filter(e=>getPK(q.freq||'daily',e.date)===pk);q.clog=q.clog.filter(e=>getPK(q.freq||'daily',e.date)!==pk);rem.forEach(r=>{S.history=S.history.filter(h=>h.hid!==r.hid);});});save();renderQuests();refreshAll();showNotif('Period reset');});}
 
 function toggleQ(id){
   const q=S.quests.find(x=>x.id===id);if(!q)return;
@@ -2443,7 +2444,7 @@ function renderHistory(){
     <td style="font-family:'Share Tech Mono',monospace;color:var(--g1);">+${h.xp}</td>
   </tr>`).join('');
 }
-function clearHistory(){if(!confirm('Clear all history?'))return;S.history=[];S.quests.forEach(q=>{q.clog=[];q.streak=0;});S.xp=0;S.totalXP=0;S.level=1;S.currentStreak=0;save();renderHistory();refreshAll();showNotif('History cleared');}
+function clearHistory(){themedConfirm('Clear ALL history? XP and level will reset.',()=>{S.history=[];S.quests.forEach(q=>{q.clog=[];q.streak=0;});S.xp=0;S.totalXP=0;S.level=1;S.currentStreak=0;save();renderHistory();refreshAll();showNotif('History cleared');},null,'CLEAR','CANCEL',true);}
 
 /* ───────────────────────────────────────────────────────────────
    ROADMAP
@@ -2458,35 +2459,47 @@ function isNodeComplete(node){
   return false;
 }
 
-// isPredecessorsDone — ALL nodes before idx must be complete
+// isPredecessorsDone — ALL nodes before idx must be complete OR not exist
 function isPredecessorsDone(idx, allNodes){
   if(idx<=0)return true; // first node always unlocked
   for(let i=0;i<idx;i++){
-    if(!isNodeComplete(allNodes[i]))return false;
+    const pred=allNodes[i];
+    // If predecessor has tasks → must be completed
+    // If predecessor has NO tasks and no reqLevel > current → treat as passable
+    if(!isNodeComplete(pred))return false;
   }
   return true;
 }
 
-// nodeStatus — sequential lock takes HIGHEST priority
+// nodeStatus — clear priority: index=0 always unlocked, then sequential
 function nodeStatus(node, allNodes){
   if(!allNodes)allNodes=S.nodes||[];
   const idx=allNodes.findIndex(n=>n.id===node.id);
-  if(idx<0)return'active'; // node not found, treat as active
+  if(idx<0)return'active';
 
-  // First node is ALWAYS active/done (never locked by predecessors)
+  // First node (idx=0): never locked by predecessors
   if(idx===0){
     if(isNodeComplete(node))return'done';
     if(S.level<(node.reqLevel||1))return'locked';
     return'active';
   }
 
-  // Sequential lock: ALL predecessors must be complete
-  if(!isPredecessorsDone(idx,allNodes))return'locked';
+  // Sequential: check predecessors — but SKIP predecessor if it has 0 tasks
+  // This means: if user deleted all tasks from a predecessor OR predecessor was deleted
+  // and the node became closer to front, it unlocks
+  let locked=false;
+  for(let i=0;i<idx;i++){
+    const pred=allNodes[i];
+    const predTasks=pred.tasks||[];
+    // Predecessor with tasks must be completed
+    if(predTasks.length>0 && !isNodeComplete(pred)){locked=true;break;}
+    // Predecessor with 0 tasks is considered passable (no requirement)
+  }
+  if(locked)return'locked';
 
-  // Level lock
-  if(S.level<(node.reqLevel||1))return'locked';
+  // Level lock (only if reqLevel > 1, don't lock on default)
+  if((node.reqLevel||1)>1 && S.level<node.reqLevel)return'locked';
 
-  // Own completion
   if(isNodeComplete(node))return'done';
   return'active';
 }
@@ -2672,11 +2685,7 @@ function completeNode(node){
   }
 }
 function delNode(nid){
-  if(!confirm('Delete node?'))return;
-  S.nodes=S.nodes.filter(n=>n.id!==nid);
-  // After deletion, re-evaluate: new first node should never be locked by predecessors
-  // No extra logic needed since nodeStatus() uses live index — just save and re-render
-  save();renderRoadmap();showNotif('Node deleted');
+  themedConfirm('Delete this node?',()=>{S.nodes=S.nodes.filter(n=>n.id!==nid);save();renderRoadmap();showNotif('Node deleted');},null,'DELETE','CANCEL',true);
 }
 function openNodeModal(){
   document.getElementById('nodeEditId').value='';document.getElementById('nodeMT').textContent='◈ ADD LEARNING NODE';
@@ -3719,7 +3728,7 @@ function showLongNotif(msg){
 
 function exportBackup(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`OriasBackup_${today()}.json`;a.click();showNotif('Backup exported!');}
 function importData(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.quests&&d.history){S=d;save();init();showNotif('Backup imported!');}else showNotif('Invalid file');}catch{showNotif('Import failed');}};r.readAsText(f);};inp.click();}
-function resetAll(){if(!confirm('RESET ALL DATA? Cannot be undone!'))return;if(!confirm('Are you absolutely sure?'))return;const el=S.element||'void';S=defS();S.element=el;save();init();showNotif('Reset complete');}
+function resetAll(){themedConfirm('⚠ RESET ALL DATA? This cannot be undone!',()=>{themedConfirm('Are you absolutely sure? All progress will be lost.',()=>{const el=S.element||'void';S=defS();S.element=el;save();init();showNotif('Reset complete');},null,'YES, RESET','CANCEL',true);},null,'RESET','CANCEL',true);}
 // defS defined above
 
 /* ═══════════════════════════════════════════════════════════════
@@ -3756,18 +3765,27 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 /* ── INIT SUPABASE CLIENT ─────────────────────────────────── */
 function initSupabase(){
-  // Priority: hardcoded constants → localStorage override (for dev testing)
   const cfg = getAICfg();
   const url  = SUPABASE_URL  || cfg.supabaseUrl  || '';
   const anon = SUPABASE_ANON || cfg.supabaseAnonKey || '';
 
   if(!url || !anon) return null;
+
+  // Basic JWT format validation — prevent SDK from throwing on bad key
+  const parts = anon.split('.');
+  if(parts.length !== 3){
+    console.warn('[AUTH] Anon key is not valid JWT format');
+    return null;
+  }
+
   try{
     SB = window.supabase?.createClient(url, anon, {
       auth:{
         autoRefreshToken:true,
         persistSession:true,
-        detectSessionInUrl:true
+        detectSessionInUrl:true,
+        // Suppress automatic error toasts from SDK
+        debug: false
       }
     });
     return SB;
@@ -3780,10 +3798,19 @@ function initSupabase(){
 // Helper: get effective Supabase credentials (hardcoded or from localStorage)
 function getSBCreds(){
   const cfg = getAICfg();
-  return {
-    url:  SUPABASE_URL  || cfg.supabaseUrl  || '',
-    anon: SUPABASE_ANON || cfg.supabaseAnonKey || ''
-  };
+  // Hardcoded always wins over localStorage
+  const url  = SUPABASE_URL  || cfg.supabaseUrl  || '';
+  const anon = SUPABASE_ANON || cfg.supabaseAnonKey || '';
+
+  // If hardcoded is set, also update localStorage to keep consistent
+  if(SUPABASE_URL && SUPABASE_ANON){
+    const existing = getAICfg();
+    if(existing.supabaseUrl !== SUPABASE_URL || existing.supabaseAnonKey !== SUPABASE_ANON){
+      saveAICfg({...existing, supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON});
+    }
+  }
+
+  return {url, anon};
 }
 
 /* ── AUTH SCREEN CONTROL ─────────────────────────────────── */
@@ -3931,12 +3958,14 @@ function skipAuthForNow(){
 
 function friendlyAuthError(msg){
   if(!msg)return'Unknown error';
-  if(msg.includes('Invalid login'))return'Wrong email or password.';
-  if(msg.includes('Email not confirmed'))return'Please confirm your email first.';
-  if(msg.includes('User already'))return'Email already registered.';
-  if(msg.includes('Password'))return'Password too weak (min 6 chars).';
-  if(msg.includes('rate limit'))return'Too many attempts. Wait a moment.';
-  if(msg.includes('network'))return'Network error. Check connection.';
+  if(msg.includes('Invalid API key'))return'Supabase key tidak valid. Coba refresh halaman.';
+  if(msg.includes('Invalid login'))return'Email atau password salah.';
+  if(msg.includes('Email not confirmed'))return'Konfirmasi email dulu sebelum login.';
+  if(msg.includes('User already'))return'Email sudah terdaftar. Silakan login.';
+  if(msg.includes('Password'))return'Password terlalu lemah (min 6 karakter).';
+  if(msg.includes('rate limit'))return'Terlalu banyak percobaan. Tunggu sebentar.';
+  if(msg.includes('network')||msg.includes('fetch'))return'Error jaringan. Cek koneksi internet.';
+  if(msg.includes('signup'))return'Registrasi dinonaktifkan. Hubungi admin.';
   return msg.replace('AuthApiError: ','').substring(0,120);
 }
 
@@ -4117,36 +4146,60 @@ const AUTH_SETUP_SQL='';
 
 /* ── BOOT SEQUENCE ─────────────────────────────────────────── */
 async function bootAuth(){
-  // Init Supabase
   const sb=initSupabase();
   if(!sb){
-    // No Supabase configured → skip auth, run offline
     skipAuthForNow();
     return;
   }
 
-  // Check for existing session (returning user)
+  // Test if the key actually works before showing login screen
   try{
-    const {data:{session}}=await sb.auth.getSession();
+    const {data:{session}, error}=await sb.auth.getSession();
+
+    // If we get an auth error at this stage, key is wrong
+    if(error){
+      console.warn('[AUTH] getSession error:', error.message);
+      // Show auth screen but with a helpful message, not a blocking error
+      document.getElementById('app').classList.remove('vis');
+      showAuthScreen();
+      // Don't show authErr here — let user try to login
+      return;
+    }
+
     if(session?.user){
-      // Already logged in
       await onAuthSuccess(session.user);
       return;
     }
-  }catch(e){console.warn('[AUTH] getSession failed:',e.message);}
+  }catch(e){
+    console.warn('[AUTH] getSession failed:',e.message);
+    // Network error or bad key — still show auth screen
+  }
 
-  // Check URL hash for OAuth callback or password reset
+  // Check URL hash for OAuth callback
   const hash=window.location.hash;
   if(hash.includes('access_token')||hash.includes('type=recovery')){
     try{
-      const {data:{session},error}=await sb.auth.exchangeCodeForSession(window.location.search);
+      const {data:{session}}=await sb.auth.exchangeCodeForSession(window.location.search);
       if(session?.user){await onAuthSuccess(session.user);return;}
     }catch(e){}
   }
 
-  // Not logged in → show auth screen
+  // Show auth screen
   document.getElementById('app').classList.remove('vis');
   showAuthScreen();
+
+  // Listen for auth state changes
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){
+      if(!currentUser)await onAuthSuccess(session.user);
+    }else if(event==='SIGNED_OUT'){
+      currentUser=null;isOnline=false;
+      updateSyncDot('off');updateNavUser(null);
+    }else if(event==='USER_UPDATED'&&session?.user){
+      currentUser=session.user;updateNavUser(session.user);
+    }
+  });
+}
 
   // Listen for auth state changes
   sb.auth.onAuthStateChange(async(event,session)=>{
@@ -4435,7 +4488,7 @@ function renderLeaderboard(){
     el.innerHTML=data.map((d,i)=>{
       const rank=getRankFromXP(d.totalXP||0);
       const isMe=d.playerName===S.playerName&&d.totalXP===S.totalXP;
-      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${isMe?'color-mix(in srgb,var(--g1) 10%,transparent)':'var(--crd)'};border:1px solid ${isMe?'var(--g1)':'var(--brd)'};border-radius:4px;margin-bottom:5px;">
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${isMe?'color-mix(in srgb,var(--g1) 10%,transparent)':'var(--crd)'};border:1px solid ${isMe?'var(--g1)':'var(--brd)'};border-radius:4px;margin-bottom:5px;cursor:pointer;transition:all .2s;" onclick="openProfileViewer(${JSON.stringify(d).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')},'')">
         <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:${i<3?['#ffd700','#c0c0c0','#cd7f32'][i]:'var(--txd)'};width:24px;text-align:center;">${i+1}</div>
         <div style="font-size:18px;">${d.avatar||'👤'}</div>
         <div style="flex:1;min-width:0;">
@@ -4537,6 +4590,195 @@ function renderInventory(){
 function earnCoins(amount){
   S.gachaCoins=(S.gachaCoins||0)+amount;save();
   if(amount>0)showNotif(`🪙 +${amount} coins`);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   👥 UID + FRIENDS + PROFILE VIEWER SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+
+// Generate short UID from Supabase user id (first 8 chars uppercase)
+function getUserUID(userId){
+  if(!userId)return'OFFLINE';
+  return userId.replace(/-/g,'').substring(0,8).toUpperCase();
+}
+
+// Get or create local UID display
+function getMyUID(){
+  if(currentUser)return getUserUID(currentUser.id);
+  return localStorage.getItem('orias_uid')||generateOfflineUID();
+}
+function generateOfflineUID(){
+  const uid='OFX'+Math.random().toString(36).substring(2,7).toUpperCase();
+  localStorage.setItem('orias_uid',uid);return uid;
+}
+
+/* ── FRIENDS SYSTEM ─────────────────────────────────────────── */
+// Send friend request by UID
+async function sendFriendRequest(targetUID){
+  if(!SB||!currentUser){showNotif('Login required');return;}
+  const myUID=getMyUID();
+  if(targetUID===myUID){showNotif('Cannot add yourself');return;}
+  try{
+    // Search for user with this UID (first 8 chars of user_id without dashes)
+    const {data,error}=await SB
+      .from('orias_data')
+      .select('user_id,data')
+      .limit(100);
+    if(error)throw error;
+    const target=data?.find(r=>{
+      const uid=r.user_id.replace(/-/g,'').substring(0,8).toUpperCase();
+      return uid===targetUID.toUpperCase();
+    });
+    if(!target){showNotif('⚠ User not found: '+targetUID);return;}
+    // Add to friend requests in our own data
+    if(!S.friends)S.friends={sent:[],received:[],accepted:[]};
+    if(S.friends.accepted.includes(target.user_id)){showNotif('Already friends!');return;}
+    if(S.friends.sent.includes(target.user_id)){showNotif('Request already sent');return;}
+    S.friends.sent.push(target.user_id);
+    // Store friend request in target's data (we need to write to a requests table)
+    // For simplicity: store pending requests in our local data, sync via Supabase
+    save();
+    showNotif('✅ Friend request sent to '+( target.data?.playerName||targetUID));
+  }catch(e){showNotif('Error: '+e.message);}
+}
+
+async function fetchFriendProfiles(){
+  if(!SB||!S.friends?.accepted?.length)return[];
+  try{
+    const {data}=await SB.from('orias_data').select('user_id,data')
+      .in('user_id',S.friends.accepted);
+    return data||[];
+  }catch(e){return[];}
+}
+
+/* ── PUBLIC PROFILE VIEWER ──────────────────────────────────── */
+function openProfileViewer(userData, userId){
+  const d=userData;
+  if(!d)return;
+  const uid=getUserUID(userId);
+  const rank=getRankFromXP(d.totalXP||0);
+  const el=EL[d.element||'void'];
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.9);display:flex;align-items:flex-end;justify-content:center;padding:14px;backdrop-filter:blur(8px);';
+  ov.innerHTML=`<div style="background:var(--pnl);border:1px solid var(--brdh);border-radius:12px 12px 0 0;padding:22px 18px;width:100%;max-width:440px;position:relative;overflow:hidden;max-height:80vh;overflow-y:auto;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g1),var(--g2));"></div>
+    <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:34px;height:3px;background:var(--brd);border-radius:2px;"></div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:14px;margin-top:10px;margin-bottom:16px;">
+      <div style="width:60px;height:60px;border-radius:10px;background:var(--crd);border:2px solid var(--brdh);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">${d.avatar||el.av}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--txb);">${esc(d.playerName||'Hunter')}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);letter-spacing:2px;margin-top:2px;">${el.icon} ${el.lbl} PATH</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);margin-top:2px;">UID: ${uid}</div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:var(--g1);border:1.5px solid var(--g1);padding:4px 8px;border-radius:4px;">${rank}</div>
+    </div>
+
+    <!-- Stats grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;">
+      ${[['LEVEL',d.level||1],['TOTAL XP',(d.totalXP||0).toLocaleString()],['STREAK',d.currentStreak||0],['QUESTS',d.quests?.length||0],['DONE',d.history?.length||0],['MAX STR',d.maxStreak||0]].map(([l,v])=>`
+        <div style="background:var(--crd);border:1px solid var(--brd);border-radius:4px;padding:8px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);letter-spacing:1px;margin-bottom:4px;">${l}</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--g1);">${v}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Titles -->
+    ${d.titles?.length?`<div style="margin-bottom:12px;"><div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);letter-spacing:2px;margin-bottom:6px;">TITLES</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${d.titles.map(t=>`<span style="background:color-mix(in srgb,var(--g1) 10%,transparent);border:1px solid var(--g1);border-radius:3px;padding:3px 8px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--g1);">${t}</span>`).join('')}</div></div>`:''}
+
+    <div style="display:flex;gap:8px;">
+      ${currentUser&&userId!==currentUser.id?`<button onclick="sendFriendRequest('${uid}')" style="flex:1;padding:10px;background:color-mix(in srgb,var(--g1) 12%,transparent);border:1px solid var(--g1);border-radius:4px;color:var(--g1);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;">➕ ADD FRIEND</button>`:''}
+      <button onclick="this.closest('[style*="position:fixed"]').remove()" style="flex:1;padding:10px;background:transparent;border:1px solid var(--brd);border-radius:4px;color:var(--txd);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;">CLOSE</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+}
+
+/* ── FRIENDS PANEL (rendered in Profile page) ─────────────── */
+function renderFriendsPanel(){
+  const el=document.getElementById('friendsPanel');
+  if(!el)return;
+  const myUID=getMyUID();
+  el.innerHTML=`
+    <div class="blbl" style="margin-bottom:10px;">▶ FRIENDS & UID</div>
+
+    <!-- My UID -->
+    <div style="background:color-mix(in srgb,var(--g1) 8%,transparent);border:1px solid color-mix(in srgb,var(--g1) 25%,transparent);border-radius:5px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--txd);letter-spacing:3px;margin-bottom:3px;">MY HUNTER ID</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--g1);letter-spacing:3px;">${myUID}</div>
+      </div>
+      <button onclick="copyUID()" style="margin-left:auto;background:transparent;border:1px solid var(--brd);border-radius:4px;padding:6px 10px;color:var(--txd);font-family:'Share Tech Mono',monospace;font-size:8px;cursor:pointer;letter-spacing:1px;-webkit-tap-highlight-color:transparent;">COPY</button>
+    </div>
+
+    <!-- Add friend -->
+    <div style="display:flex;gap:7px;margin-bottom:12px;">
+      <input class="fi" id="addFriendInput" placeholder="Enter friend's UID..." maxlength="8" style="flex:1;text-transform:uppercase;letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()"/>
+      <button class="btn bp" style="font-size:10px;padding:8px 12px;" onclick="addFriendByUID()">➕ ADD</button>
+    </div>
+
+    <!-- Friends list -->
+    <div id="friendsList" style="display:flex;flex-direction:column;gap:6px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);text-align:center;padding:16px;">${currentUser?'Loading friends...':'Login to see friends'}</div>
+    </div>`;
+
+  if(currentUser)loadFriendsList();
+}
+
+function copyUID(){
+  const uid=getMyUID();
+  navigator.clipboard?.writeText(uid).then(()=>showNotif('✅ UID copied: '+uid)).catch(()=>showNotif('UID: '+uid));
+}
+
+function addFriendByUID(){
+  const uid=document.getElementById('addFriendInput')?.value.trim().toUpperCase();
+  if(!uid||uid.length<6){showNotif('⚠ Enter valid UID (8 chars)');return;}
+  sendFriendRequest(uid);
+}
+
+async function loadFriendsList(){
+  const el=document.getElementById('friendsList');
+  if(!el)return;
+  const friends=await fetchFriendProfiles();
+  if(!friends.length){
+    el.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--txd);text-align:center;padding:16px;line-height:2;">No friends yet.<br>Share your UID to connect!</div>`;
+    return;
+  }
+  el.innerHTML=friends.map(f=>{
+    const d=f.data;
+    const uid=getUserUID(f.user_id);
+    const r=getRankFromXP(d?.totalXP||0);
+    return`<div style="display:flex;align-items:center;gap:10px;background:var(--crd);border:1px solid var(--brd);border-radius:5px;padding:9px 11px;cursor:pointer;transition:all .2s;" onclick="openProfileViewer(${JSON.stringify(d).replace(/"/g,'&quot;')},'${f.user_id}')">
+      <div style="font-size:20px;">${d?.avatar||'👤'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--txb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(d?.playerName||'Hunter')}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--txd);">Lv.${d?.level||1} · ${d?.element||'void'} · UID:${uid}</div>
+      </div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:var(--g1);border:1px solid var(--g1);padding:2px 6px;border-radius:3px;">${r}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── THEMED CONFIRM DIALOG (replaces native confirm()) ───────── */
+function themedConfirm(msg, onYes, onNo=null, yesLabel='CONFIRM', noLabel='CANCEL', danger=false){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9995;background:rgba(0,0,0,.88);display:flex;align-items:flex-end;justify-content:center;padding:14px;backdrop-filter:blur(6px);';
+  ov.innerHTML=`<div style="background:var(--pnl);border:1px solid var(--brdh);border-radius:12px 12px 0 0;padding:22px 18px;width:100%;max-width:440px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g1),var(--g2));"></div>
+    <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:34px;height:3px;background:var(--brd);border-radius:2px;"></div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--tx);line-height:1.6;margin-top:10px;margin-bottom:18px;">${msg}</div>
+    <div style="display:flex;gap:10px;">
+      <button id="tcNo" style="flex:1;padding:12px;background:transparent;border:1px solid var(--brd);border-radius:4px;color:var(--txd);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">${noLabel}</button>
+      <button id="tcYes" style="flex:1;padding:12px;background:${danger?'rgba(255,40,80,.12)':'color-mix(in srgb,var(--g1) 12%,transparent)'};border:1.5px solid ${danger?'#ff2850':'var(--g1)'};border-radius:4px;color:${danger?'#ff2850':'var(--g1)'};font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">${yesLabel}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('#tcYes').onclick=()=>{close();onYes&&onYes();};
+  ov.querySelector('#tcNo').onclick=()=>{close();onNo&&onNo();};
+  ov.onclick=e=>{if(e.target===ov){close();onNo&&onNo();}};
 }
 
 function renderGameHub(){
