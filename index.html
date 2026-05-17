@@ -2451,7 +2451,7 @@ function clearHistory(){themedConfirm('Clear ALL history? XP and level will rese
    ─────────────────────────────────────────────────────────────── */
 
 // isNodeComplete — true only when ALL tasks ticked OR marked done
-// Note: does NOT check predecessors — that's nodeStatus's job
+// isNodeComplete — true only if all tasks done OR marked complete
 function isNodeComplete(node){
   if(node.completed)return true;
   const tasks=node.tasks||[];
@@ -2459,47 +2459,34 @@ function isNodeComplete(node){
   return false;
 }
 
-// isPredecessorsDone — ALL nodes before idx must be complete OR not exist
-function isPredecessorsDone(idx, allNodes){
-  if(idx<=0)return true; // first node always unlocked
-  for(let i=0;i<idx;i++){
-    const pred=allNodes[i];
-    // If predecessor has tasks → must be completed
-    // If predecessor has NO tasks and no reqLevel > current → treat as passable
-    if(!isNodeComplete(pred))return false;
-  }
-  return true;
+// isNodePassable — a node is passable (doesn't block next) when:
+// 1. It's complete, OR
+// 2. It has 0 tasks (empty node), OR
+// 3. It no longer exists (already deleted — handled by array shrinking)
+function isNodePassable(node){
+  if(isNodeComplete(node))return true;
+  if((node.tasks||[]).length===0)return true;
+  return false;
 }
 
-// nodeStatus — clear priority: index=0 always unlocked, then sequential
+// nodeStatus — ONLY sequential passability matters, reqLevel is advisory only
 function nodeStatus(node, allNodes){
   if(!allNodes)allNodes=S.nodes||[];
   const idx=allNodes.findIndex(n=>n.id===node.id);
   if(idx<0)return'active';
 
-  // First node (idx=0): never locked by predecessors
+  // Index 0 → always active (no predecessors)
   if(idx===0){
     if(isNodeComplete(node))return'done';
-    if(S.level<(node.reqLevel||1))return'locked';
-    return'active';
+    return'active'; // ignore reqLevel for first node
   }
 
-  // Sequential: check predecessors — but SKIP predecessor if it has 0 tasks
-  // This means: if user deleted all tasks from a predecessor OR predecessor was deleted
-  // and the node became closer to front, it unlocks
-  let locked=false;
+  // Check ALL predecessors — each must be passable
   for(let i=0;i<idx;i++){
-    const pred=allNodes[i];
-    const predTasks=pred.tasks||[];
-    // Predecessor with tasks must be completed
-    if(predTasks.length>0 && !isNodeComplete(pred)){locked=true;break;}
-    // Predecessor with 0 tasks is considered passable (no requirement)
+    if(!isNodePassable(allNodes[i]))return'locked';
   }
-  if(locked)return'locked';
 
-  // Level lock (only if reqLevel > 1, don't lock on default)
-  if((node.reqLevel||1)>1 && S.level<node.reqLevel)return'locked';
-
+  // All predecessors passable → this node is unlocked
   if(isNodeComplete(node))return'done';
   return'active';
 }
@@ -2556,15 +2543,12 @@ function renderRoadmap(){
     let blockedBy='';
     if(st==='locked'){
       for(let i=0;i<realIdx;i++){
-        if(!isNodeComplete(nodes[i])){
+        if(!isNodePassable(nodes[i])){
           const bt=nodes[i].tasks||[];const bd=nodes[i].doneTasks||[];
           const brem=bt.length-bd.length;
           blockedBy=`Complete Node ${i+1}: "${nodes[i].title}" first (${brem} task${brem!==1?'s':''} remaining)`;
           break;
         }
-      }
-      if(!blockedBy&&S.level<(node.reqLevel||1)){
-        blockedBy=`Reach Level ${node.reqLevel} first (you are Level ${S.level})`;
       }
     }
 
@@ -2630,7 +2614,7 @@ function renderRoadmap(){
             ${st!=='locked'?`<button class="ib d" style="margin-left:auto;" onclick="delNode('${node.id}')">✕</button>`:''}
           </div>
 
-          ${(node.reqLevel||1)>1?`<div class="rm-req" style="${st==='locked'?'opacity:.4':''}">Required Level: <span class="hi">${node.reqLevel}</span>${S.level<node.reqLevel?' (you are Level '+S.level+')':' ✓'}</div>`:''}
+          ${(node.reqLevel||1)>1?`<div class="rm-req">Recommended Level: <span class="hi">${node.reqLevel}</span>${S.level>=node.reqLevel?' ✓':' (advisory only — not required to unlock)'}</div>`:''}
         </div>
       </div>
     </div>`;
@@ -4200,20 +4184,6 @@ async function bootAuth(){
     }
   });
 }
-
-  // Listen for auth state changes
-  sb.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_IN'&&session?.user){
-      if(!currentUser)await onAuthSuccess(session.user);
-    }else if(event==='SIGNED_OUT'){
-      currentUser=null;isOnline=false;
-      updateSyncDot('off');updateNavUser(null);
-    }else if(event==='USER_UPDATED'&&session?.user){
-      currentUser=session.user;updateNavUser(session.user);
-    }
-  });
-}
-
 /* ═══════════════════════════════════════════════════════════════
    🎮 GAME SYSTEMS v2 — Combat, Social, Rewards, Progression, Sound
    ═══════════════════════════════════════════════════════════════ */
@@ -4872,16 +4842,24 @@ function init(){
   // ── DATA MIGRATION: enforce sequential lock integrity ──────────
   // Resets any node that is marked complete but has an incomplete predecessor.
   // Skips index 0 — first node is never locked by predecessors.
+  // Data migration: re-evaluate all node lock states on load
+  // No longer resets progress — just ensures renderRoadmap will show correct state
+  // (nodeStatus() is now purely computed, not stored)
+  // Only reset nodes that were locked by a predecessor that still exists with tasks
   if(S.nodes&&S.nodes.length>1){
     let changed=false;
     for(let i=1;i<S.nodes.length;i++){
       const node=S.nodes[i];
-      if(!isPredecessorsDone(i,S.nodes)){
-        if(node.completed||((node.doneTasks||[]).length>0)){
-          node.completed=false;
-          node.doneTasks=[];
-          changed=true;
-        }
+      // If all predecessors are passable but node was marked completed
+      // without tasks being done, that's fine - keep it
+      // Only reset if node has incomplete predecessors AND was marked done incorrectly
+      let hasBlocker=false;
+      for(let j=0;j<i;j++){
+        if(!isNodePassable(S.nodes[j])){hasBlocker=true;break;}
+      }
+      if(hasBlocker && node.completed && !((node.doneTasks||[]).length>=(node.tasks||[]).length)){
+        node.completed=false;
+        changed=true;
       }
     }
     if(changed)save();
@@ -4902,8 +4880,8 @@ function init(){
   if(!S.nodes)S.nodes=[];
   if(!S.nodes.length){
     [{title:'Programming Fundamentals',category:'Programming',desc:'Build a solid foundation with core programming concepts.',tasks:['Learn variables, data types, and operators','Understand control flow (if/else, loops)','Practice functions and scope','Build a small calculator project','Complete 10 beginner exercises'],rank:'C',xp:150,reqLevel:1,estDays:14},
-     {title:'Learn JavaScript & DOM',category:'Programming',desc:'Master JavaScript for web interactivity.',tasks:['Study JS syntax and ES6+ features','Understand DOM manipulation','Build interactive web components','Learn fetch API and Promises','Create a small web app'],rank:'B',xp:300,reqLevel:2,estDays:21},
-     {title:'Build a Full-Stack Project',category:'Programming',desc:'Apply everything to build and deploy a complete application.',tasks:['Design system architecture','Build backend REST API','Create responsive frontend','Write tests','Deploy to cloud','Write documentation'],rank:'A',xp:500,reqLevel:5,estDays:30},
+     {title:'Learn JavaScript & DOM',category:'Programming',desc:'Master JavaScript for web interactivity.',tasks:['Study JS syntax and ES6+ features','Understand DOM manipulation','Build interactive web components','Learn fetch API and Promises','Create a small web app'],rank:'B',xp:300,reqLevel:1,estDays:21},
+     {title:'Build a Full-Stack Project',category:'Programming',desc:'Apply everything to build and deploy a complete application.',tasks:['Design system architecture','Build backend REST API','Create responsive frontend','Write tests','Deploy to cloud','Write documentation'],rank:'A',xp:500,reqLevel:1,estDays:30},
     ].forEach(n=>S.nodes.push({...n,id:'n_'+Math.random().toString(36).slice(2),doneTasks:[],completed:false,createdAt:today()}));
     save();
   }
